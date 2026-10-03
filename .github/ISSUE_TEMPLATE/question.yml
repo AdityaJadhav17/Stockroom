@@ -1,0 +1,17 @@
+name: Setup or usage question
+description: Ask about the documented setup or planned workflow.
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Include the document or workflow you need help with.
+    validations:
+      required: true
+  - type: textarea
+    id: attempts
+    attributes:
+      label: Steps attempted
+      description: Include your SDK version and relevant errors without credentials.
+    validations:
+      required: true

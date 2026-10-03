@@ -1,0 +1,39 @@
+name: Bug report
+description: Report a reproducible defect or setup failure.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: "For vulnerabilities, use SECURITY.md and contact the maintainer in private. Remove credentials from logs."
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include operating system, SDK version, and commit.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Include the command or workflow and starting dataset.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: Include error output without credentials or personal data.
+    validations:
+      required: true
+  - type: input
+    id: story
+    attributes:
+      label: Related story or test
+      placeholder: US-05 or T-09

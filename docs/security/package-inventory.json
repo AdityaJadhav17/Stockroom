@@ -1,0 +1,510 @@
+{
+  "version": 1,
+  "parameters": "--include-transitive",
+  "projects": [
+    {
+      "path": "tests/e2e/MakerspaceLedger.E2ETests.csproj",
+      "frameworks": [
+        {
+          "framework": "net10.0",
+          "topLevelPackages": [
+            {
+              "id": "Microsoft.NET.Test.Sdk",
+              "requestedVersion": "18.10.1",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "Microsoft.Playwright.Xunit.v3",
+              "requestedVersion": "1.63.0",
+              "resolvedVersion": "1.63.0"
+            },
+            {
+              "id": "xunit.runner.visualstudio",
+              "requestedVersion": "4.0.0",
+              "resolvedVersion": "4.0.0"
+            },
+            {
+              "id": "xunit.v3",
+              "requestedVersion": "4.0.1",
+              "resolvedVersion": "4.0.1"
+            }
+          ],
+          "transitivePackages": [
+            {
+              "id": "Microsoft.ApplicationInsights",
+              "resolvedVersion": "2.23.0"
+            },
+            {
+              "id": "Microsoft.Bcl.AsyncInterfaces",
+              "resolvedVersion": "6.0.0"
+            },
+            {
+              "id": "Microsoft.CodeCoverage",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "Microsoft.Playwright",
+              "resolvedVersion": "1.63.0"
+            },
+            {
+              "id": "Microsoft.Playwright.TestAdapter",
+              "resolvedVersion": "1.63.0"
+            },
+            {
+              "id": "Microsoft.Testing.Extensions.Telemetry",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.Testing.Extensions.TrxReport.Abstractions",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.Testing.Platform",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.Testing.Platform.MSBuild",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.TestPlatform.ObjectModel",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "Microsoft.TestPlatform.TestHost",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "Microsoft.Win32.Registry",
+              "resolvedVersion": "5.0.0"
+            },
+            {
+              "id": "System.ComponentModel.Annotations",
+              "resolvedVersion": "5.0.0"
+            },
+            {
+              "id": "System.Security.AccessControl",
+              "resolvedVersion": "6.0.1"
+            },
+            {
+              "id": "xunit.analyzers",
+              "resolvedVersion": "2.1.0"
+            },
+            {
+              "id": "xunit.v3.assert",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.common",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.core.mtp-v2",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.extensibility.core",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.mtp-v2",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.runner.common",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.runner.inproc.console",
+              "resolvedVersion": "4.0.1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/integration/MakerspaceLedger.IntegrationTests.csproj",
+      "frameworks": [
+        {
+          "framework": "net10.0",
+          "topLevelPackages": [
+            {
+              "id": "Microsoft.AspNetCore.Mvc.Testing",
+              "requestedVersion": "10.0.12",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Sqlite",
+              "requestedVersion": "10.0.12",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.NET.Test.Sdk",
+              "requestedVersion": "18.10.1",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "xunit.runner.visualstudio",
+              "requestedVersion": "4.0.0",
+              "resolvedVersion": "4.0.0"
+            },
+            {
+              "id": "xunit.v3",
+              "requestedVersion": "4.0.1",
+              "resolvedVersion": "4.0.1"
+            }
+          ],
+          "transitivePackages": [
+            {
+              "id": "Microsoft.ApplicationInsights",
+              "resolvedVersion": "2.23.0"
+            },
+            {
+              "id": "Microsoft.AspNetCore.TestHost",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Bcl.AsyncInterfaces",
+              "resolvedVersion": "6.0.0"
+            },
+            {
+              "id": "Microsoft.CodeCoverage",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "Microsoft.Data.Sqlite.Core",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Abstractions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Analyzers",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Relational",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Sqlite.Core",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Caching.Abstractions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Caching.Memory",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Configuration",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Configuration.Abstractions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Configuration.Binder",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Configuration.CommandLine",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Configuration.EnvironmentVariables",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Configuration.FileExtensions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Configuration.Json",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Configuration.UserSecrets",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.DependencyInjection",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.DependencyInjection.Abstractions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.DependencyModel",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Diagnostics",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Diagnostics.Abstractions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.FileProviders.Abstractions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.FileProviders.Physical",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.FileSystemGlobbing",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Hosting",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Hosting.Abstractions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Logging",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Logging.Abstractions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Logging.Configuration",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Logging.Console",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Logging.Debug",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Logging.EventLog",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Logging.EventSource",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Options",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Options.ConfigurationExtensions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Primitives",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Testing.Extensions.Telemetry",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.Testing.Extensions.TrxReport.Abstractions",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.Testing.Platform",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.Testing.Platform.MSBuild",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.TestPlatform.ObjectModel",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "Microsoft.TestPlatform.TestHost",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "Microsoft.Win32.Registry",
+              "resolvedVersion": "5.0.0"
+            },
+            {
+              "id": "SQLitePCLRaw.bundle_e_sqlite3",
+              "resolvedVersion": "2.1.12"
+            },
+            {
+              "id": "SQLitePCLRaw.core",
+              "resolvedVersion": "2.1.12"
+            },
+            {
+              "id": "SQLitePCLRaw.lib.e_sqlite3",
+              "resolvedVersion": "2.1.12"
+            },
+            {
+              "id": "SQLitePCLRaw.provider.e_sqlite3",
+              "resolvedVersion": "2.1.12"
+            },
+            {
+              "id": "System.Diagnostics.EventLog",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "System.Security.AccessControl",
+              "resolvedVersion": "6.0.1"
+            },
+            {
+              "id": "xunit.analyzers",
+              "resolvedVersion": "2.1.0"
+            },
+            {
+              "id": "xunit.v3.assert",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.common",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.core.mtp-v2",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.extensibility.core",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.mtp-v2",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.runner.common",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.runner.inproc.console",
+              "resolvedVersion": "4.0.1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/unit/MakerspaceLedger.UnitTests.csproj",
+      "frameworks": [
+        {
+          "framework": "net10.0",
+          "topLevelPackages": [
+            {
+              "id": "Microsoft.NET.Test.Sdk",
+              "requestedVersion": "18.10.1",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "xunit.runner.visualstudio",
+              "requestedVersion": "4.0.0",
+              "resolvedVersion": "4.0.0"
+            },
+            {
+              "id": "xunit.v3",
+              "requestedVersion": "4.0.1",
+              "resolvedVersion": "4.0.1"
+            }
+          ],
+          "transitivePackages": [
+            {
+              "id": "Microsoft.ApplicationInsights",
+              "resolvedVersion": "2.23.0"
+            },
+            {
+              "id": "Microsoft.Bcl.AsyncInterfaces",
+              "resolvedVersion": "6.0.0"
+            },
+            {
+              "id": "Microsoft.CodeCoverage",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "Microsoft.Testing.Extensions.Telemetry",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.Testing.Extensions.TrxReport.Abstractions",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.Testing.Platform",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.Testing.Platform.MSBuild",
+              "resolvedVersion": "2.4.0"
+            },
+            {
+              "id": "Microsoft.TestPlatform.ObjectModel",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "Microsoft.TestPlatform.TestHost",
+              "resolvedVersion": "18.10.1"
+            },
+            {
+              "id": "Microsoft.Win32.Registry",
+              "resolvedVersion": "5.0.0"
+            },
+            {
+              "id": "System.Security.AccessControl",
+              "resolvedVersion": "6.0.1"
+            },
+            {
+              "id": "xunit.analyzers",
+              "resolvedVersion": "2.1.0"
+            },
+            {
+              "id": "xunit.v3.assert",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.common",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.core.mtp-v2",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.extensibility.core",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.mtp-v2",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.runner.common",
+              "resolvedVersion": "4.0.1"
+            },
+            {
+              "id": "xunit.v3.runner.inproc.console",
+              "resolvedVersion": "4.0.1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

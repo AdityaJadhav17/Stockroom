@@ -1,0 +1,43 @@
+name: Foundation checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repository-checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Check documents and repository files
+        shell: pwsh
+        run: ./scripts/Test-Repository.ps1
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Restore locked packages and audit dependencies
+        shell: pwsh
+        run: ./scripts/Test-Dependencies.ps1
+
+      - name: Build test foundation
+        run: dotnet build MakerspaceLedger.slnx --configuration Release --no-restore
+
+      # M1 adds application test execution after implementing cases.

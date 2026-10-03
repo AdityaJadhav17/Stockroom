@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/e2e/">
+    <Project Path="tests/e2e/MakerspaceLedger.E2ETests.csproj" />
+  </Folder>
+  <Folder Name="/tests/integration/">
+    <Project Path="tests/integration/MakerspaceLedger.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/unit/">
+    <Project Path="tests/unit/MakerspaceLedger.UnitTests.csproj" />
+  </Folder>
+</Solution>

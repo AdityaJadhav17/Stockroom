@@ -1,0 +1,47 @@
+# .NET build output
+**/bin/
+**/obj/
+artifacts/
+TestResults/
+coverage/
+test-results/
+playwright-report/
+.nuget/
+*.coverage
+*.coveragexml
+
+# IDE and user settings
+.vs/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+*.DotSettings.user
+.vscode/
+
+# Local databases and logs
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.log
+logs/
+
+# Local credentials and environment files
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+appsettings.*.Local.json
+*.pfx
+*.p12
+*.key
+.claude/settings.local.json
+
+# Operating system files and scratch work
+.DS_Store
+Thumbs.db
+Desktop.ini
+work/
+tmp/
