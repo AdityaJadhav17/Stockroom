@@ -28,4 +28,4 @@ GitHub recommends these community files but also evaluates repository settings a
 5. Confirm the foundation workflow passes on GitHub. Add its check to branch protection after the first run establishes the check name.
 6. Add application tests and the demo before describing the MVP as complete.
 
-The local files cannot enable hosted settings. The owner has not published this repository, so the developer has not verified the GitHub community profile or hosted Actions.
+The local files cannot enable hosted settings. The checkout tracks the owner's Stockroom repository on GitHub; the developer has not verified its community profile or hosted Actions. Review the settings above in the published repository.

@@ -14,8 +14,8 @@ Use the test IDs in [the acceptance plan](../docs/test-plan.md). Add references 
 ## Commands
 
 ```powershell
-dotnet restore MakerspaceLedger.slnx --locked-mode
-dotnet build MakerspaceLedger.slnx --configuration Release --no-restore
+dotnet restore Stockroom.slnx --locked-mode
+dotnet build Stockroom.slnx --configuration Release --no-restore
 pwsh -NoProfile -File scripts/Test-Dependencies.ps1
 ```
 

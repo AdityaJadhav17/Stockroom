@@ -24,7 +24,7 @@ The developer used SDK 10.0.401 and an explicit NuGet audit source at `https://d
 Executed report command:
 
 ```powershell
-dotnet package list --project MakerspaceLedger.slnx --include-transitive --vulnerable --format json --output-version 1 --no-restore
+dotnet package list --project Stockroom.slnx --include-transitive --vulnerable --format json --output-version 1 --no-restore
 ```
 
 Read [the vulnerability report](security/nuget-vulnerability-report.json) and [the package inventory](security/package-inventory.json). The developer converted local absolute project paths to repository-relative paths in those records. Project lock files retain resolved versions and package content hashes.
@@ -37,6 +37,6 @@ The developer checked [Playwright's maintainer advisories](https://github.com/mi
 
 ## Continuing checks
 
-Run `pwsh -NoProfile -File scripts/Test-Dependencies.ps1` after package changes and before merging. CI runs the same check. Restore treats NU1900 through NU1905 as errors, including unavailable audit data. Dependabot will propose NuGet and GitHub Actions updates after publication.
+Run `pwsh -NoProfile -File scripts/Test-Dependencies.ps1` after package changes and before merging. CI runs the same check. Restore treats NU1900 through NU1905 as errors, including unavailable audit data. Dependabot is configured to propose NuGet and GitHub Actions updates; inspect its hosted runs on GitHub.
 
 A clean result describes known advisories at the time of the check. This review does not certify the application, perform a source-code security audit, or inspect browser binaries downloaded through Playwright. The repository has no application cases, and the developer has not installed project browsers. Review browser updates when enabling E2E execution.

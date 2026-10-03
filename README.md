@@ -1,4 +1,4 @@
-# Makerspace Ledger
+# Stockroom
 
 Members request supplies for a fictional campus makerspace. Managers review purchase requests, record deliveries, and track stock withdrawals. The planned application uses C#, ASP.NET Core Razor Pages, Entity Framework Core, and SQLite.
 
@@ -48,10 +48,10 @@ The check covers required files, text formatting, and local Markdown file links.
 
 ```powershell
 pwsh -NoProfile -File scripts/Test-Dependencies.ps1
-dotnet build MakerspaceLedger.slnx --configuration Release --no-restore
+dotnet build Stockroom.slnx --configuration Release --no-restore
 ```
 
-GitHub Actions runs repository checks, a dependency audit, and the scaffold build after publication. The workflow does not claim application coverage or run browser tests yet.
+The GitHub Actions workflow runs repository checks, a dependency audit, and the scaffold build. The workflow does not claim application coverage or run browser tests yet.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before making changes. Contributors and coding assistants share the guidance in [AGENTS.md](AGENTS.md).
 

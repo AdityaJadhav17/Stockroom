@@ -3,7 +3,7 @@
   "parameters": "--include-transitive",
   "projects": [
     {
-      "path": "tests/e2e/MakerspaceLedger.E2ETests.csproj",
+      "path": "tests/e2e/Stockroom.E2ETests.csproj",
       "frameworks": [
         {
           "framework": "net10.0",
@@ -123,7 +123,7 @@
       ]
     },
     {
-      "path": "tests/integration/MakerspaceLedger.IntegrationTests.csproj",
+      "path": "tests/integration/Stockroom.IntegrationTests.csproj",
       "frameworks": [
         {
           "framework": "net10.0",
@@ -404,7 +404,7 @@
       ]
     },
     {
-      "path": "tests/unit/MakerspaceLedger.UnitTests.csproj",
+      "path": "tests/unit/Stockroom.UnitTests.csproj",
       "frameworks": [
         {
           "framework": "net10.0",

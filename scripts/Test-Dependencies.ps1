@@ -4,7 +4,7 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$solution = Join-Path $repositoryRoot 'MakerspaceLedger.slnx'
+$solution = Join-Path $repositoryRoot 'Stockroom.slnx'
 
 Push-Location $repositoryRoot
 try {

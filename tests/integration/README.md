@@ -7,7 +7,7 @@ Give each test an isolated database. For a competing-write scenario, connect sep
 Run cases after adding them:
 
 ```powershell
-dotnet test tests/integration/MakerspaceLedger.IntegrationTests.csproj --configuration Release
+dotnet test tests/integration/Stockroom.IntegrationTests.csproj --configuration Release
 ```
 
 Current status: dependency scaffold only; no HTTP or database cases.

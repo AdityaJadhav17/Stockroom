@@ -38,6 +38,6 @@ jobs:
         run: ./scripts/Test-Dependencies.ps1
 
       - name: Build test foundation
-        run: dotnet build MakerspaceLedger.slnx --configuration Release --no-restore
+        run: dotnet build Stockroom.slnx --configuration Release --no-restore
 
       # M1 adds application test execution after implementing cases.

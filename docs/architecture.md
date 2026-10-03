@@ -12,7 +12,7 @@ Browser -> Razor Page handler -> C# service -> EF Core -> SQLite
              ASP.NET Core Identity
 ```
 
-Keep the web project under `src/MakerspaceLedger.Web/` and tests under `tests/`. Organize the web project into `Pages/`, `Services/`, `Data/`, and `Models/`. Start with these folders inside one project. Create another project after a concrete dependency or testing need appears.
+Keep the web project under `src/Stockroom.Web/` and tests under `tests/`. Organize the web project into `Pages/`, `Services/`, `Data/`, and `Models/`. Start with these folders inside one project. Create another project after a concrete dependency or testing need appears.
 
 ## Proposed records
 
