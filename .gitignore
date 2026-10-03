@@ -37,7 +37,20 @@ appsettings.*.Local.json
 *.pfx
 *.p12
 *.key
-.claude/settings.local.json
+
+# Local coding-agent instructions and configuration
+AGENTS.md
+AGENTS.override.md
+CLAUDE.md
+.agents/
+.claude/
+.codex/
+.cursor/
+.cursorrules
+/.github/copilot-instructions.md
+/.github/instructions/
+/docs/claude-handoff.md
+/docs/writing-guide.md
 
 # Operating system files and scratch work
 .DS_Store

@@ -16,12 +16,10 @@ The owner plans a two-day MVP for a fictional makerspace. Contributors use these
 - [Development setup](development.md): prerequisites, repository checks, and application CI work.
 - [Test structure](../tests/README.md): configured projects and fixture conventions.
 
-## Verification and handoff
+## Verification
 
 - [Test plan](test-plan.md): acceptance scenarios, regression checks, and demo script.
 - [Definition of done](definition-of-done.md): story and release criteria.
-- [Claude handoff](claude-handoff.md): starting context and development task.
-- [Writing guide](writing-guide.md): documentation standards adapted from the supplied writing guidance.
 - [Dependency audit](dependency-audit.md): initial resolved graph and vulnerability evidence.
 - [Community setup](community-setup.md): files in place and GitHub settings after publication.
 

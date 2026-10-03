@@ -32,7 +32,6 @@ Start with the [documentation index](docs/README.md).
 | [Definition of done](docs/definition-of-done.md) | Evidence required before release |
 | [Test plan](docs/test-plan.md) | Failure cases and demo procedure |
 | [Development setup](docs/development.md) | Prerequisites and CI commands |
-| [Claude handoff](docs/claude-handoff.md) | Context and first implementation task |
 | [Test structure](tests/README.md) | Unit, integration, E2E, and fixture responsibilities |
 | [Dependency audit](docs/dependency-audit.md) | Package versions and vulnerability-check evidence |
 
@@ -53,7 +52,7 @@ dotnet build Stockroom.slnx --configuration Release --no-restore
 
 The GitHub Actions workflow runs repository checks, a dependency audit, and the scaffold build. The workflow does not claim application coverage or run browser tests yet.
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before making changes. Contributors and coding assistants share the guidance in [AGENTS.md](AGENTS.md).
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before making changes.
 
 ## Community
 

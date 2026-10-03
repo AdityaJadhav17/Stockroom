@@ -31,7 +31,7 @@ The estimates total 16 hours with contingency. Reduce visual polish if implement
 
 ## Working agreement
 
-Use one coding tool as the editor for a milestone and another as the reviewer. Share the story IDs, changed files, and verification results at handoff. Avoid simultaneous edits to the same files. The owner reviews behavior through the application and discusses the code before claiming interview readiness.
+Assign an implementer and a reviewer for each milestone. Include story IDs, changed files, and verification results in review notes. Coordinate changes to shared files. The owner reviews behavior through the application and discusses the code before claiming interview readiness.
 
 ## Current risks
 

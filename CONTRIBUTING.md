@@ -18,6 +18,6 @@ For package changes, update `Directory.Packages.props`, regenerate the affected 
 
 Use the pull request template to describe the user-visible behavior, related story, and verification. List unresolved issues with a reproduction procedure. Update the README if setup instructions or implementation status change.
 
-Use the [writing guide](docs/writing-guide.md) for documentation and review notes. The owner reviews the result against the story acceptance criteria and the [definition of done](docs/definition-of-done.md).
+Write documentation and review notes in concrete, professional language. Distinguish planned behavior from verified results and check that links resolve. The owner reviews the result against the story acceptance criteria and the [definition of done](docs/definition-of-done.md).
 
 Follow [the code of conduct](CODE_OF_CONDUCT.md) during discussions and reviews. Report vulnerabilities through [SECURITY.md](SECURITY.md), and use [SUPPORT.md](SUPPORT.md) for setup questions. Contributors submit their work under the repository's [MIT license](LICENSE).

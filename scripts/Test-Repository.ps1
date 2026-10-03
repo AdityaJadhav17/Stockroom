@@ -7,12 +7,11 @@ $ErrorActionPreference = 'Stop'
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $requiredFiles = @(
     'README.md', '.gitignore', '.gitattributes', '.editorconfig',
-    'AGENTS.md', 'CLAUDE.md', 'CONTRIBUTING.md',
+    'CONTRIBUTING.md',
     'docs/README.md', 'docs/mvp.md', 'docs/personas.md',
     'docs/user-stories.md', 'docs/architecture.md',
     'docs/delivery-plan.md', 'docs/definition-of-done.md',
     'docs/test-plan.md', 'docs/development.md',
-    'docs/claude-handoff.md', 'docs/writing-guide.md',
     'docs/decisions/0001-application-foundation.md',
     '.github/workflows/ci.yml', '.github/pull_request_template.md',
     'scripts/Test-Repository.ps1', 'scripts/Test-Dependencies.ps1',
