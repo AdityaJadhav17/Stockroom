@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Stockroom.Web/Stockroom.Web.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/e2e/">
     <Project Path="tests/e2e/Stockroom.E2ETests.csproj" />

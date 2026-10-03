@@ -7,7 +7,7 @@ Keep database writes, HTTP requests, and browser interactions in their respectiv
 Run cases after adding them:
 
 ```powershell
-dotnet test tests/unit/Stockroom.UnitTests.csproj --configuration Release
+dotnet test --project tests/unit/Stockroom.UnitTests.csproj --configuration Release
 ```
 
 Current status: dependency scaffold only; no unit cases.

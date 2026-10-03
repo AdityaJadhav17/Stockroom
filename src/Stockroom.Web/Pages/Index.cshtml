@@ -1,0 +1,10 @@
+@page
+@using Stockroom.Web.Models
+@{
+    ViewData["Title"] = "Dashboard";
+    var role = User.IsInRole(Roles.Manager) ? Roles.Manager : User.IsInRole(Roles.Member) ? Roles.Member : "No role";
+}
+
+<h1>Dashboard</h1>
+<p>You are signed in as <strong>@User.Identity?.Name</strong> with the <strong>@role</strong> role.</p>
+<p>Inventory, purchase requests, and history will appear here in later milestones.</p>

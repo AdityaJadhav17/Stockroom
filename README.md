@@ -4,7 +4,7 @@ Members request supplies for a fictional campus makerspace. Managers review purc
 
 ## Status
 
-This repository contains the project plan, community files, and three buildable test scaffolds. The application and its test cases have not been implemented. The project uses synthetic data; the author has no client deployment or production usage to report.
+Milestone M1 is implemented. The Razor Pages application supports login and logout for seeded Member and Manager accounts, creates the SQLite schema through EF Core migrations, and seeds ten inventory items through a Development-only command. Twenty-one integration tests cover login, logout, unauthenticated access, role assignment, seed reruns, and stock-movement constraints in SQLite. Inventory, purchase requests, review, receipt, stock issues, and history remain planned. The project uses synthetic data; the author has no client deployment or production usage to report.
 
 The first release covers one purchase workflow and its stock history. The implementation budget is two working days, with 12 to 16 hours available for development and verification.
 
@@ -43,14 +43,15 @@ Run this command from the repository root with PowerShell 7:
 pwsh -NoProfile -File scripts/Test-Repository.ps1
 ```
 
-The check covers required files, text formatting, and local Markdown file links. With the .NET SDK available, audit and build the test foundation:
+The check covers required files, text formatting, and local Markdown file links. With the .NET SDK available, audit dependencies, build the solution, and run the application tests:
 
 ```powershell
 pwsh -NoProfile -File scripts/Test-Dependencies.ps1
 dotnet build Stockroom.slnx --configuration Release --no-restore
+dotnet test --project tests/integration/Stockroom.IntegrationTests.csproj --configuration Release --no-build
 ```
 
-The GitHub Actions workflow runs repository checks, a dependency audit, and the scaffold build. The workflow does not claim application coverage or run browser tests yet.
+Read [the development setup](docs/development.md) to configure demo passwords, seed the database, and run the application. The GitHub Actions workflow runs repository checks, a dependency audit, the Release build, and the integration tests. It does not run browser tests yet.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before making changes.
 

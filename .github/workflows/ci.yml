@@ -17,7 +17,7 @@ concurrency:
 jobs:
   repository-checks:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -37,7 +37,8 @@ jobs:
         shell: pwsh
         run: ./scripts/Test-Dependencies.ps1
 
-      - name: Build test foundation
+      - name: Build solution
         run: dotnet build Stockroom.slnx --configuration Release --no-restore
 
-      # M1 adds application test execution after implementing cases.
+      - name: Run application tests
+        run: dotnet test --project tests/integration/Stockroom.IntegrationTests.csproj --configuration Release --no-build

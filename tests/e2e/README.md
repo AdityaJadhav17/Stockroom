@@ -15,7 +15,7 @@ On Linux CI, use `install --with-deps chromium`. Browser installation downloads 
 Run cases after configuring the host:
 
 ```powershell
-dotnet test tests/e2e/Stockroom.E2ETests.csproj --configuration Release
+dotnet test --project tests/e2e/Stockroom.E2ETests.csproj --configuration Release
 ```
 
 Current status: dependency scaffold only; no browser cases or installed project browsers.

@@ -11,7 +11,7 @@
 | Release | Owner checks a fresh checkout and records the walkthrough. | Completed release checklist and accurate README status. |
 | Maintenance | Owner records defects and prioritizes the next release. | Bug reproduction, regression test, and updated requirements. |
 
-Requirements, design documents, and a buildable test foundation exist. Contributors still need to review the requirements before coding. The owner has not verified application behavior.
+M1 is implemented: the web application, Identity login and logout, the initial migration, the Development seed command, and integration tests. The owner has not reviewed M1 or verified application behavior in a browser.
 
 ## Two-day implementation budget
 

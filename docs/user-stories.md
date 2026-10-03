@@ -4,14 +4,14 @@ All stories start in Planned status. Developers record implementation and verifi
 
 | ID | Story | Priority | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| US-01 | Log in with a demo account | Must | Planned | None |
+| US-01 | Log in with a demo account | Must | In progress | M1: login, invalid login, logout, and unauthenticated dashboard access pass in `AuthenticationTests` (T-01). Member POST checks wait for manager actions (M2, M3). |
 | US-02 | Inspect inventory and low-stock items | Must | Planned | None |
 | US-03 | Request a purchase | Must | Planned | None |
 | US-04 | Approve or reject a request | Must | Planned | None |
 | US-05 | Receive an approved purchase | Must | Planned | None |
 | US-06 | Issue stock | Must | Planned | None |
 | US-07 | Trace a request or stock change | Must | Planned | None |
-| US-08 | Prepare a repeatable demo dataset | Must | Planned | None |
+| US-08 | Prepare a repeatable demo dataset | Must | In progress | M1: the seed command creates ten items, two members, and one manager; `SeedTests` verifies roles and rerun preservation (part of T-14). Request examples and reset remain. |
 
 ## US-01: Log in with a demo account
 
