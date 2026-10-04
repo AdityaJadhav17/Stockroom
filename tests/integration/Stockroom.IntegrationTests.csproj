@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Stockroom.Web/Stockroom.Web.csproj" />
+    <Using Include="Xunit" />
+  </ItemGroup>
 </Project>

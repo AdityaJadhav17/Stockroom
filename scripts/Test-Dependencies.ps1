@@ -18,8 +18,8 @@ try {
         throw 'NuGet could not produce the vulnerability report.'
     }
     $report = ($reportLines -join "`n") | ConvertFrom-Json
-    if (-not $report.projects -or @($report.projects).Count -lt 3) {
-        throw 'The vulnerability report did not include all three test projects.'
+    if (-not $report.projects -or @($report.projects).Count -lt 4) {
+        throw 'The vulnerability report did not include the web project and all three test projects.'
     }
 
     $findings = [Collections.Generic.List[string]]::new()

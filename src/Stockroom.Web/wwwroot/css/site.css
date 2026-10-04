@@ -1,0 +1,124 @@
+:root {
+    --text: #1f2328;
+    --muted: #59636e;
+    --border: #d1d9e0;
+    --accent: #0b5cad;
+    --error: #b42318;
+    --surface: #f6f8fa;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+body {
+    margin: 0;
+    background: #fff;
+}
+
+.skip-link {
+    position: absolute;
+    left: -999px;
+}
+
+.skip-link:focus {
+    left: 1rem;
+    top: 1rem;
+    background: #fff;
+    padding: 0.5rem;
+}
+
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.signout {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+main {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.site-footer {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 0 1.5rem 1.5rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+}
+
+.stack {
+    display: grid;
+    gap: 1rem;
+    max-width: 24rem;
+}
+
+.field {
+    display: grid;
+    gap: 0.25rem;
+}
+
+label {
+    font-weight: 600;
+}
+
+input {
+    font: inherit;
+    padding: 0.5rem;
+    border: 1px solid var(--muted);
+    border-radius: 4px;
+}
+
+button {
+    font: inherit;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    justify-self: start;
+}
+
+input:focus-visible,
+button:focus-visible,
+a:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.error-summary ul {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    list-style: none;
+    border: 1px solid var(--error);
+    border-radius: 4px;
+    color: var(--error);
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+.field-error {
+    color: var(--error);
+}
+
+.hint {
+    color: var(--muted);
+    font-size: 0.875rem;
+}

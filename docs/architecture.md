@@ -1,6 +1,6 @@
 # Architecture
 
-Status: proposed design for the first implementation milestone.
+Status: M1 implemented the application shell, Identity, and the schema below. [ADR 0002](decisions/0002-m1-authentication-and-seed.md) records the M1 decisions. Later milestones implement the services and transactions.
 
 ## Application boundaries
 

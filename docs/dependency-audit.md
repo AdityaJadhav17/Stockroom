@@ -1,8 +1,8 @@
-# Testing dependency audit
+# Dependency audit
 
 Date: 2026-10-03, America/Los_Angeles.
 
-Result: NuGet reported no known vulnerabilities in the resolved test dependencies, including transitive packages. The inventory contains 70 unique package/version pairs across three projects. The developer restored the packages and built Release with zero warnings and errors.
+Result: NuGet reported no known vulnerabilities in the resolved application and test dependencies, including transitive packages. The inventory contains 94 unique package/version pairs across four projects. M1 added the web project and two direct packages; the developer reran the audit, restored the packages, and built Release with zero warnings and errors.
 
 ## Direct packages
 
@@ -12,7 +12,9 @@ Result: NuGet reported no known vulnerabilities in the resolved test dependencie
 | xunit.runner.visualstudio | 4.0.0 | Test adapter |
 | Microsoft.NET.Test.Sdk | 18.10.1 | Test discovery and execution support |
 | Microsoft.AspNetCore.Mvc.Testing | 10.0.12 | Integration test host |
-| Microsoft.EntityFrameworkCore.Sqlite | 10.0.12 | SQLite integration tests |
+| Microsoft.EntityFrameworkCore.Sqlite | 10.0.12 | Application database provider and SQLite integration tests |
+| Microsoft.AspNetCore.Identity.EntityFrameworkCore | 10.0.12 | Identity stores for login and roles (M1) |
+| Microsoft.EntityFrameworkCore.Design | 10.0.12 | Design-time support for `dotnet ef` migrations; not shipped with the application (M1) |
 | Microsoft.Playwright.Xunit.v3 | 1.63.0 | Browser E2E foundation |
 
 The package identifier `xunit.v3` has version 4.0.1; the package name retains v3. The developer obtained these stable versions from the official NuGet package indexes and verified that the projects compile together.
@@ -39,4 +41,4 @@ The developer checked [Playwright's maintainer advisories](https://github.com/mi
 
 Run `pwsh -NoProfile -File scripts/Test-Dependencies.ps1` after package changes and before merging. CI runs the same check. Restore treats NU1900 through NU1905 as errors, including unavailable audit data. Dependabot is configured to propose NuGet and GitHub Actions updates; inspect its hosted runs on GitHub.
 
-A clean result describes known advisories at the time of the check. This review does not certify the application, perform a source-code security audit, or inspect browser binaries downloaded through Playwright. The repository has no application cases, and the developer has not installed project browsers. Review browser updates when enabling E2E execution.
+A clean result describes known advisories at the time of the check. The `dotnet-ef` 10.0.12 local tool sits outside the project graph, so this audit does not cover it. This review does not certify the application, perform a source-code security audit, or inspect browser binaries downloaded through Playwright. The integration project contains application cases; the E2E project has none, and the developer has not installed project browsers. Review browser updates when enabling E2E execution.

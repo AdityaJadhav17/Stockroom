@@ -28,7 +28,9 @@ $requiredFiles = @(
     'tests/unit/packages.lock.json', 'tests/integration/packages.lock.json',
     'tests/e2e/packages.lock.json', 'docs/dependency-audit.md',
     'docs/security/nuget-vulnerability-report.json', 'docs/security/package-inventory.json',
-    'docs/community-setup.md'
+    'docs/community-setup.md', 'docs/decisions/0002-m1-authentication-and-seed.md',
+    '.config/dotnet-tools.json', 'src/Stockroom.Web/Stockroom.Web.csproj',
+    'src/Stockroom.Web/packages.lock.json'
 )
 $issues = [Collections.Generic.List[string]]::new()
 $trackedFiles = @(git -C $repositoryRoot -c core.quotepath=false ls-files)

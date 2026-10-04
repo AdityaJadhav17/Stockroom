@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"] - Stockroom</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header class="site-header">
+        <span class="brand">Stockroom</span>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <form method="post" asp-page="/Account/Logout" class="signout">
+                <span>@User.Identity.Name</span>
+                <button type="submit">Log out</button>
+            </form>
+        }
+    </header>
+    <main id="main">
+        @RenderBody()
+    </main>
+    <footer class="site-footer">
+        Fictional campus makerspace. All data is synthetic.
+    </footer>
+</body>
+</html>

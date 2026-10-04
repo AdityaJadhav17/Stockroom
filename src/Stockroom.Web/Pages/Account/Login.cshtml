@@ -1,0 +1,23 @@
+@page
+@model Stockroom.Web.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<h1>Log in</h1>
+<form method="post" class="stack" novalidate>
+    <div asp-validation-summary="ModelOnly" class="error-summary" role="alert"></div>
+    <div class="field">
+        <label asp-for="Input.Email">Email</label>
+        <input asp-for="Input.Email" autocomplete="username" aria-describedby="email-error">
+        <span asp-validation-for="Input.Email" id="email-error" class="field-error"></span>
+    </div>
+    <div class="field">
+        <label asp-for="Input.Password">Password</label>
+        <input asp-for="Input.Password" autocomplete="current-password" aria-describedby="password-error">
+        <span asp-validation-for="Input.Password" id="password-error" class="field-error"></span>
+    </div>
+    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl">
+    <button type="submit">Log in</button>
+</form>
+<p class="hint">Demo accounts are created by the Development seed command. Registration and password recovery are not available.</p>

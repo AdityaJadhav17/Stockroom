@@ -1,6 +1,6 @@
 # Test plan
 
-Developers will execute these scenarios during implementation. The repository contains [buildable test scaffolds](../tests/README.md), but no application test cases or application test results.
+Developers will execute these scenarios during implementation. After M1, the [integration project](../tests/README.md) covers T-01 and the seed-rerun part of T-14. The other scenarios have no cases yet.
 
 Use xUnit v3 for pure input and decision rules. Use ASP.NET Core MVC Testing with xUnit for login, authorization, and request ownership. Test constraints, competing writes, and rollback with SQLite. Concurrency tests need separate contexts and connections to the same temporary database file. Use Playwright for .NET with xUnit for browser workflows against a running application.
 

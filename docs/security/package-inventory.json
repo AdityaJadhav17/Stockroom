@@ -3,6 +3,149 @@
   "parameters": "--include-transitive",
   "projects": [
     {
+      "path": "src/Stockroom.Web/Stockroom.Web.csproj",
+      "frameworks": [
+        {
+          "framework": "net10.0",
+          "topLevelPackages": [
+            {
+              "id": "Microsoft.AspNetCore.Identity.EntityFrameworkCore",
+              "requestedVersion": "10.0.12",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Design",
+              "requestedVersion": "10.0.12",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Sqlite",
+              "requestedVersion": "10.0.12",
+              "resolvedVersion": "10.0.12"
+            }
+          ],
+          "transitivePackages": [
+            {
+              "id": "Humanizer.Core",
+              "resolvedVersion": "2.14.1"
+            },
+            {
+              "id": "Microsoft.Build.Framework",
+              "resolvedVersion": "18.0.2"
+            },
+            {
+              "id": "Microsoft.CodeAnalysis.Analyzers",
+              "resolvedVersion": "3.11.0"
+            },
+            {
+              "id": "Microsoft.CodeAnalysis.Common",
+              "resolvedVersion": "5.0.0"
+            },
+            {
+              "id": "Microsoft.CodeAnalysis.CSharp",
+              "resolvedVersion": "5.0.0"
+            },
+            {
+              "id": "Microsoft.CodeAnalysis.CSharp.Workspaces",
+              "resolvedVersion": "5.0.0"
+            },
+            {
+              "id": "Microsoft.CodeAnalysis.Workspaces.Common",
+              "resolvedVersion": "5.0.0"
+            },
+            {
+              "id": "Microsoft.CodeAnalysis.Workspaces.MSBuild",
+              "resolvedVersion": "5.0.0"
+            },
+            {
+              "id": "Microsoft.Data.Sqlite.Core",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Abstractions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Analyzers",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Relational",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.EntityFrameworkCore.Sqlite.Core",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.DependencyModel",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.VisualStudio.SolutionPersistence",
+              "resolvedVersion": "1.0.52"
+            },
+            {
+              "id": "Mono.TextTemplating",
+              "resolvedVersion": "3.0.0"
+            },
+            {
+              "id": "Newtonsoft.Json",
+              "resolvedVersion": "13.0.4"
+            },
+            {
+              "id": "SQLitePCLRaw.bundle_e_sqlite3",
+              "resolvedVersion": "2.1.12"
+            },
+            {
+              "id": "SQLitePCLRaw.core",
+              "resolvedVersion": "2.1.12"
+            },
+            {
+              "id": "SQLitePCLRaw.lib.e_sqlite3",
+              "resolvedVersion": "2.1.12"
+            },
+            {
+              "id": "SQLitePCLRaw.provider.e_sqlite3",
+              "resolvedVersion": "2.1.12"
+            },
+            {
+              "id": "System.CodeDom",
+              "resolvedVersion": "6.0.0"
+            },
+            {
+              "id": "System.Composition",
+              "resolvedVersion": "9.0.0"
+            },
+            {
+              "id": "System.Composition.AttributedModel",
+              "resolvedVersion": "9.0.0"
+            },
+            {
+              "id": "System.Composition.Convention",
+              "resolvedVersion": "9.0.0"
+            },
+            {
+              "id": "System.Composition.Hosting",
+              "resolvedVersion": "9.0.0"
+            },
+            {
+              "id": "System.Composition.Runtime",
+              "resolvedVersion": "9.0.0"
+            },
+            {
+              "id": "System.Composition.TypedParts",
+              "resolvedVersion": "9.0.0"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "path": "tests/e2e/Stockroom.E2ETests.csproj",
       "frameworks": [
         {
@@ -160,6 +303,18 @@
               "resolvedVersion": "2.23.0"
             },
             {
+              "id": "Microsoft.AspNetCore.Cryptography.Internal",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.AspNetCore.Cryptography.KeyDerivation",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.AspNetCore.Identity.EntityFrameworkCore",
+              "resolvedVersion": "10.0.12"
+            },
+            {
               "id": "Microsoft.AspNetCore.TestHost",
               "resolvedVersion": "10.0.12"
             },
@@ -273,6 +428,14 @@
             },
             {
               "id": "Microsoft.Extensions.Hosting.Abstractions",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Identity.Core",
+              "resolvedVersion": "10.0.12"
+            },
+            {
+              "id": "Microsoft.Extensions.Identity.Stores",
               "resolvedVersion": "10.0.12"
             },
             {

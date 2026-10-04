@@ -2,7 +2,7 @@
 
 Date: 2026-10-03
 
-Status: Accepted. SDK and test foundation configured; web application pending.
+Status: Accepted. M1 implemented the web application; see [ADR 0002](0002-m1-authentication-and-seed.md).
 
 ## Context
 
@@ -12,7 +12,7 @@ The owner wants a C#/.NET portfolio project with a two-day implementation budget
 
 Build one .NET 10 ASP.NET Core Razor Pages application. Use Entity Framework Core with SQLite, ASP.NET Core Identity for login, and xUnit for application tests. Keep business rules in services within the web project.
 
-The developer verified SDK 10.0.401 and recorded it in `global.json` with `latestPatch` roll-forward and prerelease SDKs disabled. CI reads that file. The solution contains three test scaffolds; the web application remains pending.
+The developer verified SDK 10.0.401 and recorded it in `global.json` with `latestPatch` roll-forward and prerelease SDKs disabled. CI reads that file. The solution contains the web application and three test projects.
 
 Microsoft lists .NET 10 as an active LTS release, with support through November 14, 2028. The owner selected it over .NET 8 because .NET 8 support ends on November 10, 2026. Source: [Microsoft .NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core), checked October 3, 2026.
 
