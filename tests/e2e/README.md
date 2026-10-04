@@ -27,6 +27,7 @@ Disposal stops that process and deletes only the directory it created. Cleanup r
 | `AccessRestrictionTests` | Member cannot open the issue page or another member's request; member history shows only their requests; logout blocks protected pages | T-01, T-02, T-13 |
 | `PersistenceTests` | Manager issue survives an abrupt application restart in stock and history | T-13 |
 | `CleanupTests` | Fixture regression: after a test closes its own browser context, cleanup still stops the application and deletes its directory | None |
+| `DemoRecording` (explicit) | Portfolio walkthrough with rejection, receipt, withdrawal, refused withdrawal, history, and restart; writes README screenshots to `docs/images` and video to `artifacts/demo` | T-03, T-06, T-08, T-10, T-13 |
 
 ## Commands
 
@@ -40,4 +41,4 @@ dotnet test --project tests/e2e/Stockroom.E2ETests.csproj --configuration Releas
 
 Browser installation downloads executables. The NuGet audit covers the Playwright package, not those browser binaries.
 
-Current status: seven cases pass locally on Windows with Chromium. The hosted Ubuntu job has not run yet.
+Current status: seven cases pass locally on Windows with Chromium; the explicit `DemoRecording` case also passed on 2026-10-04 and produced the README screenshots. Normal runs and CI skip explicit cases. The hosted Ubuntu job has not run yet. Run the recorder with `dotnet test --project tests/e2e/Stockroom.E2ETests.csproj --configuration Release --no-build -- --explicit only`.

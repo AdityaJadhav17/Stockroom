@@ -21,18 +21,19 @@ else
         <tbody>
             @foreach (var item in Model.LowStock)
             {
-                <tr><td>@item.Name</td><td>@item.Quantity @item.Unit</td><td>@item.ReorderThreshold</td></tr>
+                <tr><td>@item.Name</td><td>@DisplayFormat.Quantity(item.Quantity, item.Unit)</td><td>@item.ReorderThreshold</td></tr>
             }
         </tbody>
     </table>
 }
 
-<h2>@(isManager ? "Pending requests" : "Your pending requests")</h2>
+<h2 id="pending-heading">@(isManager ? "Pending requests" : "Your pending requests")</h2>
 @if (Model.Pending.Count == 0)
 {
     <p>No requests are waiting for review.</p>
 }
 else
 {
+    ViewData["TableLabel"] = "pending-heading";
     <partial name="_RequestTable" model="Model.Pending" />
 }

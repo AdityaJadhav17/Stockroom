@@ -64,6 +64,6 @@ public class NewModel(AppDbContext db, PurchaseService purchases) : PageModel
 
     private async Task LoadItemsAsync() =>
         Items = await db.InventoryItems.AsNoTracking().OrderBy(i => i.Name)
-            .Select(i => new SelectListItem($"{i.Name} ({i.Quantity} {i.Unit} in stock)", i.Id.ToString()))
+            .Select(i => new SelectListItem($"{i.Name} ({DisplayFormat.Quantity(i.Quantity, i.Unit)} in stock)", i.Id.ToString()))
             .ToListAsync();
 }

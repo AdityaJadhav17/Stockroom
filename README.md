@@ -1,22 +1,62 @@
 # Stockroom
 
-Members request supplies for a fictional campus makerspace. Managers review purchase requests, record deliveries, and track stock withdrawals. The planned application uses C#, ASP.NET Core Razor Pages, Entity Framework Core, and SQLite.
+Members request supplies for a fictional campus makerspace. Managers review purchase requests, record deliveries, issue stock, and trace every change. The application uses C#, ASP.NET Core Razor Pages, Entity Framework Core, and SQLite. All data is synthetic; the author has no client deployment or production usage to report.
 
 ## Status
 
-Milestones M1 through M4 are implemented. Members log in, browse and search inventory, see low-stock items, submit purchase requests, and read the history of their own requests. The manager approves or rejects pending requests, records receipts, issues stock with a reason, and reads the full request and stock-movement history. Receipts and issues save the stock change and its movement in one transaction, and conditional writes stop competing operations from adding stock twice or overselling. A Development seed command creates a synthetic dataset with one request in each status and reconciled stock history, and `seed --reset` recreates it. One hundred and thirty-five SQLite integration tests and seven Chromium browser tests cover roles enforced in pages and services, request ownership, validation, duplicate and competing operations, overflow, exhausted lock retries, transaction rollback, history visibility, persistence across a restart, seed reruns, reset, and the purchase, rejection, withdrawal, and access workflows in a browser. Release preparation (M6) remains. The project uses synthetic data; the author has no client deployment or production usage to report.
+Milestones M1 through M6 are implemented and await the owner's review. Members log in, browse and search inventory, see low-stock items, submit purchase requests, and read the history of their own requests. The manager approves or rejects pending requests, records receipts, issues stock with a reason, and reads the full request and stock-movement history.
 
-The first release covers one purchase workflow and its stock history. The implementation budget is two working days, with 12 to 16 hours available for development and verification.
+Receipts and issues save the stock change and its movement in one transaction. Conditional writes stop competing operations from adding stock twice or overselling. Database failures show a controlled message or error page and leave diagnostic details in the server log. A Development seed command creates a synthetic dataset with one request in each status, and `seed --reset` recreates it.
 
-## Planned workflow
+One hundred and forty-one SQLite integration tests and seven Chromium browser tests pass locally on Windows. They cover roles in pages and services, request ownership, validation, duplicate and competing operations, overflow, lock retries, rollback, controlled database errors, history, restart persistence, seed reruns, reset, and the purchase, rejection, withdrawal, and access workflows in a browser. Hosted CI has not yet run the End-to-End job; see [development setup](docs/development.md).
 
-1. A member sees two filament spools in stock and requests five more.
-2. A manager approves the request. Stock remains at two.
-3. A manager records receipt of the five spools. Stock increases to seven.
-4. A manager issues two spools and records a reason. Stock decreases to five.
-5. A reviewer checks the approvals and stock movements in the history view.
+## Demonstration
 
-Developers will test permission checks, repeated delivery submissions, and competing withdrawals alongside this workflow.
+The screenshots come from a freshly seeded database and were captured by an automated browser walkthrough (`DemoRecording` in [tests/e2e](tests/e2e/README.md)). Accounts use the reserved `.test` domain.
+
+1. **Member dashboard.** Filament has two spools against a reorder threshold of three, so it appears under low stock.
+   ![Member dashboard with filament at two spools](docs/images/01-member-dashboard.png)
+2. **Purchase request.** The member requests five spools with a reason.
+   ![Purchase request form for five filament spools](docs/images/02-request-form.png)
+3. **Manager review.** The manager sees pending requests and opens the filament request.
+   ![Manager dashboard with pending requests](docs/images/03-manager-dashboard.png)
+   ![Request details with approve and reject actions](docs/images/04-manager-review.png)
+4. **Approval and receipt.** Approval leaves stock at two. Receipt adds five spools once and records the event.
+   ![Received request with its history](docs/images/05-receipt-recorded.png)
+5. **Withdrawal.** The manager issues two spools, leaving five, then tries to issue six. The application refuses and changes nothing.
+   ![Refused issue of six spools with five in stock](docs/images/06-issue-refused.png)
+6. **History.** Request events and stock movements show actor, UTC time, quantity change, reason, and request reference. Movements reconcile with stock.
+   ![Manager history of request events and stock movements](docs/images/07-manager-history.png)
+7. **Rejection.** A second request is rejected with a reason, which the member sees on the request page.
+   ![Member view of a rejected request and its reason](docs/images/08-member-rejection.png)
+
+The same walkthrough restarts the application before step 7 and confirms that stock and history persist.
+
+## Run locally
+
+Install the .NET 10 SDK and PowerShell 7, then follow [development setup](docs/development.md). In short: restore, set the two demo passwords with `dotnet user-secrets`, run `dotnet run --project src/Stockroom.Web -- seed`, start the application with `dotnet run --project src/Stockroom.Web --launch-profile http`, and open `http://localhost:5080`.
+
+## Checks
+
+Run these commands from the repository root with PowerShell 7:
+
+```powershell
+pwsh -NoProfile -File scripts/Test-Repository.ps1
+pwsh -NoProfile -File scripts/Test-Dependencies.ps1
+dotnet build Stockroom.slnx --configuration Release --no-restore --warnaserror
+dotnet test --project tests/integration/Stockroom.IntegrationTests.csproj --configuration Release --no-build
+pwsh tests/e2e/bin/Release/net10.0/playwright.ps1 install chromium
+dotnet test --project tests/e2e/Stockroom.E2ETests.csproj --configuration Release --no-build
+```
+
+The repository check covers required files, text formatting, and local Markdown file links. GitHub Actions shows separate jobs for repository checks, dependency auditing, the Release build, integration tests on Ubuntu and Windows, and Chromium browser tests on Ubuntu. Each test run uploads its report. The final `CI Status` check requires every job to pass. A unit-test job will be added when that project contains cases.
+
+## Known limitations
+
+- The application targets a local demonstration. It has no hosting configuration, HTTPS redirection, or HSTS.
+- `seed --reset` deletes the database before reseeding. If seeding failed after deletion, the database would stay empty until the next reset; an atomic replacement is deferred.
+- Item administration, multi-item orders, partial receipts, cancellations, stock corrections, suppliers, email, registration, and password recovery are outside the MVP.
+- Times display in UTC. History has no paging.
 
 ## Project documents
 
@@ -26,32 +66,14 @@ Start with the [documentation index](docs/README.md).
 | --- | --- |
 | [MVP](docs/mvp.md) | Release scope and business rules |
 | [Personas](docs/personas.md) | Users, responsibilities, and access |
-| [User stories](docs/user-stories.md) | Acceptance criteria for implementation |
+| [User stories](docs/user-stories.md) | Acceptance criteria and evidence |
 | [Architecture](docs/architecture.md) | Application structure and data model |
 | [Delivery plan](docs/delivery-plan.md) | Milestones, estimates, and SDLC checkpoints |
 | [Definition of done](docs/definition-of-done.md) | Evidence required before release |
-| [Test plan](docs/test-plan.md) | Failure cases and demo procedure |
-| [Development setup](docs/development.md) | Prerequisites and CI commands |
+| [Test plan](docs/test-plan.md) | Acceptance scenarios, coverage map, and demo procedure |
+| [Development setup](docs/development.md) | Prerequisites, setup, reset, and CI |
 | [Test structure](tests/README.md) | Unit, integration, E2E, and fixture responsibilities |
 | [Dependency audit](docs/dependency-audit.md) | Package versions and vulnerability-check evidence |
-
-## Repository checks
-
-Run this command from the repository root with PowerShell 7:
-
-```powershell
-pwsh -NoProfile -File scripts/Test-Repository.ps1
-```
-
-The check covers required files, text formatting, and local Markdown file links. With the .NET SDK available, audit dependencies, build the solution, and run the application tests:
-
-```powershell
-pwsh -NoProfile -File scripts/Test-Dependencies.ps1
-dotnet build Stockroom.slnx --configuration Release --no-restore
-dotnet test --project tests/integration/Stockroom.IntegrationTests.csproj --configuration Release --no-build
-```
-
-Read [the development setup](docs/development.md) to configure demo passwords, seed the database, and run the application. GitHub Actions shows separate jobs for repository checks, dependency auditing, the Release build, integration tests on Ubuntu and Windows, and Chromium browser tests on Ubuntu. Each test run uploads its report. The final `CI Status` check requires every job to pass. A unit-test job will be added when that project contains cases.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before making changes.
 

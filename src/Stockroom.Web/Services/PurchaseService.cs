@@ -39,7 +39,7 @@ public static class PurchaseRules
 // Purchase request rules (BR-01 through BR-08, BR-11). Each operation checks the actor's roles in the
 // database, then claims the row with a conditional UPDATE inside a transaction. ServiceGuard turns
 // exhausted SQLite lock retries into BusyMessage after the transaction rolls back.
-public sealed class PurchaseService(AppDbContext db)
+public sealed class PurchaseService(AppDbContext db, ILogger<PurchaseService> logger)
 {
     public const string ForbiddenMessage = ServiceGuard.ForbiddenMessage;
     public const string BusyMessage = ServiceGuard.BusyMessage;
@@ -63,7 +63,7 @@ public sealed class PurchaseService(AppDbContext db)
     }
 
     public Task<OperationResult> CreateAsync(string requesterId, int itemId, int? quantity, string? reason) =>
-        db.GuardAsync(async () =>
+        db.GuardAsync(logger, async () =>
         {
             if (!await db.HasRoleAsync(requesterId, Roles.Member) || await db.HasRoleAsync(requesterId, Roles.Manager))
             {
@@ -105,7 +105,7 @@ public sealed class PurchaseService(AppDbContext db)
         ReviewAsync(requestId, reviewerId, RequestStatus.Rejected, reason);
 
     private Task<OperationResult> ReviewAsync(int requestId, string reviewerId, RequestStatus decision, string? reason) =>
-        db.GuardAsync(async () =>
+        db.GuardAsync(logger, async () =>
         {
             if (!await db.HasRoleAsync(reviewerId, Roles.Manager))
             {
@@ -139,7 +139,7 @@ public sealed class PurchaseService(AppDbContext db)
         });
 
     public Task<OperationResult> ReceiveAsync(int requestId, string receiverId) =>
-        db.GuardAsync(async () =>
+        db.GuardAsync(logger, async () =>
         {
             if (!await db.HasRoleAsync(receiverId, Roles.Manager))
             {
@@ -147,7 +147,7 @@ public sealed class PurchaseService(AppDbContext db)
             }
             var request = await db.PurchaseRequests.AsNoTracking()
                 .Where(r => r.Id == requestId)
-                .Select(r => new { r.ItemId, r.Quantity })
+                .Select(r => new { r.ItemId, r.Quantity, r.Item!.Unit })
                 .SingleOrDefaultAsync();
             if (request is null)
             {
@@ -188,7 +188,7 @@ public sealed class PurchaseService(AppDbContext db)
             db.RequestEvents.Add(Event(requestId, RequestAction.Received, receiverId, now, null));
             await db.SaveChangesAsync();
             await transaction.CommitAsync();
-            return new(true, $"Request #{requestId} received. Added {request.Quantity} to stock.", requestId);
+            return new(true, $"Request #{requestId} received. Added {DisplayFormat.Quantity(request.Quantity, request.Unit)} to stock.", requestId);
         });
 
     // US-07: managers see every request event; members see events on their own requests only, with the
@@ -224,4 +224,23 @@ public static class DisplayFormat
 {
     public static string Utc(DateTime? value) =>
         value?.ToString("yyyy-MM-dd HH:mm 'UTC'", System.Globalization.CultureInfo.InvariantCulture) ?? "";
+
+    // A <time> element with a machine-readable value; the stylesheet keeps it on one line in tables.
+    // Both strings come from formatted dates, so they need no HTML encoding.
+    public static Microsoft.AspNetCore.Html.HtmlString UtcTime(DateTime? value) =>
+        value is { } time
+            ? new($"<time datetime=\"{time.ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture)}\">{Utc(time)}</time>")
+            : Microsoft.AspNetCore.Html.HtmlString.Empty;
+
+    // "1 spool", "5 spools", "2 boxes". Units are single English nouns from the seeded items.
+    public static string Quantity(int quantity, string unit) =>
+        $"{quantity} {(Math.Abs(quantity) == 1 ? unit : Plural(unit))}";
+
+    // Stock changes with an explicit sign: "+5 spools", "-2 spools".
+    public static string Change(int delta, string unit) => (delta > 0 ? "+" : "") + Quantity(delta, unit);
+
+    private static string Plural(string unit) =>
+        unit.EndsWith('s') || unit.EndsWith('x') || unit.EndsWith('z') || unit.EndsWith("ch") || unit.EndsWith("sh")
+            ? unit + "es"
+            : unit + "s";
 }

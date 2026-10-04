@@ -8,14 +8,14 @@
 <h1>Request #@request.Id</h1>
 <dl class="details">
     <dt>Item</dt><dd>@request.ItemName</dd>
-    <dt>Quantity</dt><dd>@request.Quantity @request.Unit</dd>
+    <dt>Quantity</dt><dd>@DisplayFormat.Quantity(request.Quantity, request.Unit)</dd>
     <dt>Status</dt><dd>@request.Status</dd>
     <dt>Reason</dt><dd>@request.Reason</dd>
     <dt>Requester</dt><dd>@request.RequesterEmail</dd>
-    <dt>Created</dt><dd>@DisplayFormat.Utc(request.CreatedAtUtc)</dd>
+    <dt>Created</dt><dd>@DisplayFormat.UtcTime(request.CreatedAtUtc)</dd>
     @if (request.ReviewedAtUtc is not null)
     {
-        <dt>Reviewed</dt><dd>@DisplayFormat.Utc(request.ReviewedAtUtc)</dd>
+        <dt>Reviewed</dt><dd>@DisplayFormat.UtcTime(request.ReviewedAtUtc)</dd>
     }
     @if (request.RejectionReason is not null)
     {
@@ -23,7 +23,7 @@
     }
     @if (request.ReceivedAtUtc is not null)
     {
-        <dt>Received</dt><dd>@DisplayFormat.Utc(request.ReceivedAtUtc)</dd>
+        <dt>Received</dt><dd>@DisplayFormat.UtcTime(request.ReceivedAtUtc)</dd>
     }
 </dl>
 
@@ -47,11 +47,12 @@
     {
         <h2>Delivery</h2>
         <form method="post" asp-page="/Requests/Review" asp-page-handler="Receive" asp-route-id="@request.Id">
-            <button type="submit">Record receipt of @request.Quantity @request.Unit</button>
+            <button type="submit">Record receipt of @DisplayFormat.Quantity(request.Quantity, request.Unit)</button>
         </form>
     }
 }
 
-<h2>Request history</h2>
+<h2 id="history-heading">Request history</h2>
+@{ ViewData["TableLabel"] = "history-heading"; }
 <partial name="_RequestEventTable" model="Model.Events" />
 <p><a asp-page="/Requests/Index">Back to requests</a></p>

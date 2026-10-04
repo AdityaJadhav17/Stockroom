@@ -87,7 +87,7 @@ public sealed class StockServiceTests : IAsyncLifetime
         var result = await factory.StockAsync(s => s.IssueAsync(filament.Id, managerId, 3, "Workshop"));
 
         Assert.False(result.Succeeded);
-        Assert.Equal("Only 2 spool of PLA filament, 1.75 mm in stock. Nothing was changed.", result.Message);
+        Assert.Equal("Only 2 spools of PLA filament, 1.75 mm in stock. Nothing was changed.", result.Message);
         Assert.Equal(before, await StateAsync());
     }
 
@@ -127,7 +127,7 @@ public sealed class StockServiceTests : IAsyncLifetime
             factory.StockAsync(s => { start.SignalAndWait(Ct); return s.IssueAsync(filament.Id, managerId, 1, "Workshop"); }), Ct)));
 
         Assert.Single(results, r => r.Succeeded);
-        Assert.Contains("Only 0 spool", Assert.Single(results, r => !r.Succeeded).Message);
+        Assert.Contains("Only 0 spools", Assert.Single(results, r => !r.Succeeded).Message);
         Assert.Equal(0, (await factory.ItemAsync(Filament)).Quantity);
         Assert.Single(await IssuesAsync());
     }
@@ -141,8 +141,10 @@ public sealed class StockServiceTests : IAsyncLifetime
             "CREATE TRIGGER fail_issue_movement BEFORE INSERT ON StockMovements WHEN NEW.Action = 'Issue' " +
             "BEGIN SELECT RAISE(ABORT, 'forced failure'); END;", Ct));
 
-        await Assert.ThrowsAsync<DbUpdateException>(() =>
-            factory.StockAsync(s => s.IssueAsync(boards.Id, managerId, 3, "Workshop kits")));
+        var result = await factory.StockAsync(s => s.IssueAsync(boards.Id, managerId, 3, "Workshop kits"));
+
+        Assert.False(result.Succeeded);
+        Assert.Equal(ServiceGuard.DatabaseErrorMessage, result.Message);
 
         Assert.Equal(10, (await factory.ItemAsync(Boards)).Quantity);
         Assert.Empty(await IssuesAsync());

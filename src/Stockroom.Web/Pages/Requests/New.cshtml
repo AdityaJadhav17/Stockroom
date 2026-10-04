@@ -6,22 +6,22 @@
 
 <h1>Request a purchase</h1>
 <form method="post" class="stack" novalidate>
-    <div asp-validation-summary="ModelOnly" class="error-summary" role="alert"></div>
+    <div asp-validation-summary="All" class="error-summary" role="alert"></div>
     <div class="field">
         <label asp-for="Input.ItemId">Item</label>
-        <select asp-for="Input.ItemId" asp-items="Model.Items" aria-describedby="item-error">
+        <select asp-for="Input.ItemId" asp-items="Model.Items" aria-describedby="item-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.ItemId")">
             <option value="0">Select an item</option>
         </select>
         <span asp-validation-for="Input.ItemId" id="item-error" class="field-error"></span>
     </div>
     <div class="field">
         <label asp-for="Input.Quantity">Quantity</label>
-        <input asp-for="Input.Quantity" type="number" min="1" max="@PurchaseRules.MaxQuantity" step="1" inputmode="numeric" aria-describedby="quantity-error">
+        <input asp-for="Input.Quantity" type="number" min="1" max="@PurchaseRules.MaxQuantity" step="1" inputmode="numeric" aria-describedby="quantity-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Quantity")">
         <span asp-validation-for="Input.Quantity" id="quantity-error" class="field-error"></span>
     </div>
     <div class="field">
         <label asp-for="Input.Reason">Reason</label>
-        <textarea asp-for="Input.Reason" rows="3" maxlength="@PurchaseRules.MaxReasonLength" aria-describedby="reason-hint reason-error"></textarea>
+        <textarea asp-for="Input.Reason" rows="3" maxlength="@PurchaseRules.MaxReasonLength" aria-describedby="reason-hint reason-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Reason")"></textarea>
         <span id="reason-hint" class="hint">Up to @PurchaseRules.MaxReasonLength characters.</span>
         <span asp-validation-for="Input.Reason" id="reason-error" class="field-error"></span>
     </div>

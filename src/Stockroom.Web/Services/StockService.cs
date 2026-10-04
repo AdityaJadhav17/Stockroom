@@ -9,10 +9,10 @@ public sealed record MovementView(
     DateTime OccurredAtUtc, string? Reason, int? PurchaseRequestId);
 
 // Stock issues and movement history (BR-01, BR-03, BR-06, BR-07, BR-08, BR-10).
-public sealed class StockService(AppDbContext db)
+public sealed class StockService(AppDbContext db, ILogger<StockService> logger)
 {
     public Task<OperationResult> IssueAsync(int itemId, string actorId, int? quantity, string? reason) =>
-        db.GuardAsync(async () =>
+        db.GuardAsync(logger, async () =>
         {
             if (!await db.HasRoleAsync(actorId, Roles.Manager))
             {
@@ -36,7 +36,7 @@ public sealed class StockService(AppDbContext db)
                 var item = await db.InventoryItems.AsNoTracking().SingleOrDefaultAsync(i => i.Id == itemId);
                 return item is null
                     ? new(false, "Select an item.")
-                    : new(false, $"Only {item.Quantity} {item.Unit} of {item.Name} in stock. Nothing was changed.");
+                    : new(false, $"Only {DisplayFormat.Quantity(item.Quantity, item.Unit)} of {item.Name} in stock. Nothing was changed.");
             }
 
             db.StockMovements.Add(new StockMovement
@@ -52,7 +52,7 @@ public sealed class StockService(AppDbContext db)
             var issuedItem = await db.InventoryItems.AsNoTracking().SingleAsync(i => i.Id == itemId);
             await db.SaveChangesAsync();
             await transaction.CommitAsync();
-            return new(true, $"Issued {issued} {issuedItem.Unit} of {issuedItem.Name}. {issuedItem.Quantity} remain.");
+            return new(true, $"Issued {DisplayFormat.Quantity(issued, issuedItem.Unit)} of {issuedItem.Name}. {DisplayFormat.Quantity(issuedItem.Quantity, issuedItem.Unit)} remain.");
         });
 
     // US-07: full movement history for managers only. The role comes from the database inside the query,

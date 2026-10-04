@@ -2,7 +2,7 @@
 @{
     var isManager = User.IsInRole(Roles.Manager);
 }
-<table>
+<table aria-labelledby="@ViewData["TableLabel"]">
     <thead>
         <tr>
             <th scope="col">Request</th>
@@ -22,13 +22,13 @@
             <tr>
                 <td><a asp-page="/Requests/Details" asp-route-id="@request.Id">#@request.Id</a></td>
                 <td>@request.ItemName</td>
-                <td>@request.Quantity @request.Unit</td>
+                <td>@DisplayFormat.Quantity(request.Quantity, request.Unit)</td>
                 <td>@request.Status</td>
                 @if (isManager)
                 {
                     <td>@request.RequesterEmail</td>
                 }
-                <td>@DisplayFormat.Utc(request.CreatedAtUtc)</td>
+                <td>@DisplayFormat.UtcTime(request.CreatedAtUtc)</td>
             </tr>
         }
     </tbody>

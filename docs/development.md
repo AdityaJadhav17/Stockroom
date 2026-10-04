@@ -8,7 +8,7 @@ The solution contains the web application in `src/Stockroom.Web/` and unit, inte
 
 ## Local setup
 
-The developer executed these commands from the repository root on Windows 11 with SDK 10.0.401 on 2026-10-03. Replace the placeholder passwords with values of your choice. Identity requires at least six characters, an uppercase letter, a lowercase letter, a digit, and a non-alphanumeric character.
+Clone the repository, then run these commands from its root. Replace the placeholder passwords with values of your choice. Identity requires at least six characters, an uppercase letter, a lowercase letter, a digit, and a non-alphanumeric character.
 
 ```powershell
 dotnet restore Stockroom.slnx --locked-mode
@@ -18,6 +18,10 @@ dotnet user-secrets set "Seed:ManagerPassword" "<manager password>" --project sr
 dotnet run --project src/Stockroom.Web -- seed
 dotnet run --project src/Stockroom.Web --launch-profile http
 ```
+
+On 2026-10-04 the developer ran these commands on Windows 11 with SDK 10.0.401 in a fresh clone that included the uncommitted M6 changes. The run used generated passwords and a separate user-secrets store, then ran every command under [Checks and tests](#checks-and-tests). All steps succeeded: the application answered at `http://localhost:5080`, the manager logged in with the generated password, the Release build reported no warnings, and 141 integration tests and 7 browser tests passed. Hosted CI has not run this state.
+
+On a new database, the first seed prints an Entity Framework warning that an operation in the `StockMovementReasonAndReceiptChecks` migration cannot run in a transaction. SQLite rebuilds the `StockMovements` table to add CHECK constraints; the warning is expected and the seed continues.
 
 On a new database, the seed command applies migrations to `src/Stockroom.Web/stockroom.db` and creates the demo dataset described below. On 2026-10-04 the developer ran it twice against a disposable database; both runs printed `Seed complete: 3 accounts, 10 items, 4 purchase requests, 12 stock movements.` A rerun adds only missing roles, accounts, and items and never changes or deletes existing records. A database seeded before M4 keeps its records and receives no example requests. Git ignores the database file. The command reads the environment from the launch profile and refuses to run outside Development:
 
@@ -70,7 +74,13 @@ pwsh tests/e2e/bin/Release/net10.0/playwright.ps1 install chromium
 dotnet test --project tests/e2e/Stockroom.E2ETests.csproj --configuration Release --no-build
 ```
 
-The browser tests start the Release build of the web application on a temporary database; see [the E2E README](../tests/e2e/README.md). The integration tests host the application with `WebApplicationFactory` and give each test its own temporary SQLite file. The repository check covers tracked files only, so add new files to Git before relying on its result.
+The application writes errors, including database failures, to the console log; the browser shows a generic error page without details. The browser tests start the Release build of the web application on a temporary database; see [the E2E README](../tests/e2e/README.md). The integration tests host the application with `WebApplicationFactory` and give each test its own temporary SQLite file. The repository check covers tracked files only, so add new files to Git before relying on its result.
+
+To refresh the README screenshots and record the walkthrough video, build the solution and run the explicit demo test. It uses its own temporary database and writes screenshots to `docs/images` and video to the ignored `artifacts/demo` directory.
+
+```powershell
+dotnet test --project tests/e2e/Stockroom.E2ETests.csproj --configuration Release --no-build -- --explicit only
+```
 
 ## Migrations
 

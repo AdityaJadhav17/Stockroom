@@ -1,0 +1,9 @@
+@page
+@model ErrorModel
+@{
+    ViewData["Title"] = Model.Heading;
+}
+
+<h1>@Model.Heading</h1>
+<p>@Model.Explanation</p>
+<p><a asp-page="/Index">Return to the dashboard</a></p>

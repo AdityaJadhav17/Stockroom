@@ -35,9 +35,9 @@ public sealed partial class PurchaseAndWithdrawalTests : BrowserTest
 
         // Receipt adds the approved quantity once.
         await manager.GotoAsync(requestPath);
-        await manager.GetByRole(AriaRole.Button, new() { Name = "Record receipt of 5 spool" }).ClickAsync();
-        await Expect(manager.GetByRole(AriaRole.Status)).ToHaveTextAsync($"Request #{requestId} received. Added 5 to stock.");
-        await Expect(manager.GetByRole(AriaRole.Button, new() { Name = "Record receipt of 5 spool" })).ToHaveCountAsync(0);
+        await manager.GetByRole(AriaRole.Button, new() { Name = "Record receipt of 5 spools" }).ClickAsync();
+        await Expect(manager.GetByRole(AriaRole.Status)).ToHaveTextAsync($"Request #{requestId} received. Added 5 spools to stock.");
+        await Expect(manager.GetByRole(AriaRole.Button, new() { Name = "Record receipt of 5 spools" })).ToHaveCountAsync(0);
         await ExpectStockAsync(manager, Filament, "7");
 
         // Issue two spools, then fail to issue six of the remaining five.
@@ -45,14 +45,14 @@ public sealed partial class PurchaseAndWithdrawalTests : BrowserTest
         await manager.GetByLabel("Quantity to issue").FillAsync("2");
         await manager.GetByLabel("Reason").FillAsync("Robotics workshop prints");
         await manager.GetByRole(AriaRole.Button, new() { Name = "Issue stock" }).ClickAsync();
-        await Expect(manager.GetByRole(AriaRole.Status)).ToHaveTextAsync($"Issued 2 spool of {Filament}. 5 remain.");
+        await Expect(manager.GetByRole(AriaRole.Status)).ToHaveTextAsync($"Issued 2 spools of {Filament}. 5 spools remain.");
         await Expect(InventoryQuantity(manager, Filament)).ToHaveTextAsync("5");
 
         await manager.GetByRole(AriaRole.Link, new() { Name = $"Issue {Filament}" }).ClickAsync();
         await manager.GetByLabel("Quantity to issue").FillAsync("6");
         await manager.GetByLabel("Reason").FillAsync("Open house display");
         await manager.GetByRole(AriaRole.Button, new() { Name = "Issue stock" }).ClickAsync();
-        await Expect(manager.GetByRole(AriaRole.Alert)).ToHaveTextAsync($"Only 5 spool of {Filament} in stock. Nothing was changed.");
+        await Expect(manager.GetByRole(AriaRole.Alert)).ToHaveTextAsync($"Only 5 spools of {Filament} in stock. Nothing was changed.");
         await ExpectStockAsync(manager, Filament, "5");
 
         // Manager history: request decisions and the matching stock movements, newest first.
@@ -61,22 +61,22 @@ public sealed partial class PurchaseAndWithdrawalTests : BrowserTest
             .Filter(new() { Has = manager.GetByRole(AriaRole.Link, new() { Name = $"#{requestId}", Exact = true }) });
         await Expect(events).ToHaveCountAsync(3);
         await Expect(events.Nth(0)).ToContainTextAsync("Received");
-        await Expect(events.Nth(0)).ToContainTextAsync("+5 spool");
+        await Expect(events.Nth(0)).ToContainTextAsync("+5 spools");
         await Expect(events.Nth(1)).ToContainTextAsync("Approved");
         await Expect(events.Nth(2)).ToContainTextAsync("Materials for the robotics workshop");
         var movements = manager.GetByRole(AriaRole.Table).Nth(1).GetByRole(AriaRole.Row);
         await Expect(movements.Nth(1)).ToContainTextAsync("Issue");
-        await Expect(movements.Nth(1)).ToContainTextAsync("-2 spool");
+        await Expect(movements.Nth(1)).ToContainTextAsync("-2 spools");
         await Expect(movements.Nth(1)).ToContainTextAsync("Robotics workshop prints");
         await Expect(movements.Nth(2)).ToContainTextAsync("Receipt");
-        await Expect(movements.Nth(2)).ToContainTextAsync("+5 spool");
+        await Expect(movements.Nth(2)).ToContainTextAsync("+5 spools");
         await Expect(manager.GetByText("Open house display")).ToHaveCountAsync(0);
         await Expect(manager.GetByText("UTC").First).ToBeVisibleAsync();
 
         // The member sees the outcome of their request.
         await member.GotoAsync(requestPath);
         await Expect(member.GetByRole(AriaRole.Heading, new() { Name = "Request history" })).ToBeVisibleAsync();
-        await Expect(member.GetByRole(AriaRole.Row).Filter(new() { HasText = "Received" })).ToContainTextAsync("+5 spool");
+        await Expect(member.GetByRole(AriaRole.Row).Filter(new() { HasText = "Received" })).ToContainTextAsync("+5 spools");
     }
 
     [GeneratedRegex(@"^Request #\d+ submitted\.$")]
