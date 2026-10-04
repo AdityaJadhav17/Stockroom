@@ -1,6 +1,6 @@
 # Test plan
 
-Developers will execute these scenarios during implementation. After M3, the [integration project](../tests/README.md) covers T-01 through T-13 and the seed-rerun part of T-14. Reset (T-15) and the reset-dependent part of T-14 have no cases yet.
+Developers will execute these scenarios during implementation. After M4, the [integration project](../tests/README.md) covers T-01 through T-15. The manual demo below has been run in parts; a full recorded walkthrough remains part of release preparation.
 
 Use xUnit v3 for pure input and decision rules. Use ASP.NET Core MVC Testing with xUnit for login, authorization, and request ownership. Test constraints, competing writes, and rollback with SQLite. Concurrency tests need separate contexts and connections to the same temporary database file. Use Playwright for .NET with xUnit for browser workflows against a running application.
 

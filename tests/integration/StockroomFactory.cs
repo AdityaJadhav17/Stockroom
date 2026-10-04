@@ -14,19 +14,28 @@ namespace Stockroom.IntegrationTests;
 
 // Hosts the web application against a seeded SQLite file that belongs to one test.
 // busyTimeoutSeconds shortens the provider's lock retries for lock-contention tests (default 30 seconds).
-public sealed partial class StockroomFactory(int? busyTimeoutSeconds = null) : WebApplicationFactory<Program>
+// Most tests use the base dataset without example requests; seedExamples adds the full demo dataset.
+public sealed partial class StockroomFactory(
+    int? busyTimeoutSeconds = null, bool seedExamples = false, string environment = "Development")
+    : WebApplicationFactory<Program>
 {
     public const string MemberPassword = "Test-Member-Pass-1";
     public const string ManagerPassword = "Test-Manager-Pass-1";
 
     public string DatabasePath { get; } = Path.Combine(Path.GetTempPath(), $"stockroom-test-{Guid.NewGuid():N}.db");
 
+    private string ConnectionString => busyTimeoutSeconds is { } seconds
+        ? $"Data Source={DatabasePath};Default Timeout={seconds}"
+        : $"Data Source={DatabasePath}";
+
+    // Closes pooled connections to this test's file only. ClearAllPools would also reclaim connections
+    // that tests running in parallel are still using.
+    public void ClearPool() => SqliteConnection.ClearPool(new SqliteConnection(ConnectionString));
+
     protected override void ConfigureWebHost(IWebHostBuilder builder) =>
-        builder.ConfigureAppConfiguration(config => config.AddInMemoryCollection(new Dictionary<string, string?>
+        builder.UseEnvironment(environment).ConfigureAppConfiguration(config => config.AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["ConnectionStrings:Stockroom"] = busyTimeoutSeconds is { } seconds
-                ? $"Data Source={DatabasePath};Default Timeout={seconds}"
-                : $"Data Source={DatabasePath}",
+            ["ConnectionStrings:Stockroom"] = ConnectionString,
             ["Seed:MemberPassword"] = MemberPassword,
             ["Seed:ManagerPassword"] = ManagerPassword,
         }));
@@ -34,7 +43,7 @@ public sealed partial class StockroomFactory(int? busyTimeoutSeconds = null) : W
     public async Task SeedAsync()
     {
         await using var scope = Services.CreateAsyncScope();
-        await DemoSeeder.SeedAsync(scope.ServiceProvider);
+        await DemoSeeder.SeedAsync(scope.ServiceProvider, seedExamples);
     }
 
     // Each call uses its own scope, so concurrent calls use separate contexts and connections to one file.
@@ -123,7 +132,7 @@ public sealed partial class StockroomFactory(int? busyTimeoutSeconds = null) : W
     public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
-        SqliteConnection.ClearAllPools();
+        ClearPool();
         File.Delete(DatabasePath);
     }
 

@@ -33,4 +33,4 @@ M1 adds the web application, Identity, the initial schema, and a Development see
 
 ## Consequences
 
-The account pages contain only the framework calls that the MVP needs. A later account feature requires a new page and, for recovery, token providers. The seed command does not yet create request examples or offer reset; M4 adds them under US-08. Hosted deployment needs HTTPS redirection and HSTS.
+The account pages contain only the framework calls that the MVP needs. A later account feature requires a new page and, for recovery, token providers. M4 added request examples and the reset option under US-08; see [ADR 0005](0005-m4-demo-dataset-and-reset.md). Hosted deployment needs HTTPS redirection and HSTS.
