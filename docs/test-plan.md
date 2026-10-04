@@ -1,6 +1,6 @@
 # Test plan
 
-Developers will execute these scenarios during implementation. After M4, the [integration project](../tests/README.md) covers T-01 through T-15. The manual demo below has been run in parts; a full recorded walkthrough remains part of release preparation.
+Developers will execute these scenarios during implementation. After M5, SQLite integration tests and Chromium browser tests cover T-01 through T-15; the coverage map below lists them. Results below are local runs on Windows; hosted CI results are recorded separately after publication.
 
 Use xUnit v3 for pure input and decision rules. Use ASP.NET Core MVC Testing with xUnit for login, authorization, and request ownership. Test constraints, competing writes, and rollback with SQLite. Concurrency tests need separate contexts and connections to the same temporary database file. Use Playwright for .NET with xUnit for browser workflows against a running application.
 
@@ -23,6 +23,30 @@ Use xUnit v3 for pure input and decision rules. Use ASP.NET Core MVC Testing wit
 | T-13 | Inspect purchase and stock history; restart app | Show actor, UTC time, action, quantity delta, and references; retain committed records after restart. |
 | T-14 | Run seed twice and compare accounts, requests, quantities, and movements | Preserve the first seed's records on the second run. |
 | T-15 | Reset Development database with explicit option; attempt reset outside Development | Reset the configured demo database in Development; reject reset outside Development. |
+
+## Coverage map
+
+Integration classes are in [tests/integration](../tests/integration/README.md); browser classes are in [tests/e2e](../tests/e2e/README.md). On 2026-10-04 the developer ran 135 integration cases and 7 browser cases locally on Windows; all passed.
+
+| ID | Integration tests | Browser tests |
+| --- | --- | --- |
+| T-01 | `AuthenticationTests`; login redirects in `PurchaseWorkflowHttpTests` and `StockAndHistoryHttpTests` | `AccessRestrictionTests.LogoutBlocksProtectedPages` |
+| T-02 | Member posts to approve, reject, receive, and issue; Manager and dual-role purchase creation; another member's request; direct service calls (`PurchaseWorkflowHttpTests`, `StockAndHistoryHttpTests`, `PurchaseServiceTests`, `StockServiceTests`) | `AccessRestrictionTests` (issue page and another member's request) |
+| T-03 | `PurchaseWorkflowHttpTests` (columns, case-insensitive search, empty state) | Filament search in `PurchaseAndWithdrawalTests` |
+| T-04 | `PurchaseWorkflowHttpTests.DashboardListsItemsAtOrBelowThreshold` | None |
+| T-05 | `PurchaseServiceTests` and `PurchaseWorkflowHttpTests` (valid, zero, negative, missing, fractional, overflowing, over-limit quantities; blank and overlong reasons) | Valid request in `PurchaseAndWithdrawalTests` |
+| T-06 | `PurchaseServiceTests` (approval with unchanged stock, rejection, invalid reasons) | Approval with stock at 2; `RejectionTests` |
+| T-07 | `PurchaseServiceTests` (repeated reviews, competing approval and rejection) | `RejectionTests` (approve button gone after rejection) |
+| T-08 | `PurchaseServiceTests` (receipt; Pending and Rejected refused) | Receipt to 7 in `PurchaseAndWithdrawalTests` |
+| T-09 | `PurchaseServiceTests` (repeated and four competing receipts); `PurchaseWorkflowHttpTests` (repeated receipt) | None |
+| T-10 | `StockServiceTests` and `StockAndHistoryHttpTests` (valid issue; invalid, excessive, and overflowing quantities; blank and overlong reasons) | Issue 2, then issue 6 refused, in `PurchaseAndWithdrawalTests` |
+| T-11 | `PurchaseServiceTests.FailedHistoryWriteRollsBackReceipt`; `StockServiceTests.FailedMovementWriteRollsBackStockChange` | None |
+| T-12 | `StockServiceTests.CompetingOneUnitIssuesCannotOversell` | None |
+| T-13 | `StockAndHistoryHttpTests` (history content, ordering, visibility, no edit or delete); `StockServiceTests` (reopened database) | History in `PurchaseAndWithdrawalTests` and `AccessRestrictionTests`; `PersistenceTests` (application restart) |
+| T-14 | `SeedTests`; `DemoDataTests` (complete-dataset comparison across reruns) | Each browser test starts from the seeded dataset |
+| T-15 | `DemoDataTests` (reset, Production refusal, unsupported and locked targets, seed passwords) | None |
+
+The coverage review found one gap: no test restarted the application process for T-13. `PersistenceTests` closes it. The review found no defect in application behavior. Browser tests do not repeat database races, rollback, or reset, which the SQLite tests cover more precisely.
 
 For competing-write tests, synchronize the start of the operations. Assert final database state and permitted outcomes. Handle SQLite lock errors through the same policy as the application; do not accept an unhandled exception as successful conflict handling.
 

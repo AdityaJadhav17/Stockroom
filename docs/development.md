@@ -4,7 +4,7 @@
 
 Contributors need Git, PowerShell 7, and a [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0), not a runtime alone. `global.json` selects SDK 10.0.401, allows later patches, and selects Microsoft.Testing.Platform for `dotnet test`.
 
-The solution contains the web application in `src/Stockroom.Web/` and unit, integration, and E2E test projects. Only the integration project contains test cases after M3.
+The solution contains the web application in `src/Stockroom.Web/` and unit, integration, and E2E test projects. The integration and E2E projects contain test cases; the unit project has none.
 
 ## Local setup
 
@@ -66,9 +66,11 @@ pwsh -NoProfile -File scripts/Test-Repository.ps1
 pwsh -NoProfile -File scripts/Test-Dependencies.ps1
 dotnet build Stockroom.slnx --configuration Release --no-restore
 dotnet test --project tests/integration/Stockroom.IntegrationTests.csproj --configuration Release --no-build
+pwsh tests/e2e/bin/Release/net10.0/playwright.ps1 install chromium
+dotnet test --project tests/e2e/Stockroom.E2ETests.csproj --configuration Release --no-build
 ```
 
-The integration tests host the application with `WebApplicationFactory` and give each test its own temporary SQLite file. The repository check covers tracked files only, so add new files to Git before relying on its result.
+The browser tests start the Release build of the web application on a temporary database; see [the E2E README](../tests/e2e/README.md). The integration tests host the application with `WebApplicationFactory` and give each test its own temporary SQLite file. The repository check covers tracked files only, so add new files to Git before relying on its result.
 
 ## Migrations
 
@@ -99,10 +101,12 @@ flowchart LR
     repository[Repository Structure Checks] --> audit[Dependency Security Audit]
     repository --> build[Release Build]
     build --> tests[Integration Tests: Ubuntu and Windows]
+    tests --> e2e[End-to-End Tests: Chromium on Ubuntu]
     repository --> status[CI Status]
     audit --> status
     build --> status
     tests --> status
+    e2e --> status
 ```
 
 | Job | Verification |
@@ -111,16 +115,17 @@ flowchart LR
 | Dependency Security Audit | Locked package restore and the existing four-project NuGet audit |
 | Release Build | Full solution build with compiler and analyzer warnings treated as errors |
 | Integration Tests | SQLite and HTTP cases on Ubuntu and Windows; at least one test must run |
+| End-to-End Tests | Chromium browser cases on Ubuntu against the web application started by the test fixture; at least one test must run |
 | CI Status | Every required job must succeed; failure, cancellation, and skipped dependencies cannot produce a passing gate |
 
 The audit and Release build run in parallel after repository checks pass. Integration tests start after the build. Their runners restore locked packages and build their own test host because jobs have separate filesystems and the two operating systems need their own binaries. SDK setup caches NuGet packages using the project lock files.
 
-Integration runs upload TRX reports and test diagnostics as separate artifacts, retained for 14 days. Reports are uploaded after passing or failing test runs. Matrix failures do not cancel the other operating system's tests. `CI Status` records the job results in the run summary. Set that check as required in the `main` branch rules after its first hosted run.
+The End-to-End job starts after both integration runs pass. It builds the web application and browser tests in separate steps, so either failed build fails the job, installs Chromium with its Linux dependencies, and uploads the TRX report plus any failure traces, screenshots, and server logs. Integration and browser runs upload TRX reports and test diagnostics as separate artifacts, retained for 14 days. Reports are uploaded after passing or failing test runs. Matrix failures do not cancel the other operating system's tests. `CI Status` records the job results in the run summary. Set that check as required in the `main` branch rules after its first hosted run.
 
 The workflow has read access to repository contents and does not deploy.
 
 Run the local commands above before pushing. The new job graph, hosted Ubuntu run, package cache, and artifact uploads must be verified in GitHub Actions after publishing the workflow change.
 
-Add a unit-test job when the unit project contains cases. Configure browser installation and the running host before adding an E2E job. A scaffold build proves no business behavior, and the dependency audit covers known NuGet advisories rather than downloaded browser binaries.
+Add a unit-test job when the unit project contains cases. A scaffold build proves no business behavior, and the dependency audit covers known NuGet advisories rather than downloaded browser binaries.
 
 References: [NuGet audit](https://learn.microsoft.com/en-us/nuget/concepts/auditing-packages), [GitHub job dependencies](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-jobs), [SDK setup and caching](https://github.com/actions/setup-dotnet), [xUnit test reports](https://xunit.net/docs/getting-started/v3/microsoft-testing-platform), and [artifact uploads](https://github.com/actions/upload-artifact).

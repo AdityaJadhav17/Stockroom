@@ -1,6 +1,6 @@
 # Tests
 
-The solution contains three .NET 10 test projects. The integration project contains the M1 through M4 cases: login, roles, seed reruns, reset, the demo dataset, schema constraints, the purchase workflow, stock issues, history, and their concurrency, lock, and rollback checks. The unit and E2E projects contain no cases yet; SQLite integration tests cover the input rules.
+The solution contains three .NET 10 test projects. The integration project contains the M1 through M4 cases: login, roles, seed reruns, reset, the demo dataset, schema constraints, the purchase workflow, stock issues, history, and their concurrency, lock, and rollback checks. The E2E project contains seven Chromium cases for the purchase, rejection, withdrawal, access, and restart workflows and the fixture cleanup. The unit project contains no cases yet; SQLite integration tests cover the input rules.
 
 | Folder | Responsibility | Tools |
 | --- | --- | --- |
@@ -20,6 +20,6 @@ pwsh -NoProfile -File scripts/Test-Dependencies.ps1
 dotnet test --project tests/integration/Stockroom.IntegrationTests.csproj --configuration Release --no-build
 ```
 
-`global.json` selects Microsoft.Testing.Platform, so `dotnet test` takes the project through `--project`. The E2E project also needs installed browser binaries and a running application; see its folder README.
+`global.json` selects Microsoft.Testing.Platform, so `dotnet test` takes the project through `--project`. The E2E fixture starts the application itself; install Chromium first, as described in [its README](e2e/README.md).
 
 Read [the dependency audit](../docs/dependency-audit.md) for the package versions, results, and scope of the initial check.
