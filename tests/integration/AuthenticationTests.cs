@@ -41,7 +41,7 @@ public sealed class AuthenticationTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, dashboard.StatusCode);
         var html = await dashboard.Content.ReadAsStringAsync(Ct);
         Assert.Contains(email, html);
-        Assert.Contains($"<strong>{role}</strong>", html);
+        Assert.Contains($"<span class=\"account-role\">{role}</span>", html);
     }
 
     [Theory]

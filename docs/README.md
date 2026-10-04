@@ -18,6 +18,7 @@ The owner plans a two-day MVP for a fictional makerspace. Contributors use these
 - [M4 decision](decisions/0005-m4-demo-dataset-and-reset.md): demo dataset, seed reruns, and reset safeguards.
 - [M6 decision](decisions/0006-m6-release-preparation.md): database-error handling, error pages, and interface accessibility.
 - [M7 decision](decisions/0007-m7-security-hardening.md): security headers, session revocation, and login throttling.
+- [M8 decision](decisions/0008-m8-ui-polish.md): interface polish, status badges, phone layouts, and before-and-after screenshots.
 - [Delivery plan](delivery-plan.md): milestones and SDLC checkpoints.
 - [Development setup](development.md): prerequisites, repository checks, and application CI work.
 - [Test structure](../tests/README.md): configured projects and fixture conventions.

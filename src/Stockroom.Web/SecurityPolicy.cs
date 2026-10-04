@@ -64,7 +64,7 @@ public static class LastResortErrorPage
         <!DOCTYPE html>
         <html lang="en">
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Something went wrong - Stockroom</title><link rel="stylesheet" href="/css/site.css"></head>
-        <body><main id="main"><h1>Something went wrong</h1><p>The server could not complete the request, and the error was recorded in the server log. If you were saving a change, open the record again to check whether it was saved before retrying.</p><p><a href="/">Return to the dashboard</a></p></main></body>
+        <body><header class="site-header"><div class="header-inner"><span class="brand">Stockroom</span></div></header><main id="main"><div class="narrow card"><h1>Something went wrong</h1><p>The server could not complete the request, and the error was recorded in the server log. If you were saving a change, open the record again to check whether it was saved before retrying.</p><a class="button secondary" href="/">Return to the dashboard</a></div></main></body>
         </html>
         """;
 

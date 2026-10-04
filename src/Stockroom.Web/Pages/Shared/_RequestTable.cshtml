@@ -2,34 +2,53 @@
 @{
     var isManager = User.IsInRole(Roles.Manager);
 }
-<table aria-labelledby="@ViewData["TableLabel"]">
-    <thead>
-        <tr>
-            <th scope="col">Request</th>
-            <th scope="col">Item</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Status</th>
-            @if (isManager)
-            {
-                <th scope="col">Requester</th>
-            }
-            <th scope="col">Created</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var request in Model)
-        {
+<div class="table-wrap" role="region" aria-labelledby="@ViewData["TableLabel"]" tabindex="0">
+    <table class="stack-sm" aria-labelledby="@ViewData["TableLabel"]">
+        <thead>
             <tr>
-                <td><a asp-page="/Requests/Details" asp-route-id="@request.Id">#@request.Id</a></td>
-                <td>@request.ItemName</td>
-                <td>@DisplayFormat.Quantity(request.Quantity, request.Unit)</td>
-                <td>@request.Status</td>
+                <th scope="col">Request</th>
+                <th scope="col">Item</th>
+                <th scope="col" class="num">Quantity</th>
+                <th scope="col">Status</th>
                 @if (isManager)
                 {
-                    <td>@request.RequesterEmail</td>
+                    <th scope="col">Requester</th>
                 }
-                <td>@DisplayFormat.UtcTime(request.CreatedAtUtc)</td>
+                <th scope="col">Created</th>
+                @if (isManager)
+                {
+                    <th scope="col"><span class="visually-hidden">Next step</span></th>
+                }
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var request in Model)
+            {
+                <tr>
+                    <td class="strong"><a asp-page="/Requests/Details" asp-route-id="@request.Id">#@request.Id</a></td>
+                    <td data-label="Item">@request.ItemName</td>
+                    <td class="num" data-label="Quantity">@DisplayFormat.Quantity(request.Quantity, request.Unit)</td>
+                    <td data-label="Status">@DisplayFormat.Badge(request.Status)</td>
+                    @if (isManager)
+                    {
+                        <td data-label="Requester">@request.RequesterEmail</td>
+                    }
+                    <td data-label="Created">@DisplayFormat.UtcTime(request.CreatedAtUtc)</td>
+                    @if (isManager)
+                    {
+                        <td class="cell-action">
+                            @if (request.Status == RequestStatus.Pending)
+                            {
+                                <a class="button small" asp-page="/Requests/Details" asp-route-id="@request.Id">Review<span class="visually-hidden"> request #@request.Id</span></a>
+                            }
+                            else if (request.Status == RequestStatus.Approved)
+                            {
+                                <a class="button small" asp-page="/Requests/Details" asp-route-id="@request.Id">Record receipt<span class="visually-hidden"> for request #@request.Id</span></a>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

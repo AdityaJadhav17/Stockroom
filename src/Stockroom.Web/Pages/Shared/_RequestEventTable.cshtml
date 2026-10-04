@@ -1,30 +1,39 @@
 @model IEnumerable<RequestEventView>
-<table aria-labelledby="@ViewData["TableLabel"]">
-    <thead>
-        <tr>
-            <th scope="col">Time (UTC)</th>
-            <th scope="col">Action</th>
-            <th scope="col">Request</th>
-            <th scope="col">Item</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Stock change</th>
-            <th scope="col">Actor</th>
-            <th scope="col">Note</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var e in Model)
-        {
+<div class="table-wrap" role="region" aria-labelledby="@ViewData["TableLabel"]" tabindex="0">
+    <table class="log" aria-labelledby="@ViewData["TableLabel"]">
+        <thead>
             <tr>
-                <td>@DisplayFormat.UtcTime(e.OccurredAtUtc)</td>
-                <td>@e.Action</td>
-                <td><a asp-page="/Requests/Details" asp-route-id="@e.RequestId">#@e.RequestId</a></td>
-                <td>@e.ItemName</td>
-                <td>@DisplayFormat.Quantity(e.Quantity, e.Unit)</td>
-                <td>@(e.Action == RequestAction.Received ? DisplayFormat.Change(e.Quantity, e.Unit) : "None")</td>
-                <td>@e.ActorEmail</td>
-                <td>@e.Note</td>
+                <th scope="col">Time (UTC)</th>
+                <th scope="col">Action</th>
+                <th scope="col">Request</th>
+                <th scope="col">Item</th>
+                <th scope="col" class="num">Quantity</th>
+                <th scope="col" class="num">Stock change</th>
+                <th scope="col">Actor</th>
+                <th scope="col">Note</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var e in Model)
+            {
+                <tr>
+                    <td>@DisplayFormat.UtcTime(e.OccurredAtUtc)</td>
+                    <td>@DisplayFormat.Badge(e.Action)</td>
+                    <td><a asp-page="/Requests/Details" asp-route-id="@e.RequestId">#@e.RequestId</a></td>
+                    <td>@e.ItemName</td>
+                    <td class="num">@DisplayFormat.Quantity(e.Quantity, e.Unit)</td>
+                    @if (e.Action == RequestAction.Received)
+                    {
+                        <td class="num increase">@DisplayFormat.Change(e.Quantity, e.Unit)</td>
+                    }
+                    else
+                    {
+                        <td class="num">None</td>
+                    }
+                    <td>@e.ActorEmail</td>
+                    <td class="text">@e.Note</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

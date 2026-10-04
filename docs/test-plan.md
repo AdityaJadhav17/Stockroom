@@ -46,7 +46,7 @@ Integration classes are in [tests/integration](../tests/integration/README.md); 
 | T-14 | `SeedTests`; `DemoDataTests` (complete-dataset comparison across reruns) | Each browser test starts from the seeded dataset |
 | T-15 | `DemoDataTests` (reset, Production refusal, unsupported and locked targets, seed passwords) | None |
 
-The coverage review found one gap: no test restarted the application process for T-13. `PersistenceTests` closes it. The review found no defect in application behavior. Browser tests do not repeat database races, rollback, or reset, which the SQLite tests cover more precisely.
+The coverage review found one gap: no test restarted the application process for T-13. `PersistenceTests` closes it. The review found no defect in application behavior. M8 added `ResponsiveLayoutTests` for phone-width layout, clipped card values at 320 pixels, focus and anchors clear of the sticky header, keyboard entry, and CSP console errors; eleven browser cases passed locally after M8. Browser tests do not repeat database races, rollback, or reset, which the SQLite tests cover more precisely.
 
 For competing-write tests, synchronize the start of the operations. Assert final database state and permitted outcomes. Handle SQLite lock errors through the same policy as the application; do not accept an unhandled exception as successful conflict handling.
 

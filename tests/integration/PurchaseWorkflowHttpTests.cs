@@ -56,7 +56,7 @@ public sealed class PurchaseWorkflowHttpTests : IAsyncLifetime
         var all = await client.GetStringAsync("/Inventory", Ct);
         var none = await client.GetStringAsync("/Inventory?q=zzz", Ct);
 
-        Assert.Matches(@"<td>PLA filament, 1\.75 mm</td>\s*<td>spool</td>\s*<td>2</td>\s*<td>3</td>\s*<td>Low</td>", all);
+        Assert.Matches(@"<td>PLA filament, 1\.75 mm</td>\s*<td data-label=""Unit"">spool</td>\s*<td class=""num strong"" data-label=""Quantity"">2</td>\s*<td class=""num"" data-label=""Reorder threshold"">3</td>\s*<td data-label=""Stock""><span class=""badge badge-low"">Low</span></td>", all);
         Assert.Contains("No items match &quot;zzz&quot;.", none);
         Assert.DoesNotContain("<table>", none);
     }

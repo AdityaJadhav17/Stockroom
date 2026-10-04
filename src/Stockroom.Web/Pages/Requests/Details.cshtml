@@ -2,57 +2,90 @@
 @model Stockroom.Web.Pages.Requests.DetailsModel
 @{
     var request = Model.PurchaseRequest;
+    var isManager = User.IsInRole(Roles.Manager);
+    var quantity = DisplayFormat.Quantity(request.Quantity, request.Unit);
     ViewData["Title"] = $"Request #{request.Id}";
 }
 
-<h1>Request #@request.Id</h1>
-<dl class="details">
-    <dt>Item</dt><dd>@request.ItemName</dd>
-    <dt>Quantity</dt><dd>@DisplayFormat.Quantity(request.Quantity, request.Unit)</dd>
-    <dt>Status</dt><dd>@request.Status</dd>
-    <dt>Reason</dt><dd>@request.Reason</dd>
-    <dt>Requester</dt><dd>@request.RequesterEmail</dd>
-    <dt>Created</dt><dd>@DisplayFormat.UtcTime(request.CreatedAtUtc)</dd>
-    @if (request.ReviewedAtUtc is not null)
-    {
-        <dt>Reviewed</dt><dd>@DisplayFormat.UtcTime(request.ReviewedAtUtc)</dd>
-    }
-    @if (request.RejectionReason is not null)
-    {
-        <dt>Rejection reason</dt><dd>@request.RejectionReason</dd>
-    }
-    @if (request.ReceivedAtUtc is not null)
-    {
-        <dt>Received</dt><dd>@DisplayFormat.UtcTime(request.ReceivedAtUtc)</dd>
-    }
-</dl>
+<div class="page-head">
+    <div>
+        <h1>Request #@request.Id</h1>
+        <p class="lead">@quantity of @request.ItemName</p>
+    </div>
+</div>
 
-@if (User.IsInRole(Roles.Manager))
-{
-    @if (request.Status == RequestStatus.Pending)
-    {
-        <h2>Review</h2>
-        <form method="post" asp-page="/Requests/Review" asp-page-handler="Approve" asp-route-id="@request.Id">
-            <button type="submit">Approve request</button>
-        </form>
-        <form method="post" asp-page="/Requests/Review" asp-page-handler="Reject" asp-route-id="@request.Id" class="stack">
-            <div class="field">
-                <label for="rejection-reason">Rejection reason</label>
-                <textarea id="rejection-reason" name="reason" rows="2" maxlength="@PurchaseRules.MaxReasonLength"></textarea>
-            </div>
-            <button type="submit" class="secondary">Reject request</button>
-        </form>
-    }
-    else if (request.Status == RequestStatus.Approved)
-    {
-        <h2>Delivery</h2>
-        <form method="post" asp-page="/Requests/Review" asp-page-handler="Receive" asp-route-id="@request.Id">
-            <button type="submit">Record receipt of @DisplayFormat.Quantity(request.Quantity, request.Unit)</button>
-        </form>
-    }
-}
+<div class="split">
+    <section class="card" aria-labelledby="details-heading">
+        <h2 id="details-heading">Details</h2>
+        <dl class="details">
+            <dt>Status</dt><dd>@DisplayFormat.Badge(request.Status)</dd>
+            <dt>Item</dt><dd>@request.ItemName</dd>
+            <dt>Quantity</dt><dd>@quantity</dd>
+            <dt>Reason</dt><dd>@request.Reason</dd>
+            <dt>Requester</dt><dd>@request.RequesterEmail</dd>
+            <dt>Created</dt><dd>@DisplayFormat.UtcTime(request.CreatedAtUtc)</dd>
+            @if (request.ReviewedAtUtc is not null)
+            {
+                <dt>Reviewed</dt><dd>@DisplayFormat.UtcTime(request.ReviewedAtUtc)</dd>
+            }
+            @if (request.RejectionReason is not null)
+            {
+                <dt>Rejection reason</dt><dd>@request.RejectionReason</dd>
+            }
+            @if (request.ReceivedAtUtc is not null)
+            {
+                <dt>Received</dt><dd>@DisplayFormat.UtcTime(request.ReceivedAtUtc)</dd>
+            }
+        </dl>
+    </section>
 
-<h2 id="history-heading">Request history</h2>
-@{ ViewData["TableLabel"] = "history-heading"; }
-<partial name="_RequestEventTable" model="Model.Events" />
-<p><a asp-page="/Requests/Index">Back to requests</a></p>
+    <section class="card next-step" aria-labelledby="next-step-heading">
+        <h2 id="next-step-heading">Next step</h2>
+        @if (isManager && request.Status == RequestStatus.Pending)
+        {
+            <form method="post" asp-page="/Requests/Review" asp-page-handler="Approve" asp-route-id="@request.Id">
+                <p class="hint">Approval does not change stock. Stock increases when you record the delivery.</p>
+                <button type="submit">Approve request</button>
+            </form>
+            <form method="post" asp-page="/Requests/Review" asp-page-handler="Reject" asp-route-id="@request.Id" class="form">
+                <div class="field">
+                    <label for="rejection-reason">Rejection reason</label>
+                    <textarea id="rejection-reason" name="reason" rows="3" maxlength="@PurchaseRules.MaxReasonLength" aria-describedby="rejection-hint"></textarea>
+                    <span id="rejection-hint" class="hint">Required to reject. The requester sees this reason. Up to @PurchaseRules.MaxReasonLength characters.</span>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="danger">Reject request</button>
+                </div>
+            </form>
+        }
+        else if (isManager && request.Status == RequestStatus.Approved)
+        {
+            <form method="post" asp-page="/Requests/Review" asp-page-handler="Receive" asp-route-id="@request.Id">
+                <p class="hint">Record the delivery once it arrives. This adds @quantity to stock.</p>
+                <button type="submit">Record receipt of @quantity</button>
+            </form>
+        }
+        else
+        {
+            <p>
+                @(request.Status switch
+                {
+                    RequestStatus.Pending => "Waiting for a manager to approve or reject this request.",
+                    RequestStatus.Approved => "Approved. Stock increases when a manager records the delivery.",
+                    RequestStatus.Rejected => "Rejected. The reason is shown in the details. Submit a new request if the need remains.",
+                    _ => $"Received. {quantity} added to stock. No further action is needed.",
+                })
+            </p>
+        }
+    </section>
+</div>
+
+<section class="section">
+    <div class="section-head">
+        <h2 id="history-heading">Request history</h2>
+        <p>Newest first.</p>
+    </div>
+    @{ ViewData["TableLabel"] = "history-heading"; }
+    <partial name="_RequestEventTable" model="Model.Events" />
+</section>
+<a class="back-link" asp-page="/Requests/Index">Back to requests</a>

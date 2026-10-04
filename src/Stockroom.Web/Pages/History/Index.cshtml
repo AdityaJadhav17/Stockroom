@@ -4,60 +4,78 @@
     ViewData["Title"] = "History";
 }
 
-<h1>History</h1>
-<p>Newest first. All times are UTC.</p>
+<div class="page-head">
+    <div>
+        <h1>History</h1>
+        <p class="lead">
+            @(Model.IsManager
+                ? "Every purchase decision and stock movement, newest first. Records are read-only. Times are UTC."
+                : "Events on your purchase requests, newest first. Times are UTC.")
+        </p>
+    </div>
+</div>
 
-<h2 id="events-heading">@(Model.IsManager ? "Purchase request events" : "Your request events")</h2>
-@if (Model.RequestEvents.Count == 0)
-{
-    <p>No request events yet.</p>
-}
-else
-{
-    ViewData["TableLabel"] = "events-heading";
-    <partial name="_RequestEventTable" model="Model.RequestEvents" />
-}
-
-@if (Model.IsManager)
-{
-    <h2 id="movements-heading">Stock movements</h2>
-    @if (Model.Movements.Count == 0)
+<section class="section">
+    <div class="section-head">
+        <h2 id="events-heading">@(Model.IsManager ? "Purchase request events" : "Your request events")</h2>
+    </div>
+    @if (Model.RequestEvents.Count == 0)
     {
-        <p>No stock movements yet.</p>
+        <div class="empty"><p>No request events yet.</p></div>
     }
     else
     {
-        <table aria-labelledby="movements-heading">
-            <thead>
-                <tr>
-                    <th scope="col">Time (UTC)</th>
-                    <th scope="col">Action</th>
-                    <th scope="col">Item</th>
-                    <th scope="col">Quantity change</th>
-                    <th scope="col">Actor</th>
-                    <th scope="col">Reason</th>
-                    <th scope="col">Request</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var movement in Model.Movements)
-                {
-                    <tr>
-                        <td>@DisplayFormat.UtcTime(movement.OccurredAtUtc)</td>
-                        <td>@movement.Action</td>
-                        <td>@movement.ItemName</td>
-                        <td>@DisplayFormat.Change(movement.QuantityDelta, movement.Unit)</td>
-                        <td>@movement.ActorEmail</td>
-                        <td>@movement.Reason</td>
-                        <td>
-                            @if (movement.PurchaseRequestId is int requestId)
-                            {
-                                <a asp-page="/Requests/Details" asp-route-id="@requestId">#@requestId</a>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        ViewData["TableLabel"] = "events-heading";
+        <partial name="_RequestEventTable" model="Model.RequestEvents" />
     }
+</section>
+
+@if (Model.IsManager)
+{
+    <section class="section">
+        <div class="section-head">
+            <h2 id="movements-heading">Stock movements</h2>
+        </div>
+        @if (Model.Movements.Count == 0)
+        {
+            <div class="empty"><p>No stock movements yet.</p></div>
+        }
+        else
+        {
+            <div class="table-wrap" role="region" aria-labelledby="movements-heading" tabindex="0">
+                <table class="log" aria-labelledby="movements-heading">
+                    <thead>
+                        <tr>
+                            <th scope="col">Time (UTC)</th>
+                            <th scope="col">Action</th>
+                            <th scope="col">Item</th>
+                            <th scope="col" class="num">Quantity change</th>
+                            <th scope="col">Actor</th>
+                            <th scope="col">Reason</th>
+                            <th scope="col">Request</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var movement in Model.Movements)
+                        {
+                            <tr>
+                                <td>@DisplayFormat.UtcTime(movement.OccurredAtUtc)</td>
+                                <td>@movement.Action</td>
+                                <td>@movement.ItemName</td>
+                                <td class="num @(movement.QuantityDelta < 0 ? "decrease" : "increase")">@DisplayFormat.Change(movement.QuantityDelta, movement.Unit)</td>
+                                <td>@movement.ActorEmail</td>
+                                <td class="text">@movement.Reason</td>
+                                <td>
+                                    @if (movement.PurchaseRequestId is int requestId)
+                                    {
+                                        <a asp-page="/Requests/Details" asp-route-id="@requestId">#@requestId</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
 }

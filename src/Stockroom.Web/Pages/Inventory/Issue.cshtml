@@ -2,23 +2,50 @@
 @model Stockroom.Web.Pages.Inventory.IssueModel
 @{
     ViewData["Title"] = $"Issue {Model.Item.Name}";
+    var item = Model.Item;
 }
 
-<h1>Issue stock</h1>
-<p><strong>@Model.Item.Name</strong>: @DisplayFormat.Quantity(Model.Item.Quantity, Model.Item.Unit) in stock.</p>
-<form method="post" class="stack" novalidate>
-    <div asp-validation-summary="All" class="error-summary" role="alert"></div>
-    <div class="field">
-        <label asp-for="Input.Quantity">Quantity to issue</label>
-        <input asp-for="Input.Quantity" type="number" min="1" max="@PurchaseRules.MaxQuantity" step="1" inputmode="numeric" aria-describedby="quantity-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Quantity")">
-        <span asp-validation-for="Input.Quantity" id="quantity-error" class="field-error"></span>
+<div class="page-head">
+    <div>
+        <h1>Issue stock</h1>
+        <p class="lead">Record stock taken from the stockroom. The quantity cannot exceed the stock on hand.</p>
     </div>
-    <div class="field">
-        <label asp-for="Input.Reason">Reason</label>
-        <textarea asp-for="Input.Reason" rows="3" maxlength="@PurchaseRules.MaxReasonLength" aria-describedby="reason-hint reason-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Reason")"></textarea>
-        <span id="reason-hint" class="hint">Up to @PurchaseRules.MaxReasonLength characters.</span>
-        <span asp-validation-for="Input.Reason" id="reason-error" class="field-error"></span>
+</div>
+
+<div class="split">
+    <div class="card">
+        <form method="post" class="form" novalidate>
+            @* Rendered only with errors: when valid, the tag helper emits an inline style that the CSP blocks. *@
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="error-summary" role="alert"></div>
+            }
+            <div class="field">
+                <label asp-for="Input.Quantity">Quantity to issue</label>
+                <input asp-for="Input.Quantity" type="number" min="1" max="@PurchaseRules.MaxQuantity" step="1" inputmode="numeric" aria-describedby="quantity-hint quantity-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Quantity")">
+                <span id="quantity-hint" class="hint">Whole units. @DisplayFormat.Quantity(item.Quantity, item.Unit) available.</span>
+                <span asp-validation-for="Input.Quantity" id="quantity-error" class="field-error"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Input.Reason">Reason</label>
+                <textarea asp-for="Input.Reason" rows="4" maxlength="@PurchaseRules.MaxReasonLength" aria-describedby="reason-hint reason-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Reason")"></textarea>
+                <span id="reason-hint" class="hint">Say where the stock is going. Up to @PurchaseRules.MaxReasonLength characters.</span>
+                <span asp-validation-for="Input.Reason" id="reason-error" class="field-error"></span>
+            </div>
+            <div class="form-actions">
+                <button type="submit">Issue stock</button>
+                <a asp-page="/Inventory/Index">Back to inventory</a>
+            </div>
+        </form>
     </div>
-    <button type="submit">Issue stock</button>
-</form>
-<p><a asp-page="/Inventory/Index">Back to inventory</a></p>
+
+    <section class="card" aria-labelledby="item-heading">
+        <h2 id="item-heading">Item</h2>
+        <dl class="details">
+            <dt>Name</dt><dd>@item.Name</dd>
+            <dt>In stock</dt><dd class="strong">@DisplayFormat.Quantity(item.Quantity, item.Unit)</dd>
+            <dt>Reorder threshold</dt><dd>@DisplayFormat.Quantity(item.ReorderThreshold, item.Unit)</dd>
+            <dt>Stock</dt><dd>@if (item.Quantity <= item.ReorderThreshold) { <span class="badge badge-low">Low</span> } else { <span class="badge">OK</span> }</dd>
+        </dl>
+    </section>
+</div>

@@ -186,7 +186,7 @@ Severity: Medium, Low, or Informational. No High or Critical issue was found. "C
 | Area | Result | Evidence |
 | --- | --- | --- |
 | SQL injection | No raw SQL in the application; LINQ queries are parameterized, including inventory search. Raw SQL appears only in tests with constant strings. | Code review |
-| Stored and reflected XSS | Request reasons, rejection notes, movement reasons, and the search term render encoded on every page tested. The only `HtmlString` contains formatted dates. | P04 |
+| Stored and reflected XSS | Request reasons, rejection notes, movement reasons, and the search term render encoded on every page tested. The `HtmlString` helpers contain only formatted dates and, since M8, status badges built from enum names. | P04 |
 | Antiforgery | Every state-changing POST, including login and logout, returned 400 without a token and changed no data. | P05 |
 | Open redirect | `//`, `/\`, and absolute return URLs redirect to `/`; encoded slashes stay same-origin. | P03 |
 | Overposting | Extra fields for status, requester, and reviewer were ignored; the new request was Pending and owned by the caller. | P11 |
@@ -266,7 +266,11 @@ The findings above describe commit `b28f1a1`. After Codex's independent review, 
 
 Per-request stamp validation added a database read to authentication. When that read failed, the re-executed `/Error` request failed in authentication too, the exception handler rethrew the original exception, and in Development the framework's developer exception page showed the exception details. A last-resort handler now sits outside the exception handler: it logs the exception and returns a fixed 500 page that needs no database, authentication, or Razor rendering, and the security headers wrap it. `DatabaseFailureDuringAuthenticationShowsOnlyTheGenericErrorPage` renames the users table and checks that an authenticated request receives only the generic page.
 
-Verification of the fixes: 156 integration tests and 7 browser tests passed locally on Windows. With each fix removed in turn, its regression tests failed: all 11 initial tests, the generic-page test, the revocation-failure test, the window-boundary test (all ten attempts accepted under a fixed window), and the lockout-interval test (ten attempts accepted within three seconds with a threshold of 10). The two timing tests passed five consecutive runs. Hosted CI has not run these changes.
+Verification of the fixes: 156 integration tests and 7 browser tests passed locally on Windows. With each fix removed in turn, its regression tests failed: all 11 initial tests, the generic-page test, the revocation-failure test, the window-boundary test (all ten attempts accepted under a fixed window), and the lockout-interval test (ten attempts accepted within three seconds with a threshold of 10). The two timing tests passed five consecutive runs. The owner reports that hosted CI passed for the merged M7 changes.
+
+### CSP observation during M8
+
+While checking the M8 interface for CSP errors, the browser console showed that the empty validation summary on the login, request, and issue forms carried an inline `style="display:none"` from the ASP.NET Core tag helper, which the policy blocked. The block had no visible or security effect, because the summary was already hidden, but it logged a violation on each form load. M8 renders the summary only when the form has errors. `ResponsiveLayoutTests` now fails on any console error on the main pages, including CSP violations. The policy is unchanged.
 
 ## Remaining risks
 

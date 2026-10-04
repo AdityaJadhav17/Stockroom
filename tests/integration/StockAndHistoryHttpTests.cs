@@ -92,9 +92,9 @@ public sealed class StockAndHistoryHttpTests : IAsyncLifetime
         var html = await client.GetStringAsync("/History", Ct);
 
         Assert.Contains("Purchase request events", html);
-        Assert.Matches($@"<td><time datetime=""\d{{4}}-\d{{2}}-\d{{2}}T\d{{2}}:\d{{2}}:\d{{2}}Z"">\d{{4}}-\d{{2}}-\d{{2}} \d{{2}}:\d{{2}} UTC</time></td>\s*<td>Approved</td>\s*<td><a href=""/Requests/Details/{requestId}"">#{requestId}</a></td>", html);
+        Assert.Matches($@"<td><time datetime=""\d{{4}}-\d{{2}}-\d{{2}}T\d{{2}}:\d{{2}}:\d{{2}}Z"">\d{{4}}-\d{{2}}-\d{{2}} \d{{2}}:\d{{2}} UTC</time></td>\s*<td><span class=""badge badge-approved"">Approved</span></td>\s*<td><a href=""/Requests/Details/{requestId}"">#{requestId}</a></td>", html);
         Assert.Contains("Stock movements", html);
-        Assert.Matches(@"<td>Issue</td>\s*<td>PLA filament, 1\.75 mm</td>\s*<td>-1 spool</td>\s*<td>manager@stockroom\.test</td>\s*<td>Laser cutter workshop</td>", html);
+        Assert.Matches(@"<td>Issue</td>\s*<td>PLA filament, 1\.75 mm</td>\s*<td class=""num decrease"">-1 spool</td>\s*<td>manager@stockroom\.test</td>\s*<td class=""text"">Laser cutter workshop</td>", html);
         Assert.Contains("<td>Opening</td>", html);
         // Deterministic order: the newest movement (the issue) appears before the opening movements.
         Assert.True(html.IndexOf("<td>Issue</td>", StringComparison.Ordinal) < html.IndexOf("<td>Opening</td>", StringComparison.Ordinal));
@@ -116,8 +116,8 @@ public sealed class StockAndHistoryHttpTests : IAsyncLifetime
         Assert.DoesNotContain("Stock movements", html);
         Assert.DoesNotContain("<td>Opening</td>", html);
         Assert.Contains("Request history", details);
-        Assert.Matches(@"<td>Approved</td>[\s\S]*<td>Created</td>", details);
-        Assert.Matches(@"<td>Created</td>[\s\S]*?<td>Robotics workshop</td>\s*</tr>", html);
+        Assert.Matches(@"<span class=""badge badge-approved"">Approved</span>[\s\S]*<span class=""badge badge-created"">Created</span>", details);
+        Assert.Matches(@"<span class=""badge badge-created"">Created</span>[\s\S]*?<td class=""text"">Robotics workshop</td>\s*</tr>", html);
     }
 
     [Fact]

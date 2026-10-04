@@ -4,6 +4,8 @@
     Response.StatusCode = StatusCodes.Status403Forbidden;
 }
 
-<h1>Access denied</h1>
-<p>Your role does not allow this action. No data was changed.</p>
-<p><a asp-page="/Index">Return to the dashboard</a></p>
+<div class="narrow card">
+    <h1>Access denied</h1>
+    <p>Your role does not allow this action. No data was changed.</p>
+    <a class="button secondary" asp-page="/Index">Return to the dashboard</a>
+</div>
