@@ -1,6 +1,6 @@
 # Tests
 
-The solution contains three .NET 10 test projects. The integration project contains the M1 cases for login, logout, unauthenticated access, role assignment, and seed reruns. The unit and E2E projects contain no cases yet.
+The solution contains three .NET 10 test projects. The integration project contains the M1 and M2 cases: login, roles, seed reruns, schema constraints, the purchase workflow, and its concurrency and rollback checks. The unit and E2E projects contain no cases yet; SQLite integration tests cover the M2 input rules.
 
 | Folder | Responsibility | Tools |
 | --- | --- | --- |

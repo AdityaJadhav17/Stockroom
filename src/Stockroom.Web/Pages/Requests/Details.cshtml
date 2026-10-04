@@ -1,0 +1,54 @@
+@page "{id:int}"
+@model Stockroom.Web.Pages.Requests.DetailsModel
+@{
+    var request = Model.PurchaseRequest;
+    ViewData["Title"] = $"Request #{request.Id}";
+}
+
+<h1>Request #@request.Id</h1>
+<dl class="details">
+    <dt>Item</dt><dd>@request.ItemName</dd>
+    <dt>Quantity</dt><dd>@request.Quantity @request.Unit</dd>
+    <dt>Status</dt><dd>@request.Status</dd>
+    <dt>Reason</dt><dd>@request.Reason</dd>
+    <dt>Requester</dt><dd>@request.RequesterEmail</dd>
+    <dt>Created</dt><dd>@DisplayFormat.Utc(request.CreatedAtUtc)</dd>
+    @if (request.ReviewedAtUtc is not null)
+    {
+        <dt>Reviewed</dt><dd>@DisplayFormat.Utc(request.ReviewedAtUtc)</dd>
+    }
+    @if (request.RejectionReason is not null)
+    {
+        <dt>Rejection reason</dt><dd>@request.RejectionReason</dd>
+    }
+    @if (request.ReceivedAtUtc is not null)
+    {
+        <dt>Received</dt><dd>@DisplayFormat.Utc(request.ReceivedAtUtc)</dd>
+    }
+</dl>
+
+@if (User.IsInRole(Roles.Manager))
+{
+    @if (request.Status == RequestStatus.Pending)
+    {
+        <h2>Review</h2>
+        <form method="post" asp-page="/Requests/Review" asp-page-handler="Approve" asp-route-id="@request.Id">
+            <button type="submit">Approve request</button>
+        </form>
+        <form method="post" asp-page="/Requests/Review" asp-page-handler="Reject" asp-route-id="@request.Id" class="stack">
+            <div class="field">
+                <label for="rejection-reason">Rejection reason</label>
+                <textarea id="rejection-reason" name="reason" rows="2" maxlength="@PurchaseRules.MaxReasonLength"></textarea>
+            </div>
+            <button type="submit" class="secondary">Reject request</button>
+        </form>
+    }
+    else if (request.Status == RequestStatus.Approved)
+    {
+        <h2>Delivery</h2>
+        <form method="post" asp-page="/Requests/Review" asp-page-handler="Receive" asp-route-id="@request.Id">
+            <button type="submit">Record receipt of @request.Quantity @request.Unit</button>
+        </form>
+    }
+}
+<p><a asp-page="/Requests/Index">Back to requests</a></p>

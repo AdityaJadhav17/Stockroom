@@ -11,7 +11,7 @@
 | Release | Owner checks a fresh checkout and records the walkthrough. | Completed release checklist and accurate README status. |
 | Maintenance | Owner records defects and prioritizes the next release. | Bug reproduction, regression test, and updated requirements. |
 
-M1 is implemented: the web application, Identity login and logout, the initial migration, the Development seed command, and integration tests. The owner has not reviewed M1 or verified application behavior in a browser.
+M1 and M2 are implemented. M2 added inventory search, the low-stock dashboard, purchase requests, manager review, and receipt. A local browser run on 2026-10-04 showed filament at two spools after approval and seven after receipt, and a repeated receipt left seven. The owner has not reviewed M2.
 
 ## Two-day implementation budget
 

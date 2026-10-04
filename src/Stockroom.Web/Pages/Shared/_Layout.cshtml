@@ -12,6 +12,11 @@
         <span class="brand">Stockroom</span>
         @if (User.Identity?.IsAuthenticated == true)
         {
+            <nav aria-label="Main">
+                <a asp-page="/Index">Dashboard</a>
+                <a asp-page="/Inventory/Index">Inventory</a>
+                <a asp-page="/Requests/Index">Requests</a>
+            </nav>
             <form method="post" asp-page="/Account/Logout" class="signout">
                 <span>@User.Identity.Name</span>
                 <button type="submit">Log out</button>
@@ -19,10 +24,18 @@
         }
     </header>
     <main id="main">
+        @if (TempData["Message"] is string message)
+        {
+            <p class="notice" role="status">@message</p>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <p class="notice error" role="alert">@error</p>
+        }
         @RenderBody()
     </main>
     <footer class="site-footer">
-        Fictional campus makerspace. All data is synthetic.
+        Fictional campus makerspace. All data is synthetic. Times are shown in UTC.
     </footer>
 </body>
 </html>

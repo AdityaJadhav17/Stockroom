@@ -1,0 +1,20 @@
+@page
+@model Stockroom.Web.Pages.Requests.IndexModel
+@{
+    var isManager = User.IsInRole(Roles.Manager);
+    ViewData["Title"] = isManager ? "Purchase requests" : "Your requests";
+}
+
+<h1>@ViewData["Title"]</h1>
+@if (PurchaseRules.CanRequestPurchases(User))
+{
+    <p><a asp-page="/Requests/New">Request a purchase</a></p>
+}
+@if (Model.Requests.Count == 0)
+{
+    <p>No purchase requests yet.</p>
+}
+else
+{
+    <partial name="_RequestTable" model="Model.Requests" />
+}

@@ -1,0 +1,52 @@
+@page
+@model Stockroom.Web.Pages.Inventory.IndexModel
+@{
+    ViewData["Title"] = "Inventory";
+    var isMember = PurchaseRules.CanRequestPurchases(User);
+}
+
+<h1>Inventory</h1>
+<form method="get" role="search" class="search">
+    <label for="q">Search by name</label>
+    <input id="q" name="q" type="search" value="@Model.Search">
+    <button type="submit">Search</button>
+</form>
+
+@if (Model.Items.Count == 0)
+{
+    <p role="status">@(string.IsNullOrWhiteSpace(Model.Search) ? "No inventory items exist." : $"No items match \"{Model.Search}\".") <a asp-page="/Inventory/Index">Show all items</a></p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">Item</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Reorder threshold</th>
+                <th scope="col">Stock</th>
+                @if (isMember)
+                {
+                    <th scope="col"><span class="visually-hidden">Action</span></th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Unit</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.ReorderThreshold</td>
+                    <td>@(item.Quantity <= item.ReorderThreshold ? "Low" : "OK")</td>
+                    @if (isMember)
+                    {
+                        <td><a asp-page="/Requests/New" asp-route-itemId="@item.Id">Request<span class="visually-hidden"> @item.Name</span></a></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}

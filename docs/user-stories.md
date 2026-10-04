@@ -4,11 +4,11 @@ All stories start in Planned status. Developers record implementation and verifi
 
 | ID | Story | Priority | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| US-01 | Log in with a demo account | Must | In progress | M1: login, invalid login, logout, and unauthenticated dashboard access pass in `AuthenticationTests` (T-01). Member POST checks wait for manager actions (M2, M3). |
-| US-02 | Inspect inventory and low-stock items | Must | Planned | None |
-| US-03 | Request a purchase | Must | Planned | None |
-| US-04 | Approve or reject a request | Must | Planned | None |
-| US-05 | Receive an approved purchase | Must | Planned | None |
+| US-01 | Log in with a demo account | Must | In progress | M1: login, invalid login, logout, and unauthenticated access pass in `AuthenticationTests` (T-01). M2: member POSTs to approve, reject, and receive redirect to access denied and change no data (`PurchaseWorkflowHttpTests`, T-02); direct service calls by a member are refused (`PurchaseServiceTests`). The withdrawal check waits for M3. |
+| US-02 | Inspect inventory and low-stock items | Must | Implemented; awaiting review | M2: `PurchaseWorkflowHttpTests` covers columns, case-insensitive search, empty state (T-03), and below, equal, and above threshold (T-04). Browser run on 2026-10-04 showed seven spools after receipt. Withdrawal quantities wait for M3. |
+| US-03 | Request a purchase | Must | Implemented; awaiting review | M2: `PurchaseServiceTests` and `PurchaseWorkflowHttpTests` cover valid creation, zero, negative, fractional, missing, overflowing, and over-10,000 quantities, blank and 501-character reasons (T-05), ownership, and denial for Manager and dual-role accounts in pages and the service (T-02). |
+| US-04 | Approve or reject a request | Must | Implemented; awaiting review | M2: `PurchaseServiceTests` covers approval with unchanged stock, rejection with reason, invalid reasons (T-06), and repeated and competing reviews (T-07). Browser run on 2026-10-04 showed two spools after approval. |
+| US-05 | Receive an approved purchase | Must | Implemented; awaiting review | M2: `PurchaseServiceTests` covers receipt, Pending and Rejected refusal (T-08), repeated and competing receipts (T-09), overflow, and rollback after a forced event-write failure (T-11). Browser run on 2026-10-04 showed two to seven spools and an unchanged seven after a repeated receipt. |
 | US-06 | Issue stock | Must | Planned | None |
 | US-07 | Trace a request or stock change | Must | Planned | None |
 | US-08 | Prepare a repeatable demo dataset | Must | In progress | M1: the seed command creates ten items, two members, and one manager; `SeedTests` verifies roles and rerun preservation (part of T-14). Request examples and reset remain. |

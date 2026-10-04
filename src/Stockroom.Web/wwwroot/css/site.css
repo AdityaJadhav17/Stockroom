@@ -48,13 +48,13 @@ body {
 }
 
 main {
-    max-width: 40rem;
+    max-width: 56rem;
     margin: 0 auto;
     padding: 1.5rem;
 }
 
 .site-footer {
-    max-width: 40rem;
+    max-width: 56rem;
     margin: 0 auto;
     padding: 0 1.5rem 1.5rem;
     color: var(--muted);
@@ -121,4 +121,96 @@ a:focus-visible {
 .hint {
     color: var(--muted);
     font-size: 0.875rem;
+}
+
+nav {
+    display: flex;
+    gap: 1rem;
+}
+
+nav a {
+    color: var(--accent);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+caption {
+    text-align: left;
+    color: var(--muted);
+}
+
+th,
+td {
+    text-align: left;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.search {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+select,
+textarea {
+    font: inherit;
+    padding: 0.5rem;
+    border: 1px solid var(--muted);
+    border-radius: 4px;
+}
+
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+button.secondary {
+    background: #fff;
+    color: var(--accent);
+}
+
+.notice {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+}
+
+.notice.error {
+    border-color: var(--error);
+    color: var(--error);
+}
+
+.details {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.25rem 1rem;
+}
+
+.details dt {
+    font-weight: 600;
+}
+
+.details dd {
+    margin: 0;
+}
+
+form + form {
+    margin-top: 1rem;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }

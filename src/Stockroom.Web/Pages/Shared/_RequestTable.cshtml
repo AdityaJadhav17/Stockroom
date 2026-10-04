@@ -1,0 +1,35 @@
+@model IEnumerable<RequestView>
+@{
+    var isManager = User.IsInRole(Roles.Manager);
+}
+<table>
+    <thead>
+        <tr>
+            <th scope="col">Request</th>
+            <th scope="col">Item</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Status</th>
+            @if (isManager)
+            {
+                <th scope="col">Requester</th>
+            }
+            <th scope="col">Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var request in Model)
+        {
+            <tr>
+                <td><a asp-page="/Requests/Details" asp-route-id="@request.Id">#@request.Id</a></td>
+                <td>@request.ItemName</td>
+                <td>@request.Quantity @request.Unit</td>
+                <td>@request.Status</td>
+                @if (isManager)
+                {
+                    <td>@request.RequesterEmail</td>
+                }
+                <td>@DisplayFormat.Utc(request.CreatedAtUtc)</td>
+            </tr>
+        }
+    </tbody>
+</table>

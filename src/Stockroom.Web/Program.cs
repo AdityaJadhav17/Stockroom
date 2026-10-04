@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Stockroom.Web.Data;
+using Stockroom.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,10 @@ builder.Services.AddDbContext<AppDbContext>((services, options) =>
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
         options.User.RequireUniqueEmail = true)
     .AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.AddScoped<PurchaseService>();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(PurchaseRules.RequesterPolicy, policy => policy.RequireAssertion(c => PurchaseRules.CanRequestPurchases(c.User)));
 
 builder.Services.AddRazorPages(options =>
 {
