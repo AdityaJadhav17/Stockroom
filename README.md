@@ -4,7 +4,7 @@ Members request supplies for a fictional campus makerspace. Managers review purc
 
 ## Status
 
-Milestone M1 is implemented. The Razor Pages application supports login and logout for seeded Member and Manager accounts, creates the SQLite schema through EF Core migrations, and seeds ten inventory items through a Development-only command. Twenty-one integration tests cover login, logout, unauthenticated access, role assignment, seed reruns, and stock-movement constraints in SQLite. Inventory, purchase requests, review, receipt, stock issues, and history remain planned. The project uses synthetic data; the author has no client deployment or production usage to report.
+Milestones M1 and M2 are implemented. Members log in, browse and search inventory, see low-stock items, and submit purchase requests. The manager approves or rejects pending requests and records receipt of approved purchases; receipt updates the request, stock, stock movement, and request event in one transaction. Seventy-four SQLite integration tests cover login, roles enforced in pages and in the service, request ownership, validation, transitions, duplicate and competing reviews and receipts, overflow, exhausted lock retries, and transaction rollback. Stock issues, history views, and the reset command remain planned. The project uses synthetic data; the author has no client deployment or production usage to report.
 
 The first release covers one purchase workflow and its stock history. The implementation budget is two working days, with 12 to 16 hours available for development and verification.
 

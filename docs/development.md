@@ -4,7 +4,7 @@
 
 Contributors need Git, PowerShell 7, and a [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0), not a runtime alone. `global.json` selects SDK 10.0.401, allows later patches, and selects Microsoft.Testing.Platform for `dotnet test`.
 
-The solution contains the web application in `src/Stockroom.Web/` and unit, integration, and E2E test projects. Only the integration project contains test cases after M1.
+The solution contains the web application in `src/Stockroom.Web/` and unit, integration, and E2E test projects. Only the integration project contains test cases after M2.
 
 ## Local setup
 

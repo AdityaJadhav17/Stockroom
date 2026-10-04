@@ -1,10 +1,38 @@
 @page
-@using Stockroom.Web.Models
+@model IndexModel
 @{
     ViewData["Title"] = "Dashboard";
-    var role = User.IsInRole(Roles.Manager) ? Roles.Manager : User.IsInRole(Roles.Member) ? Roles.Member : "No role";
+    var isManager = User.IsInRole(Roles.Manager);
 }
 
 <h1>Dashboard</h1>
-<p>You are signed in as <strong>@User.Identity?.Name</strong> with the <strong>@role</strong> role.</p>
-<p>Inventory, purchase requests, and history will appear here in later milestones.</p>
+<p>You are signed in as <strong>@User.Identity?.Name</strong> with the <strong>@(isManager ? Roles.Manager : Roles.Member)</strong> role.</p>
+
+<h2>Low stock</h2>
+@if (Model.LowStock.Count == 0)
+{
+    <p>No items are at or below their reorder threshold.</p>
+}
+else
+{
+    <table>
+        <caption>Items at or below their reorder threshold</caption>
+        <thead><tr><th scope="col">Item</th><th scope="col">Quantity</th><th scope="col">Threshold</th></tr></thead>
+        <tbody>
+            @foreach (var item in Model.LowStock)
+            {
+                <tr><td>@item.Name</td><td>@item.Quantity @item.Unit</td><td>@item.ReorderThreshold</td></tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>@(isManager ? "Pending requests" : "Your pending requests")</h2>
+@if (Model.Pending.Count == 0)
+{
+    <p>No requests are waiting for review.</p>
+}
+else
+{
+    <partial name="_RequestTable" model="Model.Pending" />
+}
