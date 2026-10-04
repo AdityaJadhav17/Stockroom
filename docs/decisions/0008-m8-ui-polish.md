@@ -2,7 +2,7 @@
 
 Date: 2026-10-04
 
-Status: Proposed. Awaits the owner's review.
+Status: Accepted. Merged in pull request #8.
 
 ## Context
 

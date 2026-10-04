@@ -1,6 +1,6 @@
 # Tests
 
-The solution contains three .NET 10 test projects. The integration project contains the M1 through M4 cases: login, roles, seed reruns, reset, the demo dataset, schema constraints, the purchase workflow, stock issues, history, and their concurrency, lock, and rollback checks. The E2E project contains seven Chromium cases for the purchase, rejection, withdrawal, access, and restart workflows and the fixture cleanup. The unit project contains no cases yet; SQLite integration tests cover the input rules.
+The solution contains three .NET 10 test projects. The integration project contains 156 cases: login, roles, seed reruns, reset, the demo dataset, schema constraints, the purchase workflow, stock issues, history, security headers and sessions, and their concurrency, lock, and rollback checks. The E2E project contains 11 Chromium cases for the purchase, rejection, withdrawal, access, restart, and layout checks and the fixture cleanup, plus two explicit recorders that normal runs skip. The unit project is a scaffold with no cases; the SQLite integration tests cover the input rules.
 
 | Folder | Responsibility | Tools |
 | --- | --- | --- |
@@ -9,7 +9,7 @@ The solution contains three .NET 10 test projects. The integration project conta
 | [e2e](e2e/README.md) | Browser workflows against a running application | Playwright for .NET with xUnit |
 | [fixtures](fixtures/README.md) | Shared synthetic-data conventions | Test builders and isolated database fixtures during implementation |
 
-Use the test IDs in [the acceptance plan](../docs/test-plan.md). The integration project references the web project; add the reference to another project when it gains cases. Avoid placeholder tests that assert constants or label unfinished behavior as a test pass.
+Use the test IDs in [the acceptance plan](../docs/quality/test-plan.md). The integration project references the web project; add the reference to another project when it gains cases. Avoid placeholder tests that assert constants or label unfinished behavior as a test pass.
 
 ## Commands
 
@@ -22,4 +22,4 @@ dotnet test --project tests/integration/Stockroom.IntegrationTests.csproj --conf
 
 `global.json` selects Microsoft.Testing.Platform, so `dotnet test` takes the project through `--project`. The E2E fixture starts the application itself; install Chromium first, as described in [its README](e2e/README.md).
 
-Read [the dependency audit](../docs/dependency-audit.md) for the package versions, results, and scope of the initial check.
+Read [the dependency audit](../docs/security/dependency-audit.md) for the package versions, results, and scope of the initial check.

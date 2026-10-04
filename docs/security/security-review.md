@@ -247,11 +247,11 @@ Severity: Medium, Low, or Informational. No High or Critical issue was found. "C
 
 ## Remediation status
 
-The findings above describe commit `b28f1a1`. After Codex's independent review, the working tree (uncommitted, 2026-10-04) contains these fixes. [ADR 0007](decisions/0007-m7-security-hardening.md) records the decisions.
+The findings above describe commit `b28f1a1`. The M7 fixes merged into `main` after independent review; the M9 rows record GitHub settings checked on 2026-10-04. [ADR 0007](../decisions/0007-m7-security-hardening.md) records the decisions.
 
 | ID | Status | Change and evidence |
 | --- | --- | --- |
-| F-01 | Open (owner) | Requires a GitHub ruleset; no repository change |
+| F-01 | Open (owner) | On 2026-10-04 the public GitHub API reported `main` as unprotected (`"protected": false`) with no branch rules or rulesets, so `main` does not require pull requests or `CI Status` and does not block force pushes. |
 | F-02 | Fixed with residual risk | Logout rotates the security stamp, and the stamp is validated on every request (`ValidationInterval = 0`), so a copied cookie is rejected on its next request. Idle timeout reduced to one hour. `LogoutRevokesACopiedSessionCookie` replays a pre-logout cookie and gets the login redirect. If rotation fails, logout still signs out the current browser, tells the user that other sessions may remain signed in, and logs the failure (`FailedSessionRevocationIsReportedToTheUser`). Residual: an active session still renews without an absolute limit, and logout ends every session for the account (`LogoutSignsTheAccountOutInEveryBrowser`). |
 | F-03 | Mitigated | Login POSTs are limited to five per client address per one-minute sliding window (six segments) with the built-in rate limiter. Because a segment returns its permits when it leaves the window, attempts made at the end of a segment come back after 50 seconds, so one client can make 10 attempts within one window. The lockout threshold is therefore 11 (`SessionPolicy.LockoutThreshold = 2 x limit + 1`), and the 11th attempt cannot come sooner than 2 x (window - one segment), about 100 seconds after the first, assuming the account starts with no failed attempts. Tests: `LoginPostsAreThrottledBeforeTheAccountLocks` (sixth POST receives 429, account unlocked); `LoginWindowBoundaryCannotDoubleTheAttemptsAllowed` (the fixed-window boundary pattern, rejected after review); `OneClientCannotReachTheLockoutWithinTheGuaranteedInterval` (with a 2-second window, three seconds of continuous attempts accept at most 10 and do not lock the account; with a threshold of 10 it fails). Residual: the failure count persists until a successful login or a lockout, so one client can lock an account after about 100 seconds of attempts from a clean count, sooner if earlier failures remain, attackers using many addresses sooner, and clients sharing an address share the limit. |
 | F-04 | Fixed | Every response sends `X-Frame-Options: DENY` and `Content-Security-Policy` with `frame-ancestors 'none'`. `EveryResponseCarriesSecurityHeaders` checks pages, static files, and error pages. Cross-site framing in a browser remains unverified locally. |
@@ -260,7 +260,9 @@ The findings above describe commit `b28f1a1`. After Codex's independent review, 
 | F-07 | Open | Paging and per-member limits not implemented |
 | F-08 | Fixed | Per-request validation rebuilds role claims from the database. `RoleRemovalAppliesOnTheNextRequest` shows the demoted account is denied the issue page and sees no manager links. |
 | F-09 | Partly fixed | `nosniff`, `Referrer-Policy: same-origin`, and a `default-src 'self'` CSP added; the antiforgery cookie is marked `Secure` over HTTPS (`AntiforgeryCookieIsSecureOverHttps`). HTTPS, HSTS, and an always-secure authentication cookie remain deployment tasks. |
-| F-10 to F-16 | Unchanged | See the remediation plan |
+| F-10 to F-11 | Unchanged | See the remediation plan |
+| F-12 | Fixed (owner) | On 2026-10-04 `GET /repos/AdityaJadhav17/Stockroom/private-vulnerability-reporting` returned `enabled: true`. M9 updated `SECURITY.md` to name the Security tab. |
+| F-13 to F-16 | Unchanged | See the remediation plan |
 
 ### Regression found while reviewing the fixes
 

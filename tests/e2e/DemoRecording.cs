@@ -6,6 +6,7 @@ namespace Stockroom.E2ETests;
 // Records the portfolio walkthrough against a freshly seeded fixture database: README screenshots in
 // docs/images and a video in artifacts/demo (ignored by Git). It is explicit, so normal runs and CI skip it.
 // Run: dotnet test --project tests/e2e/Stockroom.E2ETests.csproj -c Release --no-build -- --explicit only
+//      --filter-class Stockroom.E2ETests.DemoRecording
 public sealed class DemoRecording
 {
     private const string Filament = "PLA filament, 1.75 mm";

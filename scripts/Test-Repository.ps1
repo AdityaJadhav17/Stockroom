@@ -6,31 +6,32 @@ $ErrorActionPreference = 'Stop'
 
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $requiredFiles = @(
-    'README.md', '.gitignore', '.gitattributes', '.editorconfig',
-    'CONTRIBUTING.md',
-    'docs/README.md', 'docs/mvp.md', 'docs/personas.md',
-    'docs/user-stories.md', 'docs/architecture.md',
-    'docs/delivery-plan.md', 'docs/definition-of-done.md',
-    'docs/test-plan.md', 'docs/development.md',
-    'docs/decisions/0001-application-foundation.md',
-    '.github/workflows/ci.yml', '.github/pull_request_template.md',
-    'scripts/Test-Repository.ps1', 'scripts/Test-Dependencies.ps1',
-    'LICENSE', 'CODE_OF_CONDUCT.md', 'SECURITY.md', 'SUPPORT.md', 'ACCESSIBILITY.md',
+    'README.md', 'LICENSE', '.gitignore', '.gitattributes', '.editorconfig',
+    'global.json', 'Directory.Build.props', 'Directory.Packages.props', 'NuGet.Config', 'Stockroom.slnx',
+    '.config/dotnet-tools.json',
+    '.github/CONTRIBUTING.md', '.github/CODE_OF_CONDUCT.md', '.github/SECURITY.md', '.github/SUPPORT.md',
+    '.github/workflows/ci.yml', '.github/pull_request_template.md', '.github/dependabot.yml',
     '.github/ISSUE_TEMPLATE/bug_report.yml', '.github/ISSUE_TEMPLATE/feature_request.yml',
     '.github/ISSUE_TEMPLATE/question.yml', '.github/ISSUE_TEMPLATE/config.yml',
-    '.github/dependabot.yml', 'global.json', 'Directory.Build.props',
-    'Directory.Packages.props', 'NuGet.Config', 'Stockroom.slnx',
+    'docs/README.md',
+    'docs/planning/mvp.md', 'docs/planning/personas.md', 'docs/planning/user-stories.md',
+    'docs/planning/delivery-plan.md', 'docs/planning/definition-of-done.md',
+    'docs/development/architecture.md', 'docs/development/setup.md',
+    'docs/development/github-repository-setup.md',
+    'docs/quality/test-plan.md', 'docs/quality/accessibility.md',
+    'docs/security/security-review.md', 'docs/security/dependency-audit.md',
+    'docs/security/nuget-vulnerability-report.json', 'docs/security/package-inventory.json',
+    'docs/decisions/0001-application-foundation.md', 'docs/decisions/0002-m1-authentication-and-seed.md',
+    'docs/releases/v1.0.0.md', 'docs/releases/demo-script.md', 'docs/releases/interview-notes.md',
+    'scripts/Test-Repository.ps1', 'scripts/Test-Dependencies.ps1',
+    'src/Stockroom.Web/Stockroom.Web.csproj', 'src/Stockroom.Web/packages.lock.json',
     'tests/README.md', 'tests/unit/README.md', 'tests/integration/README.md',
     'tests/e2e/README.md', 'tests/fixtures/README.md',
     'tests/unit/Stockroom.UnitTests.csproj',
     'tests/integration/Stockroom.IntegrationTests.csproj',
     'tests/e2e/Stockroom.E2ETests.csproj',
     'tests/unit/packages.lock.json', 'tests/integration/packages.lock.json',
-    'tests/e2e/packages.lock.json', 'docs/dependency-audit.md',
-    'docs/security/nuget-vulnerability-report.json', 'docs/security/package-inventory.json',
-    'docs/community-setup.md', 'docs/decisions/0002-m1-authentication-and-seed.md',
-    '.config/dotnet-tools.json', 'src/Stockroom.Web/Stockroom.Web.csproj',
-    'src/Stockroom.Web/packages.lock.json'
+    'tests/e2e/packages.lock.json'
 )
 $issues = [Collections.Generic.List[string]]::new()
 $trackedFiles = @(git -C $repositoryRoot -c core.quotepath=false ls-files)
@@ -47,6 +48,7 @@ foreach ($relativePath in $requiredFiles) {
     }
 }
 
+$trackedSet = [Collections.Generic.HashSet[string]]::new([string[]]$trackedFiles, [StringComparer]::Ordinal)
 $utf8 = [Text.UTF8Encoding]::new($false, $true)
 $textExtensions = @('.md', '.ps1', '.yml', '.yaml', '.json', '.cs', '.cshtml', '.csproj', '.sln', '.slnx', '.props', '.targets', '.config')
 $textNames = @('.gitignore', '.gitattributes', '.editorconfig', 'LICENSE')
@@ -110,6 +112,14 @@ foreach ($relativePath in $trackedFiles) {
         }
         if (-not (Test-Path -LiteralPath $linkPath)) {
             $issues.Add("Broken Markdown file link in ${relativePath}: $target")
+            continue
+        }
+        # Windows and macOS resolve paths without regard to case; Linux and GitHub do not. A link must match the
+        # tracked path's exact case, or for a directory, the exact case of a tracked file's leading folders.
+        $trackedLink = $relativeLinkPath.Replace([IO.Path]::DirectorySeparatorChar, '/')
+        if (-not ($trackedSet.Contains($trackedLink) -or $trackedSet.Contains("$trackedLink/") -or
+                @($trackedFiles | Where-Object { $_.StartsWith("$trackedLink/", [StringComparison]::Ordinal) }).Count -gt 0)) {
+            $issues.Add("Markdown link does not match the tracked path's case, or targets an untracked file, in ${relativePath}: $target")
         }
     }
 }
