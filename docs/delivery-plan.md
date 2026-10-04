@@ -11,7 +11,7 @@
 | Release | Owner checks a fresh checkout and records the walkthrough. | Completed release checklist and accurate README status. |
 | Maintenance | Owner records defects and prioritizes the next release. | Bug reproduction, regression test, and updated requirements. |
 
-M1 through M4 are implemented. M2 added inventory search, the low-stock dashboard, purchase requests, manager review, and receipt. M3 added manager stock issues and history. M4 added the example dataset and the `seed --reset` option. A local browser run on 2026-10-04 showed filament at two spools after approval, seven after receipt, seven after a repeated receipt, five after a two-spool issue, and five after a rejected six-spool issue. The owner reviewed M3; M4 awaits review.
+M1 through M5 are implemented. M2 added inventory search, the low-stock dashboard, purchase requests, manager review, and receipt. M3 added manager stock issues and history. M4 added the example dataset and the `seed --reset` option. M5 added Chromium browser tests, a restart persistence test, and an End-to-End CI job. Local runs on 2026-10-04 passed 135 integration and 7 browser cases on Windows. Hosted CI has not run the End-to-End job yet. The owner reviewed M1 through M4; M5 awaits review.
 
 ## Two-day implementation budget
 

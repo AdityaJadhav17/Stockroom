@@ -128,10 +128,62 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  e2e-tests:
+    name: End-to-End Tests
+    needs: integration-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      STOCKROOM_E2E_ARTIFACTS: ${{ github.workspace }}/TestResults/e2e-artifacts
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+
+      - name: Restore locked packages
+        run: dotnet restore Stockroom.slnx --locked-mode
+
+      # The fixture starts the web application's own build output as a separate process. Separate steps
+      # make each build's exit code fail the job; PowerShell does not stop on a failed native command.
+      - name: Build web application
+        run: dotnet build src/Stockroom.Web/Stockroom.Web.csproj --configuration Release --no-restore --warnaserror
+
+      - name: Build browser tests
+        run: dotnet build tests/e2e/Stockroom.E2ETests.csproj --configuration Release --no-restore --warnaserror
+
+      - name: Install Chromium and Linux dependencies
+        run: ./tests/e2e/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: Run browser tests
+        id: tests
+        run: >-
+          dotnet test --project tests/e2e/Stockroom.E2ETests.csproj
+          --configuration Release --no-build
+          --minimum-expected-tests 1
+          --results-directory "${{ github.workspace }}/TestResults"
+          --report-xunit-trx --report-xunit-trx-filename e2e.trx
+
+      - name: Upload test reports and failure diagnostics
+        if: ${{ always() && steps.tests.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-test-results
+          path: TestResults/
+          if-no-files-found: error
+          retention-days: 14
+
   ci-status:
     name: CI Status
     if: ${{ always() }}
-    needs: [repository-checks, dependency-audit, build, integration-tests]
+    needs: [repository-checks, dependency-audit, build, integration-tests, e2e-tests]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
