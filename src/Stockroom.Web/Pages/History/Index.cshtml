@@ -1,0 +1,62 @@
+@page
+@model Stockroom.Web.Pages.History.IndexModel
+@{
+    ViewData["Title"] = "History";
+}
+
+<h1>History</h1>
+<p>Newest first. All times are UTC.</p>
+
+<h2>@(Model.IsManager ? "Purchase request events" : "Your request events")</h2>
+@if (Model.RequestEvents.Count == 0)
+{
+    <p>No request events yet.</p>
+}
+else
+{
+    <partial name="_RequestEventTable" model="Model.RequestEvents" />
+}
+
+@if (Model.IsManager)
+{
+    <h2>Stock movements</h2>
+    @if (Model.Movements.Count == 0)
+    {
+        <p>No stock movements yet.</p>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Time (UTC)</th>
+                    <th scope="col">Action</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Quantity change</th>
+                    <th scope="col">Actor</th>
+                    <th scope="col">Reason</th>
+                    <th scope="col">Request</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var movement in Model.Movements)
+                {
+                    <tr>
+                        <td>@DisplayFormat.Utc(movement.OccurredAtUtc)</td>
+                        <td>@movement.Action</td>
+                        <td>@movement.ItemName</td>
+                        <td>@movement.QuantityDelta.ToString("+0;-0") @movement.Unit</td>
+                        <td>@movement.ActorEmail</td>
+                        <td>@movement.Reason</td>
+                        <td>
+                            @if (movement.PurchaseRequestId is int requestId)
+                            {
+                                <a asp-page="/Requests/Details" asp-route-id="@requestId">#@requestId</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

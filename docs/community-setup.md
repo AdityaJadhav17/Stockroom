@@ -25,7 +25,7 @@ GitHub recommends these community files but also evaluates repository settings a
 2. Confirm GitHub recognizes the license, code of conduct, contribution guidance, and issue/PR templates.
 3. Enable Issues and private vulnerability reporting. Email remains the private reporting route until that setting exists.
 4. Enable the dependency graph and Dependabot alerts where available; inspect the first dependency update run.
-5. Confirm the foundation workflow passes on GitHub. Add its check to branch protection after the first run establishes the check name.
+5. Confirm the multi-job CI workflow passes on GitHub, including both operating systems and test-report uploads. Require `CI Status` in the `main` branch rules after its first run. Replace an older required `repository-checks` check if it is configured.
 6. Add application tests and the demo before describing the MVP as complete.
 
 The local files cannot enable hosted settings. The checkout tracks the owner's Stockroom repository on GitHub; the developer has not verified its community profile or hosted Actions. Review the settings above in the published repository.

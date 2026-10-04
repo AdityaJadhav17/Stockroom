@@ -33,6 +33,7 @@ public sealed class LockContentionTests : IAsyncLifetime
     [InlineData("Approve")]
     [InlineData("Reject")]
     [InlineData("Receive")]
+    [InlineData("Issue")]
     public async Task ExhaustedBusyRetriesReturnRetryMessageWithoutWrites(string operation)
     {
         var target = operation == "Receive" ? approvedId : pendingId;
@@ -58,13 +59,15 @@ public sealed class LockContentionTests : IAsyncLifetime
     }
 
     private Task<OperationResult> RunAsync(string operation, int requestId) =>
-        factory.RunAsync((s, _) => operation switch
-        {
-            "Create" => s.CreateAsync(memberId, filamentId, 3, "Workshop supplies"),
-            "Approve" => s.ApproveAsync(requestId, managerId),
-            "Reject" => s.RejectAsync(requestId, managerId, "Not needed"),
-            _ => s.ReceiveAsync(requestId, managerId),
-        });
+        operation == "Issue"
+            ? factory.StockAsync(s => s.IssueAsync(filamentId, managerId, 1, "Workshop"))
+            : factory.RunAsync((s, _) => operation switch
+            {
+                "Create" => s.CreateAsync(memberId, filamentId, 3, "Workshop supplies"),
+                "Approve" => s.ApproveAsync(requestId, managerId),
+                "Reject" => s.RejectAsync(requestId, managerId, "Not needed"),
+                _ => s.ReceiveAsync(requestId, managerId),
+            });
 
     private async Task<int> CreateAsync() =>
         (await factory.RunAsync((s, _) => s.CreateAsync(memberId, filamentId, 5, "Materials for the robotics workshop"))).RequestId!.Value;

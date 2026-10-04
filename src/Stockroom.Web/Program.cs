@@ -15,6 +15,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.AddScoped<PurchaseService>();
+builder.Services.AddScoped<StockService>();
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(PurchaseRules.RequesterPolicy, policy => policy.RequireAssertion(c => PurchaseRules.CanRequestPurchases(c.User)));
 
