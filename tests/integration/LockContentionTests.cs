@@ -41,7 +41,7 @@ public sealed class LockContentionTests : IAsyncLifetime
         var requestsBefore = await factory.RunAsync((_, db) => Task.FromResult(db.PurchaseRequests.Count()));
 
         OperationResult busy;
-        await using (var holder = new SqliteConnection($"Data Source={factory.DatabasePath}"))
+        await using (var holder = new SqliteConnection($"Data Source={factory.DatabasePath};Pooling=False"))
         {
             await holder.OpenAsync(TestContext.Current.CancellationToken);
             await using var hold = holder.BeginTransaction(deferred: false);

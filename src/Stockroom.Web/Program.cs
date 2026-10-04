@@ -27,21 +27,10 @@ builder.Services.AddRazorPages(options =>
 
 var app = builder.Build();
 
+// Development-only demo data: `seed` preserves existing records; `seed --reset` deletes the local database first.
 if (args.Contains("seed"))
 {
-    if (!app.Environment.IsDevelopment())
-    {
-        Console.Error.WriteLine(
-            $"The seed command runs only in Development. Current environment: {app.Environment.EnvironmentName}.");
-        return 1;
-    }
-    await using var scope = app.Services.CreateAsyncScope();
-    await DemoSeeder.SeedAsync(scope.ServiceProvider);
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    Console.WriteLine(
-        $"Seed complete: {await db.Users.CountAsync()} accounts, {await db.InventoryItems.CountAsync()} items, " +
-        $"{await db.StockMovements.CountAsync()} stock movements.");
-    return 0;
+    return await DemoSeeder.RunCommandAsync(app.Services, app.Environment, args.Contains("--reset"), Console.Out, Console.Error);
 }
 
 app.UseAuthentication();

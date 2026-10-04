@@ -172,7 +172,7 @@ public sealed class StockServiceTests : IAsyncLifetime
         var requestId = (await factory.RunAsync((s, _) => s.CreateAsync(memberId, filament.Id, 5, "Robotics workshop"))).RequestId!.Value;
         await factory.RunAsync((s, _) => s.ApproveAsync(requestId, managerId));
         await factory.RunAsync((s, _) => s.ReceiveAsync(requestId, managerId));
-        SqliteConnection.ClearAllPools();
+        factory.ClearPool();
 
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseSqlite($"Data Source={factory.DatabasePath};Pooling=False").Options;

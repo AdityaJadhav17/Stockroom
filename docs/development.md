@@ -19,13 +19,13 @@ dotnet run --project src/Stockroom.Web -- seed
 dotnet run --project src/Stockroom.Web --launch-profile http
 ```
 
-The seed command applies migrations to `src/Stockroom.Web/stockroom.db` and printed `Seed complete: 3 accounts, 10 items, 10 stock movements.` on the first and second runs. Git ignores the database file. The command reads the environment from the launch profile and refuses to run outside Development:
+On a new database, the seed command applies migrations to `src/Stockroom.Web/stockroom.db` and creates the demo dataset described below. On 2026-10-04 the developer ran it twice against a disposable database; both runs printed `Seed complete: 3 accounts, 10 items, 4 purchase requests, 12 stock movements.` A rerun adds only missing roles, accounts, and items and never changes or deletes existing records. A database seeded before M4 keeps its records and receives no example requests. Git ignores the database file. The command reads the environment from the launch profile and refuses to run outside Development:
 
 ```powershell
 dotnet run --project src/Stockroom.Web --no-launch-profile -- seed
 ```
 
-That command printed `The seed command runs only in Development. Current environment: Production.` and exited with code 1. Environment variables `Seed__MemberPassword` and `Seed__ManagerPassword` can replace user secrets.
+That command printed `The seed command runs only in Development. Current environment: Production. Nothing was changed.` and exited with code 1. Environment variables `Seed__MemberPassword` and `Seed__ManagerPassword` can replace user secrets.
 
 Open `http://localhost:5080` and log in with one of the seeded accounts:
 
@@ -35,7 +35,29 @@ Open `http://localhost:5080` and log in with one of the seeded accounts:
 | `member2@stockroom.test` | Member | `Seed:MemberPassword` |
 | `manager@stockroom.test` | Manager | `Seed:ManagerPassword` |
 
-To recreate the demo database, stop the application, delete `src/Stockroom.Web/stockroom.db`, and run the seed command again. M4 adds an explicit reset option.
+### Demo dataset
+
+All records are synthetic. Times are fixed UTC values in September 2026, so every fresh seed or reset produces the same dataset.
+
+| Record | Contents |
+| --- | --- |
+| Accounts | member1@stockroom.test and member2@stockroom.test (Member), manager@stockroom.test (Manager) |
+| Items | Ten items. Filament has two spools and a reorder threshold of three, the only low-stock item. |
+| Request #1 | Member 1 requested four plywood packs; the manager approved and received it, raising plywood from six to ten. |
+| Request #2 | Member 2 requested twenty microcontroller boards; the manager rejected it with a reason. |
+| Request #3 | Member 2 requested three resin bottles; the manager approved it, and delivery is outstanding. |
+| Request #4 | Member 1 requested two LED boxes; it is pending review. |
+| Stock movements | Ten opening movements, the request #1 receipt (+4 plywood), and one issue of two jumper-wire packs for a class (8 to 6). Each item's quantity equals the sum of its movements. |
+
+### Reset the demo database
+
+**Reset permanently deletes the local demo database, including every request, stock change, and history record created since the last seed.** Stop the application first; on Windows a running application keeps the file open and the reset fails without changing anything.
+
+```powershell
+dotnet run --project src/Stockroom.Web -- seed --reset
+```
+
+The command runs only in Development. Before deleting anything, it checks that both seed passwords are set and meet the Identity password rules, that the data source is a plain local path ending in `.db`, and that an existing file can be read and is a SQLite database. It then deletes only the configured SQLite file. It refuses memory databases, URIs, wildcards, directories, and other files, then prints `Reset refused` and exits with code 1. After deleting the file, it applies the migrations and seeds the dataset above. On 2026-10-04 the developer ran reset against a disposable database: it printed the deleted path and `Seed complete: 3 accounts, 10 items, 4 purchase requests, 12 stock movements.` Outside Development, `--no-launch-profile -- seed --reset` exited with code 1, and a `.txt` data source was refused without creating or deleting a file. With `Seed__ManagerPassword=weak`, reset printed `Seed refused: Seed:ManagerPassword does not meet the password rules` and exited with code 1, and the database file's SHA-256 hash did not change.
 
 ## Checks and tests
 
