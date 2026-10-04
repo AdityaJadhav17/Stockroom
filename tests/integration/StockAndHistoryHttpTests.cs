@@ -59,7 +59,7 @@ public sealed class StockAndHistoryHttpTests : IAsyncLifetime
 
         Assert.Contains($"/Inventory/Issue/{filamentId}", inventory);
         Assert.Equal("/Inventory", post.Headers.Location?.OriginalString);
-        Assert.Contains("Issued 2 spool of PLA filament, 1.75 mm. 0 remain.", after);
+        Assert.Contains("Issued 2 spools of PLA filament, 1.75 mm. 0 spools remain.", after);
         Assert.Equal("0|11", await FilamentStateAsync());
     }
 
@@ -69,7 +69,7 @@ public sealed class StockAndHistoryHttpTests : IAsyncLifetime
     [InlineData("0", "Workshop", "Enter a whole number from 1 to 10,000.")]
     [InlineData("", "Workshop", "Enter a whole number from 1 to 10,000.")]
     [InlineData("1", "  ", "Enter a reason.")]
-    [InlineData("3", "Workshop", "Only 2 spool of PLA filament, 1.75 mm in stock. Nothing was changed.")]
+    [InlineData("3", "Workshop", "Only 2 spools of PLA filament, 1.75 mm in stock. Nothing was changed.")]
     public async Task InvalidOrExcessiveIssueShowsErrorAndChangesNothing(string quantity, string reason, string error)
     {
         var client = await factory.LoggedInClientAsync(DemoSeeder.ManagerEmail);
@@ -92,7 +92,7 @@ public sealed class StockAndHistoryHttpTests : IAsyncLifetime
         var html = await client.GetStringAsync("/History", Ct);
 
         Assert.Contains("Purchase request events", html);
-        Assert.Matches($@"<td>\d{{4}}-\d{{2}}-\d{{2}} \d{{2}}:\d{{2}} UTC</td>\s*<td>Approved</td>\s*<td><a href=""/Requests/Details/{requestId}"">#{requestId}</a></td>", html);
+        Assert.Matches($@"<td><time datetime=""\d{{4}}-\d{{2}}-\d{{2}}T\d{{2}}:\d{{2}}:\d{{2}}Z"">\d{{4}}-\d{{2}}-\d{{2}} \d{{2}}:\d{{2}} UTC</time></td>\s*<td>Approved</td>\s*<td><a href=""/Requests/Details/{requestId}"">#{requestId}</a></td>", html);
         Assert.Contains("Stock movements", html);
         Assert.Matches(@"<td>Issue</td>\s*<td>PLA filament, 1\.75 mm</td>\s*<td>-1 spool</td>\s*<td>manager@stockroom\.test</td>\s*<td>Laser cutter workshop</td>", html);
         Assert.Contains("<td>Opening</td>", html);

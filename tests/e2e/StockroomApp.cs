@@ -175,22 +175,24 @@ public sealed class StockroomApp : IAsyncDisposable
         return process;
     }
 
+    // The checkout that contains this test assembly's build output.
+    public static string RepositoryRoot()
+    {
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "Stockroom.slnx")))
+        {
+            root = root.Parent;
+        }
+        return root?.FullName
+            ?? throw new InvalidOperationException("Could not find Stockroom.slnx above the test output directory.");
+    }
+
     // Uses the web project's own build output for the same configuration as this test assembly.
     private static (string Assembly, string ContentRoot) LocateWebBuild()
     {
         var testOutput = new DirectoryInfo(Path.TrimEndingDirectorySeparator(AppContext.BaseDirectory));
         var configuration = testOutput.Parent!.Name;
-        var root = testOutput;
-        while (root is not null && !File.Exists(Path.Combine(root.FullName, "Stockroom.slnx")))
-        {
-            root = root.Parent;
-        }
-        if (root is null)
-        {
-            throw new InvalidOperationException("Could not find Stockroom.slnx above the test output directory.");
-        }
-
-        var contentRoot = Path.Combine(root.FullName, "src", "Stockroom.Web");
+        var contentRoot = Path.Combine(RepositoryRoot(), "src", "Stockroom.Web");
         var assembly = Path.Combine(contentRoot, "bin", configuration, testOutput.Name, "Stockroom.Web.dll");
         if (!File.Exists(assembly))
         {

@@ -6,15 +6,15 @@
 
 <h1>Log in</h1>
 <form method="post" class="stack" novalidate>
-    <div asp-validation-summary="ModelOnly" class="error-summary" role="alert"></div>
+    <div asp-validation-summary="All" class="error-summary" role="alert"></div>
     <div class="field">
         <label asp-for="Input.Email">Email</label>
-        <input asp-for="Input.Email" autocomplete="username" aria-describedby="email-error">
+        <input asp-for="Input.Email" autocomplete="username" aria-describedby="email-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Email")">
         <span asp-validation-for="Input.Email" id="email-error" class="field-error"></span>
     </div>
     <div class="field">
         <label asp-for="Input.Password">Password</label>
-        <input asp-for="Input.Password" autocomplete="current-password" aria-describedby="password-error">
+        <input asp-for="Input.Password" autocomplete="current-password" aria-describedby="password-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Password")">
         <span asp-validation-for="Input.Password" id="password-error" class="field-error"></span>
     </div>
     <input type="hidden" name="returnUrl" value="@Model.ReturnUrl">

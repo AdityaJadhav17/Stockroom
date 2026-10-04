@@ -7,26 +7,27 @@
 <h1>History</h1>
 <p>Newest first. All times are UTC.</p>
 
-<h2>@(Model.IsManager ? "Purchase request events" : "Your request events")</h2>
+<h2 id="events-heading">@(Model.IsManager ? "Purchase request events" : "Your request events")</h2>
 @if (Model.RequestEvents.Count == 0)
 {
     <p>No request events yet.</p>
 }
 else
 {
+    ViewData["TableLabel"] = "events-heading";
     <partial name="_RequestEventTable" model="Model.RequestEvents" />
 }
 
 @if (Model.IsManager)
 {
-    <h2>Stock movements</h2>
+    <h2 id="movements-heading">Stock movements</h2>
     @if (Model.Movements.Count == 0)
     {
         <p>No stock movements yet.</p>
     }
     else
     {
-        <table>
+        <table aria-labelledby="movements-heading">
             <thead>
                 <tr>
                     <th scope="col">Time (UTC)</th>
@@ -42,10 +43,10 @@ else
                 @foreach (var movement in Model.Movements)
                 {
                     <tr>
-                        <td>@DisplayFormat.Utc(movement.OccurredAtUtc)</td>
+                        <td>@DisplayFormat.UtcTime(movement.OccurredAtUtc)</td>
                         <td>@movement.Action</td>
                         <td>@movement.ItemName</td>
-                        <td>@movement.QuantityDelta.ToString("+0;-0") @movement.Unit</td>
+                        <td>@DisplayFormat.Change(movement.QuantityDelta, movement.Unit)</td>
                         <td>@movement.ActorEmail</td>
                         <td>@movement.Reason</td>
                         <td>

@@ -26,7 +26,7 @@ Use xUnit v3 for pure input and decision rules. Use ASP.NET Core MVC Testing wit
 
 ## Coverage map
 
-Integration classes are in [tests/integration](../tests/integration/README.md); browser classes are in [tests/e2e](../tests/e2e/README.md). On 2026-10-04 the developer ran 135 integration cases and 7 browser cases locally on Windows; all passed.
+Integration classes are in [tests/integration](../tests/integration/README.md); browser classes are in [tests/e2e](../tests/e2e/README.md). On 2026-10-04 the developer ran 141 integration cases and 7 browser cases locally on Windows; all passed.
 
 | ID | Integration tests | Browser tests |
 | --- | --- | --- |
@@ -62,6 +62,8 @@ For competing-write tests, synchronize the start of the operations. Assert final
 8. Attempt to issue six spools. Show rejection and quantity five.
 9. Log in as a Member and verify restricted actions through the server, not button visibility alone.
 10. Restart the application and confirm the committed stock and history.
+
+On 2026-10-04 the explicit `DemoRecording` browser test ran this demo from a fresh seed, with a rejection added and without the repeated receipt (step 6), which `PurchaseAndWithdrawalTests` covers. It produced the README screenshots and a video in the ignored `artifacts/demo` directory. A narrated two- to three-minute recording by the owner remains a release task.
 
 ## Defect records
 

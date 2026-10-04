@@ -333,7 +333,10 @@ public sealed class PurchaseServiceTests : IAsyncLifetime
             "CREATE TRIGGER fail_receipt_event BEFORE INSERT ON RequestEvents WHEN NEW.Action = 'Received' " +
             "BEGIN SELECT RAISE(ABORT, 'forced failure'); END;", Ct));
 
-        await Assert.ThrowsAsync<DbUpdateException>(() => factory.RunAsync((s, _) => s.ReceiveAsync(id, managerId)));
+        var result = await factory.RunAsync((s, _) => s.ReceiveAsync(id, managerId));
+
+        Assert.False(result.Succeeded);
+        Assert.Equal(ServiceGuard.DatabaseErrorMessage, result.Message);
 
         var request = await RequestAsync(id);
         Assert.Equal(RequestStatus.Approved, request.Status);

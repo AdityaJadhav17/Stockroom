@@ -1,5 +1,5 @@
 @model IEnumerable<RequestEventView>
-<table>
+<table aria-labelledby="@ViewData["TableLabel"]">
     <thead>
         <tr>
             <th scope="col">Time (UTC)</th>
@@ -16,12 +16,12 @@
         @foreach (var e in Model)
         {
             <tr>
-                <td>@DisplayFormat.Utc(e.OccurredAtUtc)</td>
+                <td>@DisplayFormat.UtcTime(e.OccurredAtUtc)</td>
                 <td>@e.Action</td>
                 <td><a asp-page="/Requests/Details" asp-route-id="@e.RequestId">#@e.RequestId</a></td>
                 <td>@e.ItemName</td>
-                <td>@e.Quantity @e.Unit</td>
-                <td>@(e.Action == RequestAction.Received ? $"+{e.Quantity} {e.Unit}" : "None")</td>
+                <td>@DisplayFormat.Quantity(e.Quantity, e.Unit)</td>
+                <td>@(e.Action == RequestAction.Received ? DisplayFormat.Change(e.Quantity, e.Unit) : "None")</td>
                 <td>@e.ActorEmail</td>
                 <td>@e.Note</td>
             </tr>

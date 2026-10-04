@@ -23,6 +23,7 @@ builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/");
     options.Conventions.AllowAnonymousToPage("/Account/Login");
+    options.Conventions.AllowAnonymousToPage("/Error");
 });
 
 var app = builder.Build();
@@ -32,6 +33,11 @@ if (args.Contains("seed"))
 {
     return await DemoSeeder.RunCommandAsync(app.Services, app.Environment, args.Contains("--reset"), Console.Out, Console.Error);
 }
+
+// In every environment, unhandled exceptions and empty error responses render /Error without diagnostic
+// details. The exception handler middleware writes the exception to the server log.
+app.UseExceptionHandler("/Error");
+app.UseStatusCodePagesWithReExecute("/Error");
 
 app.UseAuthentication();
 app.UseAuthorization();
