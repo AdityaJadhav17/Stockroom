@@ -1,0 +1,24 @@
+@page "{itemId:int}"
+@model Stockroom.Web.Pages.Inventory.IssueModel
+@{
+    ViewData["Title"] = $"Issue {Model.Item.Name}";
+}
+
+<h1>Issue stock</h1>
+<p><strong>@Model.Item.Name</strong>: @Model.Item.Quantity @Model.Item.Unit in stock.</p>
+<form method="post" class="stack" novalidate>
+    <div asp-validation-summary="ModelOnly" class="error-summary" role="alert"></div>
+    <div class="field">
+        <label asp-for="Input.Quantity">Quantity to issue</label>
+        <input asp-for="Input.Quantity" type="number" min="1" max="@PurchaseRules.MaxQuantity" step="1" inputmode="numeric" aria-describedby="quantity-error">
+        <span asp-validation-for="Input.Quantity" id="quantity-error" class="field-error"></span>
+    </div>
+    <div class="field">
+        <label asp-for="Input.Reason">Reason</label>
+        <textarea asp-for="Input.Reason" rows="3" maxlength="@PurchaseRules.MaxReasonLength" aria-describedby="reason-hint reason-error"></textarea>
+        <span id="reason-hint" class="hint">Up to @PurchaseRules.MaxReasonLength characters.</span>
+        <span asp-validation-for="Input.Reason" id="reason-error" class="field-error"></span>
+    </div>
+    <button type="submit">Issue stock</button>
+</form>
+<p><a asp-page="/Inventory/Index">Back to inventory</a></p>

@@ -1,6 +1,6 @@
 # Architecture
 
-Status: M1 implemented the application shell, Identity, and the schema below. M2 implemented `PurchaseService` with the receipt transaction described below. [ADR 0002](decisions/0002-m1-authentication-and-seed.md) and [ADR 0003](decisions/0003-m2-purchase-workflow.md) record the decisions. Stock issues follow in M3.
+Status: M1 implemented the application shell, Identity, and the schema below. M2 implemented `PurchaseService` with the receipt transaction, and M3 implemented `StockService` with the withdrawal transaction and history views described below. ADRs [0002](decisions/0002-m1-authentication-and-seed.md), [0003](decisions/0003-m2-purchase-workflow.md), and [0004](decisions/0004-m3-stock-issues-and-history.md) record the decisions.
 
 ## Application boundaries
 

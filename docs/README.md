@@ -14,6 +14,7 @@ The owner plans a two-day MVP for a fictional makerspace. Contributors use these
 - [Foundation decision](decisions/0001-application-foundation.md): rationale for the planned stack.
 - [M1 decision](decisions/0002-m1-authentication-and-seed.md): account pages, schema constraints, seed command, and test runner.
 - [M2 decision](decisions/0003-m2-purchase-workflow.md): purchase service, conditional transitions, lock contention, and access rules.
+- [M3 decision](decisions/0004-m3-stock-issues-and-history.md): stock issues, shared service guards, and history visibility.
 - [Delivery plan](delivery-plan.md): milestones and SDLC checkpoints.
 - [Development setup](development.md): prerequisites, repository checks, and application CI work.
 - [Test structure](../tests/README.md): configured projects and fixture conventions.

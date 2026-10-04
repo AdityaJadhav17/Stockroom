@@ -1,4 +1,4 @@
-name: Foundation checks
+name: CI
 
 on:
   push:
@@ -11,11 +11,35 @@ permissions:
   contents: read
 
 concurrency:
-  group: repository-checks-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: 'true'
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+defaults:
+  run:
+    shell: pwsh
 
 jobs:
   repository-checks:
+    name: Repository Structure Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Check documents and repository files
+        run: ./scripts/Test-Repository.ps1
+
+  dependency-audit:
+    name: Dependency Security Audit
+    needs: repository-checks
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -24,21 +48,106 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Check documents and repository files
-        shell: pwsh
-        run: ./scripts/Test-Repository.ps1
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+
+      - name: Restore locked packages and audit dependencies
+        run: ./scripts/Test-Dependencies.ps1
+
+  build:
+    name: Release Build
+    needs: repository-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Set up .NET SDK
         uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
 
-      - name: Restore locked packages and audit dependencies
-        shell: pwsh
-        run: ./scripts/Test-Dependencies.ps1
+      - name: Restore locked packages
+        run: dotnet restore Stockroom.slnx --locked-mode
 
-      - name: Build solution
-        run: dotnet build Stockroom.slnx --configuration Release --no-restore
+      - name: Build Release solution
+        run: dotnet build Stockroom.slnx --configuration Release --no-restore --warnaserror
 
-      - name: Run application tests
-        run: dotnet test --project tests/integration/Stockroom.IntegrationTests.csproj --configuration Release --no-build
+  integration-tests:
+    name: Integration Tests (${{ matrix.os }})
+    needs: build
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+
+      - name: Restore locked packages
+        run: dotnet restore Stockroom.slnx --locked-mode
+
+      - name: Build integration test host
+        run: dotnet build tests/integration/Stockroom.IntegrationTests.csproj --configuration Release --no-restore --warnaserror
+
+      - name: Run integration tests
+        id: tests
+        run: >-
+          dotnet test --project tests/integration/Stockroom.IntegrationTests.csproj
+          --configuration Release --no-build
+          --minimum-expected-tests 1
+          --results-directory "${{ github.workspace }}/TestResults"
+          --report-xunit-trx --report-xunit-trx-filename integration.trx
+
+      - name: Upload test reports
+        if: ${{ always() && steps.tests.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: integration-test-results-${{ matrix.os }}
+          path: TestResults/
+          if-no-files-found: error
+          retention-days: 14
+
+  ci-status:
+    name: CI Status
+    if: ${{ always() }}
+    needs: [repository-checks, dependency-audit, build, integration-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require every job to pass
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          $results = $env:JOB_RESULTS | ConvertFrom-Json -AsHashtable
+          $summary = @('## CI results', '', '| Job | Result |', '| --- | --- |')
+          foreach ($job in $results.GetEnumerator() | Sort-Object Key) {
+              $summary += "| $($job.Key) | $($job.Value.result) |"
+          }
+          $summary | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+          $failed = @($results.GetEnumerator() | Where-Object { $_.Value.result -ne 'success' })
+          if ($failed.Count -gt 0) {
+              $failed | ForEach-Object { Write-Output "$($_.Key): $($_.Value.result)" }
+              throw 'CI requires every job to succeed. Failed, skipped, or cancelled jobs cannot pass this check.'
+          }
+          Write-Output 'All required CI jobs passed.'

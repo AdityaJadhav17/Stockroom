@@ -1,0 +1,30 @@
+@model IEnumerable<RequestEventView>
+<table>
+    <thead>
+        <tr>
+            <th scope="col">Time (UTC)</th>
+            <th scope="col">Action</th>
+            <th scope="col">Request</th>
+            <th scope="col">Item</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Stock change</th>
+            <th scope="col">Actor</th>
+            <th scope="col">Note</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var e in Model)
+        {
+            <tr>
+                <td>@DisplayFormat.Utc(e.OccurredAtUtc)</td>
+                <td>@e.Action</td>
+                <td><a asp-page="/Requests/Details" asp-route-id="@e.RequestId">#@e.RequestId</a></td>
+                <td>@e.ItemName</td>
+                <td>@e.Quantity @e.Unit</td>
+                <td>@(e.Action == RequestAction.Received ? $"+{e.Quantity} {e.Unit}" : "None")</td>
+                <td>@e.ActorEmail</td>
+                <td>@e.Note</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -20,8 +20,7 @@ public class IndexModel(AppDbContext db, PurchaseService purchases) : PageModel
             .OrderBy(i => i.Name)
             .ToListAsync();
         Pending = await purchases
-            .VisibleRequests(User.FindFirstValue(ClaimTypes.NameIdentifier)!, User.IsInRole(Roles.Manager),
-                status: RequestStatus.Pending)
+            .VisibleRequests(User.FindFirstValue(ClaimTypes.NameIdentifier)!, status: RequestStatus.Pending)
             .ToListAsync();
     }
 }

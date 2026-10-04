@@ -4,7 +4,7 @@ Members request supplies for a fictional campus makerspace. Managers review purc
 
 ## Status
 
-Milestones M1 and M2 are implemented. Members log in, browse and search inventory, see low-stock items, and submit purchase requests. The manager approves or rejects pending requests and records receipt of approved purchases; receipt updates the request, stock, stock movement, and request event in one transaction. Seventy-four SQLite integration tests cover login, roles enforced in pages and in the service, request ownership, validation, transitions, duplicate and competing reviews and receipts, overflow, exhausted lock retries, and transaction rollback. Stock issues, history views, and the reset command remain planned. The project uses synthetic data; the author has no client deployment or production usage to report.
+Milestones M1, M2, and M3 are implemented. Members log in, browse and search inventory, see low-stock items, submit purchase requests, and read the history of their own requests. The manager approves or rejects pending requests, records receipts, issues stock with a reason, and reads the full request and stock-movement history. Receipts and issues save the stock change and its movement in one transaction, and conditional writes stop competing operations from adding stock twice or overselling. One hundred and seven SQLite integration tests cover roles enforced in pages and services, request ownership, validation, duplicate and competing operations, overflow, exhausted lock retries, transaction rollback, history visibility, and persistence after reopening the database. The reset command and release preparation remain planned. The project uses synthetic data; the author has no client deployment or production usage to report.
 
 The first release covers one purchase workflow and its stock history. The implementation budget is two working days, with 12 to 16 hours available for development and verification.
 
@@ -51,7 +51,7 @@ dotnet build Stockroom.slnx --configuration Release --no-restore
 dotnet test --project tests/integration/Stockroom.IntegrationTests.csproj --configuration Release --no-build
 ```
 
-Read [the development setup](docs/development.md) to configure demo passwords, seed the database, and run the application. The GitHub Actions workflow runs repository checks, a dependency audit, the Release build, and the integration tests. It does not run browser tests yet.
+Read [the development setup](docs/development.md) to configure demo passwords, seed the database, and run the application. GitHub Actions shows separate jobs for repository checks, dependency auditing, the Release build, and integration tests on Ubuntu and Windows. Each test run uploads its report. The final `CI Status` check requires every job to pass. Unit and browser test jobs will be added when those projects contain cases.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before making changes.
 

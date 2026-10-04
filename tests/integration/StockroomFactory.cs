@@ -46,15 +46,26 @@ public sealed partial class StockroomFactory(int? busyTimeoutSeconds = null) : W
             scope.ServiceProvider.GetRequiredService<AppDbContext>());
     }
 
+    public async Task<T> StockAsync<T>(Func<StockService, Task<T>> action)
+    {
+        await using var scope = Services.CreateAsyncScope();
+        return await action(scope.ServiceProvider.GetRequiredService<StockService>());
+    }
+
     public Task<string> UserIdAsync(string email) =>
         RunAsync((_, db) => db.Users.Where(u => u.Email == email).Select(u => u.Id).SingleAsync());
 
-    public async Task AddRoleAsync(string email, string role)
+    public Task AddRoleAsync(string email, string role) =>
+        ChangeRoleAsync(email, (users, user) => users.AddToRoleAsync(user, role));
+
+    public Task RemoveRoleAsync(string email, string role) =>
+        ChangeRoleAsync(email, (users, user) => users.RemoveFromRoleAsync(user, role));
+
+    private async Task ChangeRoleAsync(string email, Func<UserManager<IdentityUser>, IdentityUser, Task<IdentityResult>> change)
     {
         await using var scope = Services.CreateAsyncScope();
         var users = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-        var result = await users.AddToRoleAsync((await users.FindByEmailAsync(email))!, role);
-        Assert.True(result.Succeeded);
+        Assert.True((await change(users, (await users.FindByEmailAsync(email))!)).Succeeded);
     }
 
     // Request fields, item quantity, and history counts; equal snapshots mean an operation changed nothing.

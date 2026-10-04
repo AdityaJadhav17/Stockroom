@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Stockroom.Web.Data;
 using Stockroom.Web.Models;
@@ -12,6 +11,10 @@ public sealed record RequestView(
     int Id, int ItemId, string ItemName, string Unit, int Quantity, string Reason, RequestStatus Status,
     string RequesterId, string RequesterEmail, DateTime CreatedAtUtc,
     DateTime? ReviewedAtUtc, string? RejectionReason, DateTime? ReceivedAtUtc);
+
+public sealed record RequestEventView(
+    int Id, int RequestId, RequestAction Action, string ActorEmail, DateTime OccurredAtUtc,
+    string ItemName, string Unit, int Quantity, string? Note);
 
 // Input and role rules shared by the pages and the service (BR-02, BR-03, BR-10).
 public static class PurchaseRules
@@ -34,33 +37,35 @@ public static class PurchaseRules
 }
 
 // Purchase request rules (BR-01 through BR-08, BR-11). Each operation checks the actor's roles in the
-// database, then claims the row with a conditional UPDATE inside a transaction. Microsoft.Data.Sqlite
-// starts transactions with BEGIN IMMEDIATE, so competing writers queue on the database lock and retry
-// until the command timeout. If the retries run out, the transaction rolls back and the caller receives
-// BusyMessage.
+// database, then claims the row with a conditional UPDATE inside a transaction. ServiceGuard turns
+// exhausted SQLite lock retries into BusyMessage after the transaction rolls back.
 public sealed class PurchaseService(AppDbContext db)
 {
-    public const string ForbiddenMessage = "Your role does not allow this action. Nothing was changed.";
-    public const string BusyMessage = "The database is busy. Nothing was changed. Try again.";
+    public const string ForbiddenMessage = ServiceGuard.ForbiddenMessage;
+    public const string BusyMessage = ServiceGuard.BusyMessage;
 
-    // Ownership rule: managers see every request; members see only their own. Filters run before the
+    // Ownership rule: managers see every request; members see only their own. The Manager role comes from
+    // the database inside the query, so a caller cannot widen visibility. Filters run before the
     // projection because EF cannot translate predicates on a positional record.
-    public IQueryable<RequestView> VisibleRequests(
-        string userId, bool isManager, int? requestId = null, RequestStatus? status = null) =>
-        from r in db.PurchaseRequests
-        join i in db.InventoryItems on r.ItemId equals i.Id
-        join u in db.Users on r.RequesterId equals u.Id
-        where (isManager || r.RequesterId == userId)
-            && (requestId == null || r.Id == requestId)
-            && (status == null || r.Status == status)
-        orderby r.Id descending
-        select new RequestView(r.Id, i.Id, i.Name, i.Unit, r.Quantity, r.Reason, r.Status, r.RequesterId, u.Email!,
-            r.CreatedAtUtc, r.ReviewedAtUtc, r.RejectionReason, r.ReceivedAtUtc);
+    public IQueryable<RequestView> VisibleRequests(string viewerId, int? requestId = null, RequestStatus? status = null)
+    {
+        var viewerIsManager = db.RoleMemberships(viewerId, Roles.Manager);
+        return
+            from r in db.PurchaseRequests
+            join i in db.InventoryItems on r.ItemId equals i.Id
+            join u in db.Users on r.RequesterId equals u.Id
+            where (r.RequesterId == viewerId || viewerIsManager.Any())
+                && (requestId == null || r.Id == requestId)
+                && (status == null || r.Status == status)
+            orderby r.Id descending
+            select new RequestView(r.Id, i.Id, i.Name, i.Unit, r.Quantity, r.Reason, r.Status, r.RequesterId, u.Email!,
+                r.CreatedAtUtc, r.ReviewedAtUtc, r.RejectionReason, r.ReceivedAtUtc);
+    }
 
     public Task<OperationResult> CreateAsync(string requesterId, int itemId, int? quantity, string? reason) =>
-        GuardAsync(async () =>
+        db.GuardAsync(async () =>
         {
-            if (!await HasRoleAsync(requesterId, Roles.Member) || await HasRoleAsync(requesterId, Roles.Manager))
+            if (!await db.HasRoleAsync(requesterId, Roles.Member) || await db.HasRoleAsync(requesterId, Roles.Manager))
             {
                 return new(false, ForbiddenMessage);
             }
@@ -100,9 +105,9 @@ public sealed class PurchaseService(AppDbContext db)
         ReviewAsync(requestId, reviewerId, RequestStatus.Rejected, reason);
 
     private Task<OperationResult> ReviewAsync(int requestId, string reviewerId, RequestStatus decision, string? reason) =>
-        GuardAsync(async () =>
+        db.GuardAsync(async () =>
         {
-            if (!await HasRoleAsync(reviewerId, Roles.Manager))
+            if (!await db.HasRoleAsync(reviewerId, Roles.Manager))
             {
                 return new(false, ForbiddenMessage, requestId);
             }
@@ -134,9 +139,9 @@ public sealed class PurchaseService(AppDbContext db)
         });
 
     public Task<OperationResult> ReceiveAsync(int requestId, string receiverId) =>
-        GuardAsync(async () =>
+        db.GuardAsync(async () =>
         {
-            if (!await HasRoleAsync(receiverId, Roles.Manager))
+            if (!await db.HasRoleAsync(receiverId, Roles.Manager))
             {
                 return new(false, ForbiddenMessage, requestId);
             }
@@ -186,35 +191,21 @@ public sealed class PurchaseService(AppDbContext db)
             return new(true, $"Request #{requestId} received. Added {request.Quantity} to stock.", requestId);
         });
 
-    // Roles come from the database, not from the caller, so a direct service call cannot claim a role.
-    private Task<bool> HasRoleAsync(string userId, string role) =>
-        db.UserRoles.AnyAsync(ur => ur.UserId == userId && db.Roles.Any(r => r.Id == ur.RoleId && r.Name == role));
-
-    // The transaction inside the operation is disposed, and therefore rolled back, before the catch runs.
-    private async Task<OperationResult> GuardAsync(Func<Task<OperationResult>> operation)
+    // US-07: managers see every request event; members see events on their own requests only, with the
+    // Manager role read from the database. A Created event shows the purchase reason as its note.
+    // Newest first, with the identifier breaking ties between events saved in the same operation.
+    public IQueryable<RequestEventView> RequestHistory(string viewerId, int? requestId = null)
     {
-        try
-        {
-            return await operation();
-        }
-        catch (Exception ex) when (IsBusy(ex))
-        {
-            db.ChangeTracker.Clear();
-            return new(false, BusyMessage);
-        }
-    }
-
-    // SQLITE_BUSY (5) and SQLITE_LOCKED (6) remain after the provider's retries run out.
-    private static bool IsBusy(Exception? ex)
-    {
-        for (; ex is not null; ex = ex.InnerException)
-        {
-            if (ex is SqliteException { SqliteErrorCode: 5 or 6 })
-            {
-                return true;
-            }
-        }
-        return false;
+        var viewerIsManager = db.RoleMemberships(viewerId, Roles.Manager);
+        return
+            from e in db.RequestEvents
+            join r in db.PurchaseRequests on e.PurchaseRequestId equals r.Id
+            join i in db.InventoryItems on r.ItemId equals i.Id
+            join u in db.Users on e.ActorId equals u.Id
+            where (r.RequesterId == viewerId || viewerIsManager.Any()) && (requestId == null || r.Id == requestId)
+            orderby e.OccurredAtUtc descending, e.Id descending
+            select new RequestEventView(e.Id, r.Id, e.Action, u.Email!, e.OccurredAtUtc, i.Name, i.Unit, r.Quantity,
+                e.Action == RequestAction.Created ? r.Reason : e.Note);
     }
 
     private async Task<OperationResult> CurrentStateAsync(int requestId)

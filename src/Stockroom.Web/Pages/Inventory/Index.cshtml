@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Inventory";
     var isMember = PurchaseRules.CanRequestPurchases(User);
+    var isManager = User.IsInRole(Roles.Manager);
 }
 
 <h1>Inventory</h1>
@@ -26,7 +27,7 @@ else
                 <th scope="col">Quantity</th>
                 <th scope="col">Reorder threshold</th>
                 <th scope="col">Stock</th>
-                @if (isMember)
+                @if (isMember || isManager)
                 {
                     <th scope="col"><span class="visually-hidden">Action</span></th>
                 }
@@ -44,6 +45,10 @@ else
                     @if (isMember)
                     {
                         <td><a asp-page="/Requests/New" asp-route-itemId="@item.Id">Request<span class="visually-hidden"> @item.Name</span></a></td>
+                    }
+                    else if (isManager)
+                    {
+                        <td><a asp-page="/Inventory/Issue" asp-route-itemId="@item.Id">Issue<span class="visually-hidden"> @item.Name</span></a></td>
                     }
                 </tr>
             }

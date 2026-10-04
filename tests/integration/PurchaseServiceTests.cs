@@ -116,6 +116,50 @@ public sealed class PurchaseServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task MemberCannotReadAnotherMembersRequestOrHistoryThroughService()
+    {
+        var otherId = await factory.UserIdAsync(DemoSeeder.Member2Email);
+        var other = (await factory.RunAsync((s, _) => s.CreateAsync(otherId, filamentId, 5, "Other member's request"))).RequestId!.Value;
+
+        var requests = await factory.RunAsync((s, _) => s.VisibleRequests(memberId).ToListAsync(Ct));
+        var direct = await factory.RunAsync((s, _) => s.VisibleRequests(memberId, requestId: other).ToListAsync(Ct));
+        var history = await factory.RunAsync((s, _) => s.RequestHistory(memberId).ToListAsync(Ct));
+        var directHistory = await factory.RunAsync((s, _) => s.RequestHistory(memberId, requestId: other).ToListAsync(Ct));
+        var managerHistory = await factory.RunAsync((s, _) => s.RequestHistory(managerId, requestId: other).ToListAsync(Ct));
+
+        Assert.Empty(requests);
+        Assert.Empty(direct);
+        Assert.Empty(history);
+        Assert.Empty(directHistory);
+        Assert.Single(managerHistory);
+    }
+
+    [Fact]
+    public async Task VisibilityFollowsDatabaseRolesNotTheCaller()
+    {
+        var id = await CreatePendingAsync();
+        Assert.Single(await factory.RunAsync((s, _) => s.RequestHistory(managerId, requestId: id).ToListAsync(Ct)));
+
+        await factory.RemoveRoleAsync(DemoSeeder.ManagerEmail, Roles.Manager);
+
+        Assert.Empty(await factory.RunAsync((s, _) => s.VisibleRequests(managerId).ToListAsync(Ct)));
+        Assert.Empty(await factory.RunAsync((s, _) => s.RequestHistory(managerId).ToListAsync(Ct)));
+    }
+
+    [Fact]
+    public async Task CreatedEventShowsPurchaseReason()
+    {
+        var id = await CreatePendingAsync();
+        await factory.RunAsync((s, _) => s.RejectAsync(id, managerId, "Budget closed"));
+
+        var history = await factory.RunAsync((s, _) => s.RequestHistory(memberId, requestId: id).ToListAsync(Ct));
+
+        Assert.Equal(
+            [(RequestAction.Rejected, "Budget closed"), (RequestAction.Created, "Materials for the robotics workshop")],
+            history.Select(e => (e.Action, e.Note)));
+    }
+
+    [Fact]
     public async Task ApprovalRecordsReviewerAndLeavesStockUnchanged()
     {
         var id = await CreatePendingAsync();
