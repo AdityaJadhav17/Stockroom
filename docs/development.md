@@ -31,7 +31,7 @@ dotnet run --project src/Stockroom.Web --no-launch-profile -- seed
 
 That command printed `The seed command runs only in Development. Current environment: Production. Nothing was changed.` and exited with code 1. Environment variables `Seed__MemberPassword` and `Seed__ManagerPassword` can replace user secrets.
 
-Open `http://localhost:5080` and log in with one of the seeded accounts:
+Open `http://localhost:5080` and log in with one of the seeded accounts. Login accepts five attempts from one address per one-minute sliding window; further attempts show "Too many attempts" until the oldest ones leave the window, so up to 10 can fit within one minute. Logging out ends every session for that account.
 
 | Account | Role | Password setting |
 | --- | --- | --- |

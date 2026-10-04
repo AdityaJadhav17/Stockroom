@@ -17,6 +17,7 @@ The owner plans a two-day MVP for a fictional makerspace. Contributors use these
 - [M3 decision](decisions/0004-m3-stock-issues-and-history.md): stock issues, shared service guards, and history visibility.
 - [M4 decision](decisions/0005-m4-demo-dataset-and-reset.md): demo dataset, seed reruns, and reset safeguards.
 - [M6 decision](decisions/0006-m6-release-preparation.md): database-error handling, error pages, and interface accessibility.
+- [M7 decision](decisions/0007-m7-security-hardening.md): security headers, session revocation, and login throttling.
 - [Delivery plan](delivery-plan.md): milestones and SDLC checkpoints.
 - [Development setup](development.md): prerequisites, repository checks, and application CI work.
 - [Test structure](../tests/README.md): configured projects and fixture conventions.
@@ -25,6 +26,7 @@ The owner plans a two-day MVP for a fictional makerspace. Contributors use these
 
 - [Test plan](test-plan.md): acceptance scenarios, regression checks, and demo script.
 - [Definition of done](definition-of-done.md): story and release criteria.
+- [Security review](security-review.md): M7 audit findings, evidence, and remediation plan.
 - [Dependency audit](dependency-audit.md): initial resolved graph and vulnerability evidence.
 - [Community setup](community-setup.md): files in place and GitHub settings after publication.
 
