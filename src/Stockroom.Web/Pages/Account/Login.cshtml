@@ -4,20 +4,29 @@
     ViewData["Title"] = "Log in";
 }
 
-<h1>Log in</h1>
-<form method="post" class="stack" novalidate>
-    <div asp-validation-summary="All" class="error-summary" role="alert"></div>
-    <div class="field">
-        <label asp-for="Input.Email">Email</label>
-        <input asp-for="Input.Email" autocomplete="username" aria-describedby="email-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Email")">
-        <span asp-validation-for="Input.Email" id="email-error" class="field-error"></span>
+<div class="narrow">
+    <div class="card">
+        <h1>Log in</h1>
+        <p class="lead">Use a Stockroom demo account to manage inventory and purchase requests.</p>
+        <form method="post" class="form" novalidate>
+            @* Rendered only with errors: when valid, the tag helper emits an inline style that the CSP blocks. *@
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="error-summary" role="alert"></div>
+            }
+            <div class="field">
+                <label asp-for="Input.Email">Email</label>
+                <input asp-for="Input.Email" autocomplete="username" aria-describedby="email-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Email")">
+                <span asp-validation-for="Input.Email" id="email-error" class="field-error"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Input.Password">Password</label>
+                <input asp-for="Input.Password" autocomplete="current-password" aria-describedby="password-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Password")">
+                <span asp-validation-for="Input.Password" id="password-error" class="field-error"></span>
+            </div>
+            <input type="hidden" name="returnUrl" value="@Model.ReturnUrl">
+            <button type="submit">Log in</button>
+        </form>
     </div>
-    <div class="field">
-        <label asp-for="Input.Password">Password</label>
-        <input asp-for="Input.Password" autocomplete="current-password" aria-describedby="password-error" aria-invalid="@FormState.Invalid(ViewData.ModelState, "Input.Password")">
-        <span asp-validation-for="Input.Password" id="password-error" class="field-error"></span>
-    </div>
-    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl">
-    <button type="submit">Log in</button>
-</form>
-<p class="hint">Demo accounts are created by the Development seed command. Registration and password recovery are not available.</p>
+    <p class="hint">Demo accounts are created by the Development seed command. Registration and password recovery are not available.</p>
+</div>

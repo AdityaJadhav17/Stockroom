@@ -2,17 +2,30 @@
 @model Stockroom.Web.Pages.Requests.IndexModel
 @{
     var isManager = User.IsInRole(Roles.Manager);
+    var canRequest = PurchaseRules.CanRequestPurchases(User);
     ViewData["Title"] = isManager ? "Purchase requests" : "Your requests";
 }
 
-<h1 id="requests-heading">@ViewData["Title"]</h1>
-@if (PurchaseRules.CanRequestPurchases(User))
-{
-    <p><a asp-page="/Requests/New">Request a purchase</a></p>
-}
+<div class="page-head">
+    <div>
+        <h1 id="requests-heading">@ViewData["Title"]</h1>
+        <p class="lead">
+            @(isManager
+                ? "Requests from all members, newest first."
+                : "Requests you have submitted, newest first.")
+        </p>
+    </div>
+    @if (canRequest)
+    {
+        <div class="actions">
+            <a class="button" asp-page="/Requests/New">Request a purchase</a>
+        </div>
+    }
+</div>
+
 @if (Model.Requests.Count == 0)
 {
-    <p>No purchase requests yet.</p>
+    <div class="empty"><p>No purchase requests yet.</p></div>
 }
 else
 {

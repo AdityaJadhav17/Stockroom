@@ -4,55 +4,79 @@
     ViewData["Title"] = "Inventory";
     var isMember = PurchaseRules.CanRequestPurchases(User);
     var isManager = User.IsInRole(Roles.Manager);
+    var lowCount = Model.Items.Count(i => i.Quantity <= i.ReorderThreshold);
+    var searching = !string.IsNullOrWhiteSpace(Model.Search);
 }
 
-<h1>Inventory</h1>
+<div class="page-head">
+    <div>
+        <h1>Inventory</h1>
+        <p class="lead">
+            Items at or below their reorder threshold are marked Low.
+        </p>
+    </div>
+</div>
+
 <form method="get" role="search" class="search">
-    <label for="q">Search by name</label>
-    <input id="q" name="q" type="search" value="@Model.Search">
+    <div class="field">
+        <label for="q">Search by name</label>
+        <input id="q" name="q" type="search" value="@Model.Search">
+    </div>
     <button type="submit">Search</button>
+    @if (searching)
+    {
+        <a class="button secondary" asp-page="/Inventory/Index">Clear search</a>
+    }
 </form>
 
 @if (Model.Items.Count == 0)
 {
-    <p role="status">@(string.IsNullOrWhiteSpace(Model.Search) ? "No inventory items exist." : $"No items match \"{Model.Search}\".") <a asp-page="/Inventory/Index">Show all items</a></p>
+    <div class="empty">
+        <p role="status">@(searching ? $"No items match \"{Model.Search}\"." : "No inventory items exist.") <a asp-page="/Inventory/Index">Show all items</a></p>
+    </div>
 }
 else
 {
-    <table>
-        <caption class="visually-hidden">Inventory items</caption>
-        <thead>
-            <tr>
-                <th scope="col">Item</th>
-                <th scope="col">Unit</th>
-                <th scope="col">Quantity</th>
-                <th scope="col">Reorder threshold</th>
-                <th scope="col">Stock</th>
-                @if (isMember || isManager)
-                {
-                    <th scope="col"><span class="visually-hidden">Action</span></th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
+    <div class="section-head">
+        <h2 id="items-heading">@(searching ? $"Results for \"{Model.Search}\"" : "All items")</h2>
+        <p>@Model.Items.Count @(Model.Items.Count == 1 ? "item" : "items"), @lowCount low</p>
+    </div>
+    <div class="table-wrap" role="region" aria-labelledby="items-heading" tabindex="0">
+        <table class="stack-sm" aria-labelledby="items-heading">
+            <thead>
                 <tr>
-                    <td>@item.Name</td>
-                    <td>@item.Unit</td>
-                    <td>@item.Quantity</td>
-                    <td>@item.ReorderThreshold</td>
-                    <td>@(item.Quantity <= item.ReorderThreshold ? "Low" : "OK")</td>
-                    @if (isMember)
+                    <th scope="col">Item</th>
+                    <th scope="col">Unit</th>
+                    <th scope="col" class="num">Quantity</th>
+                    <th scope="col" class="num">Reorder threshold</th>
+                    <th scope="col">Stock</th>
+                    @if (isMember || isManager)
                     {
-                        <td><a asp-page="/Requests/New" asp-route-itemId="@item.Id">Request<span class="visually-hidden"> @item.Name</span></a></td>
-                    }
-                    else if (isManager)
-                    {
-                        <td><a asp-page="/Inventory/Issue" asp-route-itemId="@item.Id">Issue<span class="visually-hidden"> @item.Name</span></a></td>
+                        <th scope="col"><span class="visually-hidden">Action</span></th>
                     }
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    var low = item.Quantity <= item.ReorderThreshold;
+                    <tr class="@(low ? "is-low" : null)">
+                        <td>@item.Name</td>
+                        <td data-label="Unit">@item.Unit</td>
+                        <td class="num strong" data-label="Quantity">@item.Quantity</td>
+                        <td class="num" data-label="Reorder threshold">@item.ReorderThreshold</td>
+                        <td data-label="Stock"><span class="badge@(low ? " badge-low" : "")">@(low ? "Low" : "OK")</span></td>
+                        @if (isMember)
+                        {
+                            <td class="cell-action"><a class="button small secondary" asp-page="/Requests/New" asp-route-itemId="@item.Id">Request<span class="visually-hidden"> @item.Name</span></a></td>
+                        }
+                        else if (isManager)
+                        {
+                            <td class="cell-action"><a class="button small secondary" asp-page="/Inventory/Issue" asp-route-itemId="@item.Id">Issue<span class="visually-hidden"> @item.Name</span></a></td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }

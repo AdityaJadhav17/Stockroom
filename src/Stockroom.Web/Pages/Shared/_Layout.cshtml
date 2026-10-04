@@ -17,20 +17,25 @@
 <body>
     <a class="skip-link" href="#main">Skip to main content</a>
     <header class="site-header">
-        <span class="brand">Stockroom</span>
-        @if (User.Identity?.IsAuthenticated == true)
-        {
-            <nav aria-label="Main">
-                <a asp-page="/Index" aria-current="@Current("/Index")">Dashboard</a>
-                <a asp-page="/Inventory/Index" aria-current="@Current("/Inventory")">Inventory</a>
-                <a asp-page="/Requests/Index" aria-current="@Current("/Requests")">Requests</a>
-                <a asp-page="/History/Index" aria-current="@Current("/History")">History</a>
-            </nav>
-            <form method="post" asp-page="/Account/Logout" class="signout">
-                <span>@User.Identity.Name</span>
-                <button type="submit">Log out</button>
-            </form>
-        }
+        <div class="header-inner">
+            <span class="brand">Stockroom</span>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <nav aria-label="Main" class="main-nav">
+                    <a asp-page="/Index" aria-current="@Current("/Index")">Dashboard</a>
+                    <a asp-page="/Inventory/Index" aria-current="@Current("/Inventory")">Inventory</a>
+                    <a asp-page="/Requests/Index" aria-current="@Current("/Requests")">Requests</a>
+                    <a asp-page="/History/Index" aria-current="@Current("/History")">History</a>
+                </nav>
+                <form method="post" asp-page="/Account/Logout" class="signout">
+                    <span class="account">
+                        <span class="account-email" title="@User.Identity.Name">@User.Identity.Name</span>
+                        <span class="account-role">@(User.IsInRole(Roles.Manager) ? Roles.Manager : Roles.Member)</span>
+                    </span>
+                    <button type="submit" class="secondary small">Log out</button>
+                </form>
+            }
+        </div>
     </header>
     <main id="main">
         @if (TempData["Message"] is string message)

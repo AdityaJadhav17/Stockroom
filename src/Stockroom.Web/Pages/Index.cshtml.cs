@@ -11,6 +11,7 @@ public class IndexModel(AppDbContext db, PurchaseService purchases) : PageModel
 {
     public List<InventoryItem> LowStock { get; private set; } = [];
     public List<RequestView> Pending { get; private set; } = [];
+    public List<RequestView> AwaitingDelivery { get; private set; } = [];
 
     public async Task OnGetAsync()
     {
@@ -19,8 +20,8 @@ public class IndexModel(AppDbContext db, PurchaseService purchases) : PageModel
             .Where(i => i.Quantity <= i.ReorderThreshold)
             .OrderBy(i => i.Name)
             .ToListAsync();
-        Pending = await purchases
-            .VisibleRequests(User.FindFirstValue(ClaimTypes.NameIdentifier)!, status: RequestStatus.Pending)
-            .ToListAsync();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        Pending = await purchases.VisibleRequests(userId, status: RequestStatus.Pending).ToListAsync();
+        AwaitingDelivery = await purchases.VisibleRequests(userId, status: RequestStatus.Approved).ToListAsync();
     }
 }

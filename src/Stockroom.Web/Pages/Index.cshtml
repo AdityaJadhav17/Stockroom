@@ -3,37 +3,116 @@
 @{
     ViewData["Title"] = "Dashboard";
     var isManager = User.IsInRole(Roles.Manager);
+    var canRequest = PurchaseRules.CanRequestPurchases(User);
 }
 
-<h1>Dashboard</h1>
-<p>You are signed in as <strong>@User.Identity?.Name</strong> with the <strong>@(isManager ? Roles.Manager : Roles.Member)</strong> role.</p>
+<div class="page-head">
+    <div>
+        <h1>Dashboard</h1>
+        <p class="lead">
+            @(isManager
+                ? "Decisions to make, deliveries to record, and stock to reorder."
+                : "Your open requests and stock to reorder.")
+        </p>
+    </div>
+    <div class="actions">
+        @if (canRequest)
+        {
+            <a class="button" asp-page="/Requests/New">Request a purchase</a>
+        }
+        <a class="button secondary" asp-page="/Inventory/Index">@(isManager ? "Issue stock" : "Browse inventory")</a>
+    </div>
+</div>
 
-<h2>Low stock</h2>
-@if (Model.LowStock.Count == 0)
-{
-    <p>No items are at or below their reorder threshold.</p>
-}
-else
-{
-    <table>
-        <caption>Items at or below their reorder threshold</caption>
-        <thead><tr><th scope="col">Item</th><th scope="col">Quantity</th><th scope="col">Threshold</th></tr></thead>
-        <tbody>
-            @foreach (var item in Model.LowStock)
-            {
-                <tr><td>@item.Name</td><td>@DisplayFormat.Quantity(item.Quantity, item.Unit)</td><td>@item.ReorderThreshold</td></tr>
-            }
-        </tbody>
-    </table>
-}
+<ul class="stats" aria-label="Summary">
+    <li>
+        <a class="stat@(Model.Pending.Count > 0 ? " attention" : "")" href="#pending-heading">
+            <span class="stat-value">@Model.Pending.Count</span>
+            <span class="stat-label">@(isManager ? "Requests to review" : "Requests waiting for review")</span>
+        </a>
+    </li>
+    <li>
+        <a class="stat" href="#delivery-heading">
+            <span class="stat-value">@Model.AwaitingDelivery.Count</span>
+            <span class="stat-label">Approved, awaiting delivery</span>
+        </a>
+    </li>
+    <li>
+        <a class="stat@(Model.LowStock.Count > 0 ? " attention" : "")" href="#low-stock-heading">
+            <span class="stat-value">@Model.LowStock.Count</span>
+            <span class="stat-label">Items at or below reorder threshold</span>
+        </a>
+    </li>
+</ul>
 
-<h2 id="pending-heading">@(isManager ? "Pending requests" : "Your pending requests")</h2>
-@if (Model.Pending.Count == 0)
-{
-    <p>No requests are waiting for review.</p>
-}
-else
-{
-    ViewData["TableLabel"] = "pending-heading";
-    <partial name="_RequestTable" model="Model.Pending" />
-}
+<section class="section">
+    <div class="section-head">
+        <h2 id="pending-heading">@(isManager ? "Pending requests" : "Your pending requests")</h2>
+    </div>
+    @if (Model.Pending.Count == 0)
+    {
+        <div class="empty"><p>No requests are waiting for review.</p></div>
+    }
+    else
+    {
+        ViewData["TableLabel"] = "pending-heading";
+        <partial name="_RequestTable" model="Model.Pending" />
+    }
+</section>
+
+<section class="section">
+    <div class="section-head">
+        <h2 id="delivery-heading">@(isManager ? "Awaiting delivery" : "Your approved requests")</h2>
+    </div>
+    @if (Model.AwaitingDelivery.Count == 0)
+    {
+        <div class="empty"><p>No approved requests are waiting for delivery.</p></div>
+    }
+    else
+    {
+        ViewData["TableLabel"] = "delivery-heading";
+        <partial name="_RequestTable" model="Model.AwaitingDelivery" />
+    }
+</section>
+
+<section class="section">
+    <div class="section-head">
+        <h2 id="low-stock-heading">Low stock</h2>
+    </div>
+    @if (Model.LowStock.Count == 0)
+    {
+        <div class="empty"><p>No items are at or below their reorder threshold.</p></div>
+    }
+    else
+    {
+        <div class="table-wrap" role="region" aria-labelledby="low-stock-heading" tabindex="0">
+            <table class="stack-sm" aria-labelledby="low-stock-heading">
+                <thead>
+                    <tr>
+                        <th scope="col">Item</th>
+                        <th scope="col" class="num">In stock</th>
+                        <th scope="col" class="num">Reorder threshold</th>
+                        @if (canRequest)
+                        {
+                            <th scope="col"><span class="visually-hidden">Action</span></th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.LowStock)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td class="num strong" data-label="In stock">@DisplayFormat.Quantity(item.Quantity, item.Unit)</td>
+                            <td class="num" data-label="Reorder threshold">@DisplayFormat.Quantity(item.ReorderThreshold, item.Unit)</td>
+                            @if (canRequest)
+                            {
+                                <td class="cell-action"><a class="button small secondary" asp-page="/Requests/New" asp-route-itemId="@item.Id">Request<span class="visually-hidden"> @item.Name</span></a></td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

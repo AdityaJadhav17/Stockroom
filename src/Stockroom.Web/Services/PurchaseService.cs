@@ -236,6 +236,11 @@ public static class DisplayFormat
     public static string Quantity(int quantity, string unit) =>
         $"{quantity} {(Math.Abs(quantity) == 1 ? unit : Plural(unit))}";
 
+    // A request status or action as a labelled badge. The text names the state, so colour is never the only cue.
+    // Enum names need no HTML encoding.
+    public static Microsoft.AspNetCore.Html.HtmlString Badge(Enum value) =>
+        new($"<span class=\"badge badge-{value.ToString().ToLowerInvariant()}\">{value}</span>");
+
     // Stock changes with an explicit sign: "+5 spools", "-2 spools".
     public static string Change(int delta, string unit) => (delta > 0 ? "+" : "") + Quantity(delta, unit);
 

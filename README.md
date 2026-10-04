@@ -4,19 +4,19 @@ Members request supplies for a fictional campus makerspace. Managers review purc
 
 ## Status
 
-Milestones M1 through M6 are implemented and await the owner's review. Members log in, browse and search inventory, see low-stock items, submit purchase requests, and read the history of their own requests. The manager approves or rejects pending requests, records receipts, issues stock with a reason, and reads the full request and stock-movement history.
+Milestones M1 through M7 are implemented. The working tree adds the M8 interface polish ([ADR 0008](docs/decisions/0008-m8-ui-polish.md)), which awaits review. Members log in, browse and search inventory, see low-stock items, submit purchase requests, and read the history of their own requests. The manager approves or rejects pending requests, records receipts, issues stock with a reason, and reads the full request and stock-movement history.
 
 Receipts and issues save the stock change and its movement in one transaction. Conditional writes stop competing operations from adding stock twice or overselling. Database failures show a controlled message or error page and leave diagnostic details in the server log. A Development seed command creates a synthetic dataset with one request in each status, and `seed --reset` recreates it.
 
-One hundred and fifty-six SQLite integration tests and seven Chromium browser tests pass locally on Windows. They cover roles in pages and services, request ownership, validation, duplicate and competing operations, overflow, lock retries, rollback, controlled database errors, history, restart persistence, seed reruns, reset, and the purchase, rejection, withdrawal, and access workflows in a browser. Hosted CI run 37176807154 passed every job, including End-to-End, for the M6 commit; the M7 security changes have not run in hosted CI yet.
+One hundred and fifty-six SQLite integration tests and eleven Chromium browser tests pass locally on Windows. They cover roles in pages and services, request ownership, validation, duplicate and competing operations, overflow, lock retries, rollback, controlled database errors, history, restart persistence, seed reruns, reset, the purchase, rejection, withdrawal, and access workflows in a browser, and phone-width layout without sideways scrolling, clipped values, or CSP errors, and keyboard focus that the sticky header never covers. Hosted CI run 37176807154 passed every job for the M6 commit, and the owner reports that hosted CI passed for the merged M7 changes. The M8 changes have not run in hosted CI.
 
 ## Security
 
-The [security review](docs/security-review.md) audited the M6 commit, recorded 16 findings (no Critical or High), and tracks their status. The working tree adds security headers, logout that revokes copied sessions, immediate role changes, and login throttling ([ADR 0007](docs/decisions/0007-m7-security-hardening.md)). Branch protection for `main` and hosting controls such as HTTPS remain open.
+The [security review](docs/security-review.md) audited the M6 commit, recorded 16 findings (no Critical or High), and tracks their status. M7 added security headers, logout that revokes copied sessions, immediate role changes, and login throttling ([ADR 0007](docs/decisions/0007-m7-security-hardening.md)). Branch protection for `main` and hosting controls such as HTTPS remain open.
 
 ## Demonstration
 
-The screenshots come from a freshly seeded database and were captured by an automated browser walkthrough (`DemoRecording` in [tests/e2e](tests/e2e/README.md)). Accounts use the reserved `.test` domain.
+The screenshots come from a freshly seeded database and were captured by an automated browser walkthrough (`DemoRecording` in [tests/e2e](tests/e2e/README.md)). Accounts use the reserved `.test` domain. The interface follows the system light or dark setting and works at phone width: list tables become cards and history tables scroll inside their frame. [ADR 0008](docs/decisions/0008-m8-ui-polish.md) shows before-and-after comparisons.
 
 1. **Member dashboard.** Filament has two spools against a reorder threshold of three, so it appears under low stock.
    ![Member dashboard with filament at two spools](docs/images/01-member-dashboard.png)
@@ -61,6 +61,7 @@ The repository check covers required files, text formatting, and local Markdown 
 - `seed --reset` deletes the database before reseeding. If seeding failed after deletion, the database would stay empty until the next reset; an atomic replacement is deferred.
 - Item administration, multi-item orders, partial receipts, cancellations, stock corrections, suppliers, email, registration, and password recovery are outside the MVP.
 - Times display in UTC. History and request lists have no paging.
+- On phones, history tables scroll sideways inside their frame. A blank rejection reason is reported in the page alert, not beside the field.
 - Logout ends every session for the account. Login allows five attempts per client address per one-minute sliding window; because the window frees attempts in 10-second segments, up to 10 can fit within one minute. Starting from no failed attempts, a persistent caller can lock an account after about 100 seconds, and sooner if earlier failures remain. An active session renews without an absolute time limit.
 
 ## Project documents
