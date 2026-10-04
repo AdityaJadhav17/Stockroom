@@ -2,9 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Stockroom.Web.Pages.Account;
 
+// Login POSTs are rate-limited per client address (SessionPolicy); GETs are not.
+[EnableRateLimiting(SessionPolicy.LoginRateLimit)]
 public class LoginModel(SignInManager<IdentityUser> signInManager) : PageModel
 {
     public const string InvalidLoginMessage = "Invalid email or password.";

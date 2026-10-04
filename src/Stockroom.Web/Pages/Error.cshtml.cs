@@ -15,6 +15,7 @@ public class ErrorModel : PageModel
     {
         404 => "Page not found",
         400 => "The request could not be processed",
+        429 => "Too many attempts",
         _ when Code >= 500 => "Something went wrong",
         _ => "The request could not be completed",
     };
@@ -23,6 +24,7 @@ public class ErrorModel : PageModel
     {
         404 => "The page does not exist, or your account cannot view it.",
         400 => "The form may have expired. Reload the page and try again.",
+        429 => "Wait a minute before trying again.",
         _ when Code >= 500 =>
             "The server could not complete the request, and the error was recorded in the server log. " +
             "If you were saving a change, open the record again to check whether it was saved before retrying.",

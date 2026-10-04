@@ -8,7 +8,11 @@ Milestones M1 through M6 are implemented and await the owner's review. Members l
 
 Receipts and issues save the stock change and its movement in one transaction. Conditional writes stop competing operations from adding stock twice or overselling. Database failures show a controlled message or error page and leave diagnostic details in the server log. A Development seed command creates a synthetic dataset with one request in each status, and `seed --reset` recreates it.
 
-One hundred and forty-one SQLite integration tests and seven Chromium browser tests pass locally on Windows. They cover roles in pages and services, request ownership, validation, duplicate and competing operations, overflow, lock retries, rollback, controlled database errors, history, restart persistence, seed reruns, reset, and the purchase, rejection, withdrawal, and access workflows in a browser. Hosted CI has not yet run the End-to-End job; see [development setup](docs/development.md).
+One hundred and fifty-six SQLite integration tests and seven Chromium browser tests pass locally on Windows. They cover roles in pages and services, request ownership, validation, duplicate and competing operations, overflow, lock retries, rollback, controlled database errors, history, restart persistence, seed reruns, reset, and the purchase, rejection, withdrawal, and access workflows in a browser. Hosted CI run 37176807154 passed every job, including End-to-End, for the M6 commit; the M7 security changes have not run in hosted CI yet.
+
+## Security
+
+The [security review](docs/security-review.md) audited the M6 commit, recorded 16 findings (no Critical or High), and tracks their status. The working tree adds security headers, logout that revokes copied sessions, immediate role changes, and login throttling ([ADR 0007](docs/decisions/0007-m7-security-hardening.md)). Branch protection for `main` and hosting controls such as HTTPS remain open.
 
 ## Demonstration
 
@@ -56,7 +60,8 @@ The repository check covers required files, text formatting, and local Markdown 
 - The application targets a local demonstration. It has no hosting configuration, HTTPS redirection, or HSTS.
 - `seed --reset` deletes the database before reseeding. If seeding failed after deletion, the database would stay empty until the next reset; an atomic replacement is deferred.
 - Item administration, multi-item orders, partial receipts, cancellations, stock corrections, suppliers, email, registration, and password recovery are outside the MVP.
-- Times display in UTC. History has no paging.
+- Times display in UTC. History and request lists have no paging.
+- Logout ends every session for the account. Login allows five attempts per client address per one-minute sliding window; because the window frees attempts in 10-second segments, up to 10 can fit within one minute. Starting from no failed attempts, a persistent caller can lock an account after about 100 seconds, and sooner if earlier failures remain. An active session renews without an absolute time limit.
 
 ## Project documents
 
