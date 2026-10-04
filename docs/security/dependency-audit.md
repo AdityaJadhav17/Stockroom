@@ -29,7 +29,7 @@ Executed report command:
 dotnet package list --project Stockroom.slnx --include-transitive --vulnerable --format json --output-version 1 --no-restore
 ```
 
-Read [the vulnerability report](security/nuget-vulnerability-report.json) and [the package inventory](security/package-inventory.json). The developer converted local absolute project paths to repository-relative paths in those records. Project lock files retain resolved versions and package content hashes.
+Read [the vulnerability report](nuget-vulnerability-report.json) and [the package inventory](package-inventory.json). The developer converted local absolute project paths to repository-relative paths in those records. Project lock files retain resolved versions and package content hashes.
 
 ## Advisory review
 

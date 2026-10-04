@@ -19,7 +19,7 @@ dotnet run --project src/Stockroom.Web -- seed
 dotnet run --project src/Stockroom.Web --launch-profile http
 ```
 
-On 2026-10-04 the developer ran these commands on Windows 11 with SDK 10.0.401 in a fresh clone that included the uncommitted M6 changes. The run used generated passwords and a separate user-secrets store, then ran every command under [Checks and tests](#checks-and-tests). All steps succeeded: the application answered at `http://localhost:5080`, the manager logged in with the generated password, the Release build reported no warnings, and 141 integration tests and 7 browser tests passed. Hosted CI has not run this state.
+On 2026-10-04 the developer ran these commands on Windows 11 with SDK 10.0.401 in an isolated copy of the M9 tree: a clone with only the tracked files, a throwaway user-secrets store, generated passwords, and a new database inside the copy. The seed printed `Seed complete: 3 accounts, 10 items, 4 purchase requests, 12 stock movements.` twice, the manager logged in at `http://localhost:5080`, and every command under [Checks and tests](#checks-and-tests) passed: the repository and dependency checks, a Release build with no warnings, 156 integration tests, and 11 browser tests. Hosted CI has not run the M9 changes.
 
 On a new database, the first seed prints an Entity Framework warning that an operation in the `StockMovementReasonAndReceiptChecks` migration cannot run in a transaction. SQLite rebuilds the `StockMovements` table to add CHECK constraints; the warning is expected and the seed continues.
 
@@ -74,12 +74,12 @@ pwsh tests/e2e/bin/Release/net10.0/playwright.ps1 install chromium
 dotnet test --project tests/e2e/Stockroom.E2ETests.csproj --configuration Release --no-build
 ```
 
-The application writes errors, including database failures, to the console log; the browser shows a generic error page without details. The browser tests start the Release build of the web application on a temporary database; see [the E2E README](../tests/e2e/README.md). The integration tests host the application with `WebApplicationFactory` and give each test its own temporary SQLite file. The repository check covers tracked files only, so add new files to Git before relying on its result.
+The application writes errors, including database failures, to the console log; the browser shows a generic error page without details. The browser tests start the Release build of the web application on a temporary database; see [the E2E README](../../tests/e2e/README.md). The integration tests host the application with `WebApplicationFactory` and give each test its own temporary SQLite file. The repository check covers tracked files only, so add new files to Git before relying on its result.
 
-To refresh the README screenshots and record the walkthrough video, build the solution and run the explicit demo test. It uses its own temporary database and writes screenshots to `docs/images` and video to the ignored `artifacts/demo` directory.
+To refresh the README screenshots and record the walkthrough video, build the solution and run the explicit demo test. It uses its own temporary database and writes screenshots to `docs/images` and video to the ignored `artifacts/demo` directory. The explicit `UiScreenshots` case writes interface review screenshots to the ignored `artifacts/ui` directory in the same way.
 
 ```powershell
-dotnet test --project tests/e2e/Stockroom.E2ETests.csproj --configuration Release --no-build -- --explicit only
+dotnet test --project tests/e2e/Stockroom.E2ETests.csproj --configuration Release --no-build -- --explicit only --filter-class Stockroom.E2ETests.DemoRecording
 ```
 
 ## Migrations
@@ -96,15 +96,15 @@ Keep source under `src/Stockroom.Web/` and tests under `tests/`. Do not add plac
 
 ## Dependency management
 
-Use [tests/README.md](../tests/README.md) for project responsibilities. `Directory.Packages.props` contains direct package versions, and each project has a `packages.lock.json`. `Directory.Build.props` enables NuGet Audit for direct and transitive packages at low severity and above. `NuGet.Config` uses the official package and audit sources.
+Use [tests/README.md](../../tests/README.md) for project responsibilities. `Directory.Packages.props` contains direct package versions, and each project has a `packages.lock.json`. `Directory.Build.props` enables NuGet Audit for direct and transitive packages at low severity and above. `NuGet.Config` uses the official package and audit sources.
 
 To change packages, edit the central versions, run `dotnet restore Stockroom.slnx --force-evaluate`, inspect lock-file changes, then run `scripts/Test-Dependencies.ps1`. The script restores in locked mode and fails on source errors or advisories. A fresh checkout needs network access to NuGet and its audit feed. Build after changing versions.
 
 ## Repository checks and CI
 
-`scripts/Test-Repository.ps1` checks required project documents, UTF-8 text, LF line endings, trailing whitespace, final newlines, and local Markdown file targets among tracked files. NuGet generates lock files with platform-specific line endings and no final newline, so the checker exempts those files from these two formatting checks. Git normalizes their committed line endings. The checker does not inspect remote URLs, Markdown anchors, or prose quality.
+`scripts/Test-Repository.ps1` checks required project documents, UTF-8 text, LF line endings, trailing whitespace, final newlines, and local Markdown file targets among tracked files. Each link must match the tracked path's exact case, because Linux and GitHub treat `Setup.md` and `setup.md` as different files. NuGet generates lock files with platform-specific line endings and no final newline, so the checker exempts those files from these two formatting checks. Git normalizes their committed line endings. The checker does not inspect remote URLs, Markdown anchors, or prose quality.
 
-The [CI workflow](../.github/workflows/ci.yml) starts on pushes to `main`, pull requests targeting `main`, and manual dispatch. Each check has a separate job in GitHub's workflow graph:
+The [CI workflow](../../.github/workflows/ci.yml) starts on pushes to `main`, pull requests targeting `main`, and manual dispatch. Each check has a separate job in GitHub's workflow graph:
 
 ```mermaid
 flowchart LR
@@ -134,7 +134,7 @@ The End-to-End job starts after both integration runs pass. It builds the web ap
 
 The workflow has read access to repository contents and does not deploy.
 
-Run the local commands above before pushing. The new job graph, hosted Ubuntu run, package cache, and artifact uploads must be verified in GitHub Actions after publishing the workflow change.
+Run the local commands above before pushing. Hosted run [37184964723](https://github.com/AdityaJadhav17/Stockroom/actions/runs/37184964723) passed every job on `main` at the M8 merge.
 
 Add a unit-test job when the unit project contains cases. A scaffold build proves no business behavior, and the dependency audit covers known NuGet advisories rather than downloaded browser binaries.
 

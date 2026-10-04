@@ -26,7 +26,7 @@ Use xUnit v3 for pure input and decision rules. Use ASP.NET Core MVC Testing wit
 
 ## Coverage map
 
-Integration classes are in [tests/integration](../tests/integration/README.md); browser classes are in [tests/e2e](../tests/e2e/README.md). On 2026-10-04 the developer ran 141 integration cases and 7 browser cases locally on Windows; all passed.
+Integration classes are in [tests/integration](../../tests/integration/README.md); browser classes are in [tests/e2e](../../tests/e2e/README.md). On 2026-10-04 the developer ran 141 integration cases and 7 browser cases locally on Windows; all passed.
 
 | ID | Integration tests | Browser tests |
 | --- | --- | --- |

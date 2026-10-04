@@ -11,9 +11,23 @@
 | Release | Owner checks a fresh checkout and records the walkthrough. | Completed release checklist and accurate README status. |
 | Maintenance | Owner records defects and prioritizes the next release. | Bug reproduction, regression test, and updated requirements. |
 
-M1 through M7 are implemented and merged. M2 added inventory search, the low-stock dashboard, purchase requests, manager review, and receipt. M3 added manager stock issues and history. M4 added the example dataset and the `seed --reset` option. M5 added Chromium browser tests, a restart persistence test, and an End-to-End CI job. M6 added controlled database-error handling, error pages, unit pluralization, accessibility fixes, a fresh-checkout run, and README screenshots; hosted CI run 37176807154 passed every job for that commit. M7 audited it in [the security review](security-review.md) and added the header, session, and login-throttling fixes; the owner reports that hosted CI passed for the merged changes. M8 polishes the interface in the working tree ([ADR 0008](decisions/0008-m8-ui-polish.md)) with 156 integration and 11 browser tests passing locally; it awaits review and hosted CI. The owner release checklist remains open.
+M1 through M8 are implemented and merged through pull requests #1 to #8. Hosted CI run [37184964723](https://github.com/AdityaJadhav17/Stockroom/actions/runs/37184964723) passed all seven jobs on `main` at the M8 merge. M9 reorganizes the repository and adds the release documents in the working tree ([ADR 0009](../decisions/0009-m9-repository-organization.md)); it awaits review and hosted CI. The owner's release sign-off remains open.
+
+| Milestone | Delivered |
+| --- | --- |
+| M1 | Login, Identity roles, the schema, and the seed command |
+| M2 | Inventory search, the low-stock dashboard, purchase requests, manager review, and receipt |
+| M3 | Manager stock issues and history |
+| M4 | The demo dataset and `seed --reset` |
+| M5 | Chromium browser tests, a restart persistence test, and an End-to-End CI job |
+| M6 | Controlled database-error handling, error pages, accessibility fixes, and README screenshots |
+| M7 | The [security review](../security/security-review.md), plus header, session, and login-throttling fixes |
+| M8 | Interface design, phone layouts, dark mode, and layout tests ([ADR 0008](../decisions/0008-m8-ui-polish.md)) |
+| M9 | Repository layout, release notes, demo script, and interview notes |
 
 ## Two-day implementation budget
+
+The original plan covered M1 to M6. M7 to M9 came after the budget, at the owner's request.
 
 Start the budget after the SDK and package restore work. Reserve 12 to 16 focused hours; unfamiliar tooling or blocked package downloads can extend it.
 

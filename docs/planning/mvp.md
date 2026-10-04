@@ -44,4 +44,4 @@ The owner will consider item administration, multi-item orders, partial receipts
 
 ## Release evidence
 
-The owner will run the purchase and withdrawal demonstration in [test-plan.md](test-plan.md), inspect authorization and concurrency tests, and verify the setup from a fresh checkout. Track remaining work against [definition-of-done.md](definition-of-done.md).
+The owner will run the purchase and withdrawal demonstration in [test-plan.md](../quality/test-plan.md), inspect authorization and concurrency tests, and verify the setup from a fresh checkout. Track remaining work against [definition-of-done.md](definition-of-done.md).

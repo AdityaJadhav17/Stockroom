@@ -4,7 +4,7 @@ title: "[Bug]: "
 body:
   - type: markdown
     attributes:
-      value: "For vulnerabilities, use SECURITY.md and contact the maintainer in private. Remove credentials from logs."
+      value: "Report vulnerabilities privately through the Security tab, as the security policy describes. Remove credentials from logs."
   - type: textarea
     id: environment
     attributes:

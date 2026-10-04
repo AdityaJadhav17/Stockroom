@@ -1,10 +1,10 @@
 # Architecture
 
-Status: M1 implemented the application shell, Identity, and the schema below. M2 implemented `PurchaseService` with the receipt transaction, and M3 implemented `StockService` with the withdrawal transaction and history views described below. M4 implemented the demo dataset and reset. ADRs [0002](decisions/0002-m1-authentication-and-seed.md), [0003](decisions/0003-m2-purchase-workflow.md), [0004](decisions/0004-m3-stock-issues-and-history.md), and [0005](decisions/0005-m4-demo-dataset-and-reset.md) record the decisions; [0006](decisions/0006-m6-release-preparation.md) records M6 error handling.
+Status: implemented. M1 built the application shell, Identity, and the schema below. M2 added `PurchaseService` with the receipt transaction, M3 added `StockService` with the withdrawal transaction and history views, and M4 added the demo dataset and reset. M7 added the security pipeline in `SecurityPolicy.cs` ([ADR 0007](../decisions/0007-m7-security-hardening.md)). ADRs [0002](../decisions/0002-m1-authentication-and-seed.md), [0003](../decisions/0003-m2-purchase-workflow.md), [0004](../decisions/0004-m3-stock-issues-and-history.md), and [0005](../decisions/0005-m4-demo-dataset-and-reset.md) record the decisions; [0006](../decisions/0006-m6-release-preparation.md) records M6 error handling.
 
 ## Application boundaries
 
-The developer will build one ASP.NET Core Razor Pages application on .NET 10. Razor Pages will render forms and tables. C# services will handle purchase transitions and stock changes. Entity Framework Core will persist application and Identity records in SQLite.
+Stockroom is one ASP.NET Core Razor Pages application on .NET 10. Razor Pages render the forms and tables. C# services handle purchase transitions and stock changes. Entity Framework Core stores the application and Identity records in SQLite.
 
 ```text
 Browser -> Razor Page handler -> C# service -> EF Core -> SQLite
@@ -14,7 +14,7 @@ Browser -> Razor Page handler -> C# service -> EF Core -> SQLite
 
 Keep the web project under `src/Stockroom.Web/` and tests under `tests/`. Organize the web project into `Pages/`, `Services/`, `Data/`, and `Models/`. Start with these folders inside one project. Create another project after a concrete dependency or testing need appears.
 
-## Proposed records
+## Records
 
 | Record | Fields and responsibility |
 | --- | --- |
@@ -56,4 +56,4 @@ Seed once, preserve existing records on a later seed run, and offer reset throug
 
 SQLite suits the local demonstration. The owner will reassess the database before public hosting or a SQL Server requirement. A database migration will require new provider-specific tests. The owner will add supplier records or multi-item purchases after reviewing the MVP workflow.
 
-Rationale: [foundation decision](decisions/0001-application-foundation.md).
+Rationale: [foundation decision](../decisions/0001-application-foundation.md).

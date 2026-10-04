@@ -2,7 +2,7 @@
 
 Date: 2026-10-04
 
-Status: Accepted. Implements part of the [security review](../security-review.md) remediation plan.
+Status: Accepted. Implements part of the [security review](../security/security-review.md) remediation plan.
 
 ## Context
 
