@@ -13,6 +13,7 @@ namespace Stockroom.IntegrationTests;
 
 // Regressions for the M7 security review: F-02 and F-08 (sessions), F-03 (login throttling),
 // and F-04 and F-09 (response headers and the antiforgery cookie).
+[Collection("Security timing")]
 public sealed class SecurityHardeningTests : IAsyncLifetime
 {
     private readonly StockroomFactory factory = new();
@@ -162,12 +163,12 @@ public sealed class SecurityHardeningTests : IAsyncLifetime
         var clock = System.Diagnostics.Stopwatch.StartNew();
         var statuses = new List<HttpStatusCode> { (await StockroomFactory.LoginAsync(client, DemoSeeder.ManagerEmail, "Wrong-Password-1!")).StatusCode };
 
-        await Task.Delay(TimeSpan.FromMilliseconds(1700) - clock.Elapsed, Ct);
+        await DelayUntilAsync(clock, TimeSpan.FromMilliseconds(1700));
         for (var attempt = 1; attempt < SessionPolicy.LoginPermitLimit; attempt++)
         {
             statuses.Add((await StockroomFactory.LoginAsync(client, DemoSeeder.ManagerEmail, "Wrong-Password-1!")).StatusCode);
         }
-        await Task.Delay(TimeSpan.FromMilliseconds(2400) - clock.Elapsed, Ct);
+        await DelayUntilAsync(clock, TimeSpan.FromMilliseconds(2400));
         for (var attempt = 0; attempt < SessionPolicy.LoginPermitLimit; attempt++)
         {
             statuses.Add((await StockroomFactory.LoginAsync(client, DemoSeeder.ManagerEmail, "Wrong-Password-1!")).StatusCode);
@@ -219,6 +220,16 @@ public sealed class SecurityHardeningTests : IAsyncLifetime
 
         var antiforgery = Assert.Single(response.Headers.GetValues("Set-Cookie"), c => c.StartsWith(".AspNetCore.Antiforgery", StringComparison.Ordinal));
         Assert.Contains("; secure", antiforgery, StringComparison.OrdinalIgnoreCase);
+    }
+
+    // A slow runner can reach a checkpoint late. Keep the original schedule, but never pass a negative delay.
+    private static async Task DelayUntilAsync(System.Diagnostics.Stopwatch clock, TimeSpan checkpoint)
+    {
+        var remaining = checkpoint - clock.Elapsed;
+        if (remaining > TimeSpan.Zero)
+        {
+            await Task.Delay(remaining, Ct);
+        }
     }
 
     private (HttpClient Client, CookieContainer Cookies) NewCookieClient()
