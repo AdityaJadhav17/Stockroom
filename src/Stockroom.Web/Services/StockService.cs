@@ -9,14 +9,14 @@ public sealed record MovementView(
     DateTime OccurredAtUtc, string? Reason, int? PurchaseRequestId);
 
 // Stock issues and movement history (BR-01, BR-03, BR-06, BR-07, BR-08, BR-10).
-public sealed class StockService(AppDbContext db, ILogger<StockService> logger)
+public sealed class StockService(AppDbContext db, ILogger<StockService> logger, ILogger<SecurityEvents> securityLog)
 {
     public Task<OperationResult> IssueAsync(int itemId, string actorId, int? quantity, string? reason) =>
         db.GuardAsync(logger, async () =>
         {
             if (!await db.HasRoleAsync(actorId, Roles.Manager))
             {
-                return new(false, ServiceGuard.ForbiddenMessage);
+                return ServiceGuard.Refuse(securityLog, actorId, $"issue stock of item {itemId}", "the Manager role");
             }
             var error = PurchaseRules.QuantityError(quantity) ?? PurchaseRules.ReasonError(reason);
             if (error is not null)

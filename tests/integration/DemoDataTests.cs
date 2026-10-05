@@ -255,13 +255,21 @@ public sealed class DemoDataTests : IAsyncLifetime
         Assert.Equal(before, await DatasetAsync(factory, includeIdentifiers: true));
     }
 
+    // Case keys keep the rejected password values out of test names and CI reports (release security review R-01).
     [Theory]
-    [InlineData("Seed:MemberPassword", null, "Set Seed:MemberPassword")]
-    [InlineData("Seed:MemberPassword", "weak", "Seed:MemberPassword does not meet the password rules")]
-    [InlineData("Seed:ManagerPassword", "", "Set Seed:ManagerPassword")]
-    [InlineData("Seed:ManagerPassword", "alllowercase1!", "Seed:ManagerPassword does not meet the password rules")]
-    public async Task InvalidSeedPasswordStopsResetBeforeDeletingAnything(string key, string? password, string message)
+    [InlineData("member-password-missing")]
+    [InlineData("member-password-too-short")]
+    [InlineData("manager-password-empty")]
+    [InlineData("manager-password-without-uppercase")]
+    public async Task InvalidSeedPasswordStopsResetBeforeDeletingAnything(string seedCase)
     {
+        var (key, password, message) = seedCase switch
+        {
+            "member-password-missing" => ("Seed:MemberPassword", (string?)null, "Set Seed:MemberPassword"),
+            "member-password-too-short" => ("Seed:MemberPassword", "weak", "Seed:MemberPassword does not meet the password rules"),
+            "manager-password-empty" => ("Seed:ManagerPassword", "", "Set Seed:ManagerPassword"),
+            _ => ("Seed:ManagerPassword", "alllowercase1!", "Seed:ManagerPassword does not meet the password rules"),
+        };
         factory.Services.GetRequiredService<IConfiguration>()[key] = password;
         factory.ClearPool();
         var before = SHA256.HashData(await File.ReadAllBytesAsync(factory.DatabasePath, Ct));

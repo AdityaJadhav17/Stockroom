@@ -30,7 +30,7 @@ Login POSTs go through ASP.NET Core's sliding-window rate limiter: five per clie
 
 | Layer | Count | Proves |
 | --- | --- | --- |
-| Integration (xUnit, `WebApplicationFactory`, SQLite) | 156 | Business rules, authorization in pages and services, request ownership, validation, transactions, races, lock handling, security headers and sessions, seed and reset |
+| Integration (xUnit, `WebApplicationFactory`, SQLite) | 165 | Business rules, authorization in pages and services, request ownership, validation, transactions, races, lock handling, security headers and sessions, security-event logging, password hashing, seed and reset |
 | Browser (Playwright, Chromium) | 11 | The real application process end to end: the purchase, rejection, and withdrawal workflows, access restrictions, persistence across a restart, phone layouts, keyboard focus, and the absence of CSP errors |
 
 The browser tests avoid repeating race and rollback cases; the SQLite tests cover those more precisely. The unit-test project has no tests yet.
@@ -40,4 +40,4 @@ The browser tests avoid repeating race and rollback cases; the SQLite tests cove
 These describe the project, not the author's role. Choose the verb that matches your part in the work before you use them.
 
 - Stockroom: an inventory and purchase-approval web application in C# with ASP.NET Core Razor Pages, EF Core, and SQLite, using conditional updates inside transactions so competing stock issues cannot oversell.
-- Verified with 156 SQLite integration tests and 11 Playwright browser tests covering authorization, concurrency, rollback, and session security, run in a seven-job GitHub Actions pipeline on Ubuntu and Windows.
+- Verified with 165 SQLite integration tests and 11 Playwright browser tests covering authorization, concurrency, rollback, and session security, run in a seven-job GitHub Actions pipeline on Ubuntu and Windows.

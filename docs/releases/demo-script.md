@@ -36,7 +36,7 @@ Screen: open History. Show the filament receipt of `+5` and issue of `-2`, with 
 
 Screen: pause capture. Restart the server in the same terminal using the same database, resume capture, and refresh Inventory. Show quantity `5`, then open History and show the recorded issue.
 
-> I have restarted the application. Five spools remain, and I can still read the issue in History. The project uses C#, Razor Pages, EF Core, and SQLite. The test suites contain 156 integration cases and 11 Chromium browser cases, including competing stock writes and restart persistence.
+> I have restarted the application. Five spools remain, and I can still read the issue in History. The project uses C#, Razor Pages, EF Core, and SQLite. The test suites contain 165 integration cases and 11 Chromium browser cases, including competing stock writes and restart persistence.
 
 ## Optional extension
 

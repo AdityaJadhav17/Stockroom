@@ -24,6 +24,14 @@ public static class ServiceGuard
     public static Task<bool> HasRoleAsync(this AppDbContext db, string userId, string role) =>
         db.RoleMemberships(userId, role).AnyAsync();
 
+    // Records a role refusal as a security event (release security review R-02). The caller still receives only
+    // the generic message.
+    public static OperationResult Refuse(ILogger securityLog, string actorId, string action, string requirement, int? requestId = null)
+    {
+        securityLog.PermissionRefused(actorId, action, requirement);
+        return new(false, ForbiddenMessage, requestId);
+    }
+
     // Microsoft.Data.Sqlite starts transactions with BEGIN IMMEDIATE and retries a locked database until the
     // command timeout. If the retries run out, the transaction inside the operation is disposed, and therefore
     // rolled back, before the catch runs; the caller receives BusyMessage. Other database failures are logged with

@@ -153,6 +153,9 @@ public sealed class StockroomApp : IAsyncDisposable
         info.Environment["ConnectionStrings__Stockroom"] = $"Data Source={DatabasePath}";
         info.Environment["Seed__MemberPassword"] = memberPassword;
         info.Environment["Seed__ManagerPassword"] = managerPassword;
+        // On Windows the host also writes warnings and errors to the Event Log. Tests turn that provider off so
+        // they leave nothing in the machine's Application log; the server log still captures the console output.
+        info.Environment["Logging__EventLog__LogLevel__Default"] = "None";
 
         var process = new Process { StartInfo = info, EnableRaisingEvents = true };
         DataReceivedEventHandler record = (_, e) =>

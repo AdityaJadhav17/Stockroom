@@ -1,6 +1,6 @@
 # Tests
 
-The solution contains three .NET 10 test projects. The integration project contains 156 cases: login, roles, seed reruns, reset, the demo dataset, schema constraints, the purchase workflow, stock issues, history, security headers and sessions, and their concurrency, lock, and rollback checks. The E2E project contains 11 Chromium cases for the purchase, rejection, withdrawal, access, restart, and layout checks and the fixture cleanup, plus two explicit recorders that normal runs skip. The unit project is a scaffold with no cases; the SQLite integration tests cover the input rules.
+The solution contains three .NET 10 test projects. The integration project contains 165 cases: login, roles, seed reruns, reset, the demo dataset, schema constraints, the purchase workflow, stock issues, history, security headers and sessions, and their concurrency, lock, and rollback checks. The E2E project contains 11 Chromium cases for the purchase, rejection, withdrawal, access, restart, and layout checks and the fixture cleanup, plus two explicit recorders that normal runs skip. The unit project is a scaffold with no cases; the SQLite integration tests cover the input rules.
 
 | Folder | Responsibility | Tools |
 | --- | --- | --- |

@@ -39,7 +39,7 @@ public static class PurchaseRules
 // Purchase request rules (BR-01 through BR-08, BR-11). Each operation checks the actor's roles in the
 // database, then claims the row with a conditional UPDATE inside a transaction. ServiceGuard turns
 // exhausted SQLite lock retries into BusyMessage after the transaction rolls back.
-public sealed class PurchaseService(AppDbContext db, ILogger<PurchaseService> logger)
+public sealed class PurchaseService(AppDbContext db, ILogger<PurchaseService> logger, ILogger<SecurityEvents> securityLog)
 {
     public const string ForbiddenMessage = ServiceGuard.ForbiddenMessage;
     public const string BusyMessage = ServiceGuard.BusyMessage;
@@ -67,7 +67,7 @@ public sealed class PurchaseService(AppDbContext db, ILogger<PurchaseService> lo
         {
             if (!await db.HasRoleAsync(requesterId, Roles.Member) || await db.HasRoleAsync(requesterId, Roles.Manager))
             {
-                return new(false, ForbiddenMessage);
+                return ServiceGuard.Refuse(securityLog, requesterId, "create a purchase request", "the Member role without the Manager role");
             }
             var error = PurchaseRules.QuantityError(quantity) ?? PurchaseRules.ReasonError(reason);
             if (error is not null)
@@ -109,7 +109,7 @@ public sealed class PurchaseService(AppDbContext db, ILogger<PurchaseService> lo
         {
             if (!await db.HasRoleAsync(reviewerId, Roles.Manager))
             {
-                return new(false, ForbiddenMessage, requestId);
+                return ServiceGuard.Refuse(securityLog, reviewerId, $"review purchase request {requestId}", "the Manager role", requestId);
             }
             if (decision == RequestStatus.Rejected && PurchaseRules.ReasonError(reason) is { } error)
             {
@@ -143,7 +143,7 @@ public sealed class PurchaseService(AppDbContext db, ILogger<PurchaseService> lo
         {
             if (!await db.HasRoleAsync(receiverId, Roles.Manager))
             {
-                return new(false, ForbiddenMessage, requestId);
+                return ServiceGuard.Refuse(securityLog, receiverId, $"receive purchase request {requestId}", "the Manager role", requestId);
             }
             var request = await db.PurchaseRequests.AsNoTracking()
                 .Where(r => r.Id == requestId)

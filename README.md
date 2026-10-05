@@ -65,7 +65,7 @@ The PNG previews are visible directly on GitHub. The [diagram guide](docs/diagra
 
 | Project | Cases | Covers |
 | --- | --- | --- |
-| [Integration](tests/integration/README.md) | 156 | Business rules, authorization, request ownership, transactions, races, rollback, lock handling, sessions, seed, and reset against SQLite |
+| [Integration](tests/integration/README.md) | 165 | Business rules, authorization, request ownership, transactions, races, rollback, lock handling, sessions, security-event logging, password hashing, seed, and reset against SQLite |
 | [Browser](tests/e2e/README.md) | 11 | Purchase, rejection, withdrawal, access, restart persistence, phone layout, and keyboard focus in Chromium |
 | [Unit](tests/unit/README.md) | 0 | Scaffold only; the integration tests cover the input rules |
 

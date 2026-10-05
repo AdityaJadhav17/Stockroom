@@ -31,6 +31,15 @@ public static class SessionPolicy
     };
 }
 
+// Password hashing (release security review R-04). Identity's V3 format uses PBKDF2-HMAC-SHA512; its default of
+// 100,000 iterations is below the OWASP Password Storage Cheat Sheet figure of 220,000 for that function (checked
+// 2026-10-05). A hash stored with fewer iterations still verifies, and Identity replaces it at the next successful
+// sign-in.
+public static class PasswordHashing
+{
+    public const int Iterations = 220_000;
+}
+
 // Response headers for every response, including static assets and error pages (security review F-04, F-09).
 // The pages use no scripts, inline styles, or third-party resources, so the policy allows only this origin.
 public static class SecurityHeaders

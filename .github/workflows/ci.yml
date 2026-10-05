@@ -124,7 +124,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: integration-test-results-${{ matrix.os }}
-          path: TestResults/
+          path: TestResults/*.trx
           if-no-files-found: error
           retention-days: 14
 
@@ -171,12 +171,17 @@ jobs:
           --results-directory "${{ github.workspace }}/TestResults"
           --report-xunit-trx --report-xunit-trx-filename e2e.trx
 
+      # Playwright traces record form fields, request bodies, and session cookies, so they stay on the runner.
+      # The artifact allows only the test report, failure screenshots, and server logs.
       - name: Upload test reports and failure diagnostics
         if: ${{ always() && steps.tests.outcome != 'skipped' }}
         uses: actions/upload-artifact@v7
         with:
           name: e2e-test-results
-          path: TestResults/
+          path: |
+            TestResults/*.trx
+            TestResults/e2e-artifacts/**/*.png
+            TestResults/e2e-artifacts/**/server.log
           if-no-files-found: error
           retention-days: 14
 

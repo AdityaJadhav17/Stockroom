@@ -11,7 +11,8 @@ namespace Stockroom.Web.Pages.Account;
 // because the stamp is validated on each request. If rotation fails, this browser is still signed out,
 // and the user is told that other sessions may remain signed in.
 public class LogoutModel(
-    SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, ILogger<LogoutModel> logger) : PageModel
+    SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, ILogger<LogoutModel> logger,
+    ILogger<SecurityEvents> securityLog) : PageModel
 {
     public const string RevocationFailedMessage =
         "You are signed out of this browser, but other sessions for this account could not be ended. " +
@@ -21,10 +22,12 @@ public class LogoutModel(
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!await RevokeSessionsAsync())
+        var revoked = await RevokeSessionsAsync();
+        if (!revoked)
         {
             TempData["Error"] = RevocationFailedMessage;
         }
+        securityLog.SignedOut(userManager.GetUserId(User) ?? "unknown", SecurityEvents.ClientAddress(HttpContext), revoked);
         await signInManager.SignOutAsync();
         return RedirectToPage("/Account/Login");
     }

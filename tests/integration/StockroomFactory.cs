@@ -38,6 +38,9 @@ public sealed partial class StockroomFactory(
             ["ConnectionStrings:Stockroom"] = ConnectionString,
             ["Seed:MemberPassword"] = MemberPassword,
             ["Seed:ManagerPassword"] = ManagerPassword,
+            // On Windows the host also writes warnings and errors to the Event Log. Tests turn that provider off so
+            // they leave nothing in the machine's Application log; the console and test log collectors are unaffected.
+            ["Logging:EventLog:LogLevel:Default"] = "None",
         }));
 
     public async Task SeedAsync()

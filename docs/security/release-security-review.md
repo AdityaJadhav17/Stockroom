@@ -4,6 +4,8 @@
 
 This review examined the v1.0.0 release candidate on 2026-10-05 and builds on the [M7 security review](security-review.md). It found no confirmed vulnerability. Anonymous visitors and Member accounts could not perform a manager action or read another member's records in any of the 20 live probes, the bounded fuzz, or the 156 integration and 11 browser tests. The review closed three M7 coverage gaps: it inspected the contents of CI failure diagnostics, verified cross-site framing protection in a browser, and ran a bounded input fuzz.
 
+The [Remediation status](#remediation-status) section records the security close-out that followed: R-01 to R-04 are fixed and verified locally, hosted CI has not yet run the fixes, a dedicated secret scan found no secret, and F-01 remains open.
+
 Recommendation: **ready with explicitly accepted limitations** (see [Release recommendation](#release-recommendation)). The application code has no release blocker. The owner should either add the `main` ruleset (F-01) before tagging or record acceptance of that open control, and accept the local-demonstration limitations listed below. A hosted deployment remains out of scope until the deployment requirements are met.
 
 ## Scope and baseline
@@ -324,7 +326,100 @@ Before tagging, the owner should:
 
 Release blockers: none in the application code. A hosted deployment stays blocked until the owner adds HTTPS with HSTS, `Secure` cookies with the `__Host-` prefix, `AllowedHosts` and forwarded-header settings, the Production environment, security-event logging (R-02), a stronger password policy and hashing (F-10, R-04), paging and request limits (F-07), and persistent Data Protection keys.
 
+## Remediation status
+
+The findings above describe commit `6082df1`. On 2026-10-05 the security close-out on branch `fix/security-closeout`, started from `db00f16`, made the changes below. They passed local verification; hosted CI had not run them when this section was written.
+
+| Item | Status | Change | Code and tests |
+| --- | --- | --- | --- |
+| R-01 | Fixed; hosted CI not yet run | The integration job uploads only `TestResults/*.trx`. The browser job uploads only `TestResults/*.trx`, `TestResults/e2e-artifacts/**/*.png`, and `TestResults/e2e-artifacts/**/server.log`. Playwright traces stay on the runner; to inspect a trace, reproduce the failure locally. Theories take case keys and resolve passwords inside the test, so test names carry no passwords. | [ci.yml](../../.github/workflows/ci.yml) lines 122 to 129 and 174 to 186; `AuthenticationTests`; `DemoDataTests`; `TheoryDataTests.NoTheoryTakesAPasswordArgument` |
+| R-02 | Fixed; hosted CI not yet run | Seven security events under the `Stockroom.Web.SecurityEvents` category with stable IDs: 1001 sign-in succeeded, 1002 sign-in failed, 1003 sign-in refused by lockout, 1004 signed out, 1005 login throttled, 1006 access denied by page authorization, and 1007 permission refused by a service. `appsettings.json` sets the category to `Information`, so raising the default level does not hide them. Each event records only what an investigation needs, such as the account ID, client address, request method and path, failure reason, refused action and its required role or policy, and lockout end time. No event records a password, cookie or token value, form body, or the email submitted for an unknown account. Responses, authorization, and throttling are unchanged. | [SecurityEvents.cs](../../src/Stockroom.Web/SecurityEvents.cs); [Login.cshtml.cs](../../src/Stockroom.Web/Pages/Account/Login.cshtml.cs); [Logout.cshtml.cs](../../src/Stockroom.Web/Pages/Account/Logout.cshtml.cs); [Program.cs](../../src/Stockroom.Web/Program.cs) lines 45 to 51 and 63; [ServiceGuard.cs](../../src/Stockroom.Web/Services/ServiceGuard.cs) line 29 and its callers in `PurchaseService` and `StockService`; [appsettings.json](../../src/Stockroom.Web/appsettings.json) line 10; `SecurityEventLoggingTests` (6 tests) |
+| R-03 | Fixed | `SECURITY.md` sets best-effort triage and remediation targets by severity for NuGet packages, the .NET runtime and SDK, and GitHub Actions. It describes how advisories are tracked, how temporary mitigations are recorded, and how fixes are verified. The reporting instructions and contact are unchanged. | [.github/SECURITY.md](../../.github/SECURITY.md) |
+| R-04 | Fixed; hosted CI not yet run | Identity hashes new passwords with PBKDF2-HMAC-SHA512 at 220,000 iterations, the OWASP figure checked on 2026-10-05. Existing accounts keep their passwords: a hash with fewer iterations still verifies, and Identity replaces it at the next successful sign-in. | [SecurityPolicy.cs](../../src/Stockroom.Web/SecurityPolicy.cs) lines 34 to 41; [Program.cs](../../src/Stockroom.Web/Program.cs) line 25; `PasswordHashingTests` (2 tests) |
+| Dedicated secret scan | Completed | Gitleaks 8.30.1 scanned the full reachable history and the current files and found no secret; see [Dedicated secret scan](#dedicated-secret-scan). | Tool and reports outside tracked files |
+| F-01 | Open (owner) | No authenticated GitHub access was available: the GitHub CLI is not installed and no token is set, and the close-out did not use stored Git credentials. At 2026-10-05 19:30 UTC the public API reported `main` as unprotected, with no branch rules or rulesets. | [F-01 owner steps](#f-01-owner-steps) |
+| F-13 (M7) | Fixed with R-01; hosted CI not yet run | CI failure diagnostics now hold only screenshots and server logs. | As R-01 |
+| F-16 (M7) | Unchanged; exposure reduced | The two fixture passwords remain in `StockroomFactory.cs` for temporary test databases, but no longer appear in test names or reports. | As R-01 |
+
+### Behavior changes and limitations
+
+- The first successful sign-in after the hashing upgrade replaces the stored hash and, as Identity does whenever it changes a password hash, rotates the security stamp. Because the stamp is checked on every request, that account's other sessions end at their next request.
+- Each hash and verification costs 2.2 times the previous work. The 165 integration tests took 17 to 21 seconds in the close-out runs; the release review's 156 took 14.9 seconds.
+- The log now holds account IDs, client addresses, and request paths. Treat it as personal data when choosing where to store it; retention depends on the host and remains a deployment requirement.
+- On Windows, ASP.NET Core's default Event Log provider also writes the five `Warning` events (1002, 1003, 1005, 1006, 1007) to the Application log, as it already did for errors. The integration and browser test fixtures turn that provider off ([StockroomFactory.cs](../../tests/integration/StockroomFactory.cs), [StockroomApp.cs](../../tests/e2e/StockroomApp.cs)), so test runs leave nothing in the machine's Application log; the test log collectors and the browser fixture's server log still receive the events.
+- Client addresses come from the connection. Behind a proxy they show the proxy until forwarded headers are configured (a deployment requirement, ASVS 15.3.4).
+- Event 1006 covers signed-in users refused by a page's role or policy. An anonymous request redirected to sign-in is not logged.
+- CI artifacts no longer include Playwright traces.
+
+### Verification of the close-out
+
+The checks ran in an isolated copy of the working tree (172 files) with an empty `APPDATA`, temporary databases, and generated passwords. After that run only documentation changed, so the repository check, the whitespace check, and the secret scan ran again on the final files; the results below are from those reruns.
+
+| Command | Result |
+| --- | --- |
+| `scripts/Test-Repository.ps1` | Passed: 57 required files, 141 text files |
+| `git diff --check`, with the four new files staged in the isolated copy only | No whitespace errors in the 27 changed files |
+| `scripts/Test-Dependencies.ps1` | 4 projects, no known NuGet vulnerabilities |
+| `dotnet build Stockroom.slnx --configuration Release --no-restore --warnaserror` | 0 warnings, 0 errors |
+| Integration tests with the CI test options | 165 total, 165 passed, 0 skipped (156 before; 9 new) |
+| Browser tests with the CI test options | 13 total, 11 passed, 0 failed, 2 skipped (the explicit `DemoRecording` and `UiScreenshots` cases) |
+
+Removing each fix in turn failed the tests that cover it:
+
+| Change removed or reversed | Failing tests |
+| --- | --- |
+| Rate-limit rejection logging | `ThrottledLoginIsLogged` |
+| Password added to the failed sign-in log entry | `FailedSignInsAreLoggedWithoutCredentials`, `ThrottledLoginIsLogged` |
+| Authorization denial handler | `PageAuthorizationDenialsAreLogged` |
+| Service refusal logging | `ServicePermissionRefusalsAreLogged` |
+| Iteration setting | `NewHashesUseTheConfiguredIterationCount`, `LowerIterationHashSignsInAndIsUpgraded` |
+| Fixture password in theory data | `NoTheoryTakesAPasswordArgument` |
+
+The integration report from the verification run contains neither fixture password and none of the rejected seed values; its theory names show only case keys such as `member-account` and `wrong-password`. During the integration and browser runs, no .NET host wrote an entry to the Windows Application log. A forced browser failure after the access-denied check saved a server log that still held the console lines for events 1001 and 1006. The owner's database, user secrets, and Data Protection key ring were not modified: the key ring's three files kept their names, sizes, and timestamps, and the user-secrets file and working database kept their 2026-10-03 write times.
+
+### Controlled CI-artifact failure
+
+In an isolated copy, `Assert.Fail` was added after the last assertion of `AccessRestrictionTests.MemberHistoryShowsOnlyTheirOwnRequests`, the test ran with the CI environment variable and test options, and the change was then restored. Applying the three upload patterns from `ci.yml` to the results gave:
+
+| File | Size | Uploaded | Contents |
+| --- | --- | --- | --- |
+| `e2e.trx` | 2,917 bytes | Yes | Test name and the failure message |
+| `user1.png` | 72,317 bytes | Yes | The member's history page with synthetic data |
+| `server.log` | 1,646 bytes | Yes | Startup messages, the seed summary, and one sign-in event with an account ID and `127.0.0.1` |
+| `user1-trace.zip` | 334,673 bytes | No | Stays on the runner |
+
+The checks over the three uploaded files found no generated password, raw or form-encoded; no Data Protection payload (`CfDJ8`, the prefix of cookie and antiforgery token values); no authentication or antiforgery cookie name; no `__RequestVerificationToken` or `Input.Password` field; and no seed-password setting. As a control, the same checks found the password, its form-encoded copy, Data Protection payloads, both cookie names, and both form fields in the excluded trace.
+
+### Dedicated secret scan
+
+The scan used Gitleaks 8.30.1 (`gitleaks_8.30.1_windows_x64.zip` from the project's GitHub release). Its SHA-256 matched the release's published checksum file.
+
+| Scope | Command | Result |
+| --- | --- | --- |
+| All 28 commits reachable from 10 refs; `-m` diffs the 12 merge commits against each parent | `gitleaks git . --log-opts="--all -m" --redact` | 7.55 MB scanned; no leaks |
+| The working tree's 172 tracked and untracked, non-ignored files, including the close-out changes | `gitleaks dir <export> --redact` | 3.78 MB scanned; no leaks |
+| Positive control: a scratch file holding a synthetic, non-functional GitHub-token-shaped string | `gitleaks dir <control> --redact` | Detected by the `github-pat` rule, with the value redacted |
+
+The scan used Gitleaks's default rules with no configuration file and no exclusions. Those rules did not flag the integration fixture passwords (F-16), which remain classified as test values that work only against temporary test databases. The scan found no real secret, so nothing needs rotation. Ignored local files, such as agent instructions and raw diagnostics, were outside its scope.
+
+### F-01 owner steps
+
+F-01 stays open until the owner applies these settings and the check below confirms them. The rules require no approving review, so the owner can still merge their own pull requests.
+
+1. On GitHub, open the repository's **Settings**. In the sidebar, under **Code and automation**, choose **Rules** > **Rulesets**, then **New ruleset** > **New branch ruleset**.
+2. Name the ruleset, for example `Protect main`, and set **Enforcement status** to **Active**.
+3. Leave the **Bypass list** empty, so the rules apply to the owner too.
+4. Under **Target branches**, choose **Add target** > **Include default branch**.
+5. Under **Branch rules**, make sure **Restrict deletions** and **Block force pushes** are selected.
+6. Select **Require a pull request before merging** and set **Required approvals** to **0**.
+7. Select **Require status checks to pass**, choose **Add checks**, and add `CI Status` from GitHub Actions. `CI Status` fails when any other CI job fails or is skipped, so no other check is needed.
+8. Leave the other rules at their defaults and choose **Create**.
+
+To confirm, request `https://api.github.com/repos/AdityaJadhav17/Stockroom/rules/branches/main`. The response must list the `deletion`, `non_fast_forward`, `pull_request` (with `required_approving_review_count` 0), and `required_status_checks` (with context `CI Status`) rules. Then record the date and result in the F-01 row above and in the [definition of done](../planning/definition-of-done.md).
+
 ## Raw evidence
+
+The ignored `artifacts/security-closeout/` directory holds the close-out evidence: GitHub API responses (`github/`), key-ring metadata snapshots, sabotage logs, verification logs and reports (`verification/`, `final-checks/`), the Event Log isolation check (`eventlog-isolation/`), the simulated CI upload with its inspection output (`ci-upload-simulation/`), and the redacted Gitleaks reports (`secret-scan/`). The Gitleaks binary stays outside the repository.
 
 The ignored `artifacts/security-review/` directory holds the raw output: GitHub API responses (`github/`), dependency queries and release metadata (`dependencies/`), verification logs and TRX reports (`verification/`), the controlled-failure diagnostics (`e2e-failure/`), probe and fuzz results with a scrubbed server log (`probes/`), analyzer logs and SARIF (`static-analysis/`), the pattern-sweep locations (`secrets/`), and the ASVS and OWASP source files (`asvs/`). The raw files contain generated test credentials inside the failure trace; keep that directory out of Git and delete it when no longer needed.
 
