@@ -230,7 +230,7 @@ Severity: Medium, Low, or Informational. No High or Critical issue was found. "C
 - Secret storage. User secrets are plaintext JSON for development only; a hosted deployment needs a secret store or protected environment variables.
 - Log storage and retention. Database errors log exception details server-side.
 - Database file location, permissions, and backups.
-- GitHub settings that need administrator access: Dependabot alerts, secret scanning and push protection, Actions fork-approval and default token permissions.
+- Actions approval defaults for fork pull requests and default token permissions remain unverified. The owner confirmed the dependency graph, Dependabot alerts, secret scanning, and push protection on 2026-10-05; see [GitHub repository setup](../development/github-repository-setup.md).
 
 ## Remediation plan
 
@@ -247,11 +247,11 @@ Severity: Medium, Low, or Informational. No High or Critical issue was found. "C
 
 ## Remediation status
 
-The findings above describe commit `b28f1a1`. The M7 fixes merged into `main` after independent review; the M9 rows record GitHub settings checked on 2026-10-04. [ADR 0007](../decisions/0007-m7-security-hardening.md) records the decisions.
+The findings above describe commit `b28f1a1`. The owner merged the M7 fixes after independent review. The status table includes public API checks through 2026-10-05. On that date, the owner confirmed that the dependency graph, Dependabot alerts, secret scanning, and push protection are in place and working; the developer did not run authenticated API checks for those controls. [ADR 0007](../decisions/0007-m7-security-hardening.md) records the code decisions.
 
 | ID | Status | Change and evidence |
 | --- | --- | --- |
-| F-01 | Open (owner) | On 2026-10-04 the public GitHub API reported `main` as unprotected (`"protected": false`) with no branch rules or rulesets, so `main` does not require pull requests or `CI Status` and does not block force pushes. |
+| F-01 | Open (owner) | On 2026-10-05 the public GitHub API reported `main` as unprotected (`"protected": false`) with no branch rules or rulesets, so `main` does not require pull requests or `CI Status` and does not block force pushes. |
 | F-02 | Fixed with residual risk | Logout rotates the security stamp, and the stamp is validated on every request (`ValidationInterval = 0`), so a copied cookie is rejected on its next request. Idle timeout reduced to one hour. `LogoutRevokesACopiedSessionCookie` replays a pre-logout cookie and gets the login redirect. If rotation fails, logout still signs out the current browser, tells the user that other sessions may remain signed in, and logs the failure (`FailedSessionRevocationIsReportedToTheUser`). Residual: an active session still renews without an absolute limit, and logout ends every session for the account (`LogoutSignsTheAccountOutInEveryBrowser`). |
 | F-03 | Mitigated | Login POSTs are limited to five per client address per one-minute sliding window (six segments) with the built-in rate limiter. Because a segment returns its permits when it leaves the window, attempts made at the end of a segment come back after 50 seconds, so one client can make 10 attempts within one window. The lockout threshold is therefore 11 (`SessionPolicy.LockoutThreshold = 2 x limit + 1`), and the 11th attempt cannot come sooner than 2 x (window - one segment), about 100 seconds after the first, assuming the account starts with no failed attempts. Tests: `LoginPostsAreThrottledBeforeTheAccountLocks` (sixth POST receives 429, account unlocked); `LoginWindowBoundaryCannotDoubleTheAttemptsAllowed` (the fixed-window boundary pattern, rejected after review); `OneClientCannotReachTheLockoutWithinTheGuaranteedInterval` (with a 2-second window, three seconds of continuous attempts accept at most 10 and do not lock the account; with a threshold of 10 it fails). Residual: the failure count persists until a successful login or a lockout, so one client can lock an account after about 100 seconds of attempts from a clean count, sooner if earlier failures remain, attackers using many addresses sooner, and clients sharing an address share the limit. |
 | F-04 | Fixed | Every response sends `X-Frame-Options: DENY` and `Content-Security-Policy` with `frame-ancestors 'none'`. `EveryResponseCarriesSecurityHeaders` checks pages, static files, and error pages. Cross-site framing in a browser remains unverified locally. |
@@ -276,7 +276,7 @@ While checking the M8 interface for CSP errors, the browser console showed that 
 
 ## Remaining risks
 
-No confirmed vulnerability allows an anonymous or Member account to read another member's data or perform a manager action. After the fixes, the main residual risks are the unprotected `main` branch (F-01), sessions that renew without an absolute limit while in use (F-02), lockout by distributed attackers (F-03), and unbounded lists (F-07). Cross-site framing in a browser and the administrator-only GitHub settings remain unverified.
+No confirmed vulnerability allows an anonymous or Member account to read another member's data or perform a manager action. After the fixes, the main residual risks are the unprotected `main` branch (F-01), sessions that renew without an absolute limit while in use (F-02), lockout by distributed attackers (F-03), and unbounded lists (F-07). Cross-site framing in a browser, Actions approval defaults for fork pull requests, and default token permissions remain unverified. The owner confirmed the dependency graph, Dependabot alerts, secret scanning, and push protection on 2026-10-05.
 
 ## References
 
