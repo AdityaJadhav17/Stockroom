@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Stockroom.Web;
@@ -20,6 +21,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
         options.Lockout.MaxFailedAccessAttempts = SessionPolicy.LockoutThreshold;
     })
     .AddEntityFrameworkStores<AppDbContext>();
+// New and upgraded password hashes use PasswordHashing.Iterations (release security review R-04).
+builder.Services.Configure<PasswordHasherOptions>(options => options.IterationCount = PasswordHashing.Iterations);
 
 // Sessions: re-check the security stamp on every request, so logout (which rotates the stamp) revokes copied
 // cookies and role changes apply on the next request. The cost is one user lookup per authenticated request.
@@ -38,6 +41,14 @@ builder.Services.AddAntiforgery(options =>
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    // Records the rejection as a security event; the status code page still renders the response.
+    options.OnRejected = (context, _) =>
+    {
+        var http = context.HttpContext;
+        http.RequestServices.GetRequiredService<ILogger<SecurityEvents>>()
+            .LoginThrottled(SecurityEvents.ClientAddress(http), http.Request.Method, http.Request.Path.Value ?? "/");
+        return ValueTask.CompletedTask;
+    };
     options.AddPolicy(SessionPolicy.LoginRateLimit, context => HttpMethods.IsPost(context.Request.Method)
         ? RateLimitPartition.GetSlidingWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             _ => SessionPolicy.LoginLimiterOptions(context.RequestServices.GetRequiredService<IConfiguration>()))
@@ -48,6 +59,8 @@ builder.Services.AddScoped<PurchaseService>();
 builder.Services.AddScoped<StockService>();
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(PurchaseRules.RequesterPolicy, policy => policy.RequireAssertion(c => PurchaseRules.CanRequestPurchases(c.User)));
+// Logs authorization denials as security events before the default redirect to the access-denied page.
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, SecurityEventAuthorizationHandler>();
 
 builder.Services.AddRazorPages(options =>
 {

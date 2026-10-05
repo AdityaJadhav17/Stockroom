@@ -26,11 +26,15 @@ public sealed class AuthenticationTests : IAsyncLifetime
         Assert.Equal("/Account/Login", response.Headers.Location?.AbsolutePath);
     }
 
+    // Theory data names a case, not a credential: test names appear in CI reports (release security review R-01).
     [Theory]
-    [InlineData(DemoSeeder.Member1Email, StockroomFactory.MemberPassword, "Member")]
-    [InlineData(DemoSeeder.ManagerEmail, StockroomFactory.ManagerPassword, "Manager")]
-    public async Task ValidLoginOpensDashboardWithRole(string email, string password, string role)
+    [InlineData("member-account")]
+    [InlineData("manager-account")]
+    public async Task ValidLoginOpensDashboardWithRole(string account)
     {
+        var (email, password, role) = account == "manager-account"
+            ? (DemoSeeder.ManagerEmail, StockroomFactory.ManagerPassword, "Manager")
+            : (DemoSeeder.Member1Email, StockroomFactory.MemberPassword, "Member");
         var client = factory.CreateBrowserClient();
 
         var login = await StockroomFactory.LoginAsync(client, email, password);
@@ -45,10 +49,13 @@ public sealed class AuthenticationTests : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData(DemoSeeder.Member1Email, "Wrong-Password-1")]
-    [InlineData("nobody@stockroom.test", StockroomFactory.MemberPassword)]
-    public async Task InvalidLoginShowsNeutralErrorAndCreatesNoSession(string email, string password)
+    [InlineData("wrong-password")]
+    [InlineData("unknown-account")]
+    public async Task InvalidLoginShowsNeutralErrorAndCreatesNoSession(string attempt)
     {
+        var (email, password) = attempt == "unknown-account"
+            ? ("nobody@stockroom.test", StockroomFactory.MemberPassword)
+            : (DemoSeeder.Member1Email, "Wrong-Password-1");
         var client = factory.CreateBrowserClient();
 
         var login = await StockroomFactory.LoginAsync(client, email, password);

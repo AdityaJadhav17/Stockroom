@@ -16,7 +16,7 @@ Playwright for .NET with xUnit drives Chromium through the main workflows. Selec
 
 Disposal stops that process and deletes only the directory it created. Cleanup runs every step even if an earlier one fails, skips browser contexts a test already closed, stops the application last, and then reports any cleanup errors. A leaked server would keep the test host's output open and stall `dotnet test`. The fixture never reads or changes `src/Stockroom.Web/stockroom.db` or another configured database. Tests run one at a time because each starts its own server and browser.
 
-`BrowserTest` opens one browser context per signed-in user and records a Playwright trace. When a test fails, it saves each context's trace and full-page screenshot and the server log under `bin/<Configuration>/net10.0/e2e-artifacts/`, or under the directory in `STOCKROOM_E2E_ARTIFACTS`. Git ignores both locations. Open a trace with `pwsh tests/e2e/bin/Release/net10.0/playwright.ps1 show-trace <file>`.
+`BrowserTest` opens one browser context per signed-in user and records a Playwright trace. When a test fails, it saves each context's trace and full-page screenshot and the server log under `bin/<Configuration>/net10.0/e2e-artifacts/`, or under the directory in `STOCKROOM_E2E_ARTIFACTS`. Git ignores both locations. Open a trace with `pwsh tests/e2e/bin/Release/net10.0/playwright.ps1 show-trace <file>`. A trace records the login form, request bodies, and session cookies, so CI does not upload it: the End-to-End job uploads only the TRX report, failure screenshots, and server logs. Reproduce a failure locally to get its trace.
 
 ## Cases
 

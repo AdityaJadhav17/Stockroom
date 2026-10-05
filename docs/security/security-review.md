@@ -247,7 +247,7 @@ Severity: Medium, Low, or Informational. No High or Critical issue was found. "C
 
 ## Remediation status
 
-The findings above describe commit `b28f1a1`. The owner merged the M7 fixes after independent review. The status table includes public API checks through 2026-10-05. On that date, the owner confirmed that the dependency graph, Dependabot alerts, secret scanning, and push protection are in place and working; the developer did not run authenticated API checks for those controls. [ADR 0007](../decisions/0007-m7-security-hardening.md) records the code decisions.
+The findings above describe commit `b28f1a1`. The owner merged the M7 fixes after independent review. The status table includes public API checks through 2026-10-05. On that date, the owner confirmed that the dependency graph, Dependabot alerts, secret scanning, and push protection are in place and working; the developer did not run authenticated API checks for those controls. [ADR 0007](../decisions/0007-m7-security-hardening.md) records the code decisions. The [release security review](release-security-review.md#remediation-status) records later checks and the 2026-10-05 security close-out.
 
 | ID | Status | Change and evidence |
 | --- | --- | --- |
@@ -260,9 +260,12 @@ The findings above describe commit `b28f1a1`. The owner merged the M7 fixes afte
 | F-07 | Open | Paging and per-member limits not implemented |
 | F-08 | Fixed | Per-request validation rebuilds role claims from the database. `RoleRemovalAppliesOnTheNextRequest` shows the demoted account is denied the issue page and sees no manager links. |
 | F-09 | Partly fixed | `nosniff`, `Referrer-Policy: same-origin`, and a `default-src 'self'` CSP added; the antiforgery cookie is marked `Secure` over HTTPS (`AntiforgeryCookieIsSecureOverHttps`). HTTPS, HSTS, and an always-secure authentication cookie remain deployment tasks. |
-| F-10 to F-11 | Unchanged | See the remediation plan |
+| F-10 | Unchanged; hashing strengthened | The Identity default password rules remain. The release security close-out raised hashing to 220,000 PBKDF2-HMAC-SHA512 iterations (release review R-04). |
+| F-11 | Unchanged | See the remediation plan |
 | F-12 | Fixed (owner) | On 2026-10-04 `GET /repos/AdityaJadhav17/Stockroom/private-vulnerability-reporting` returned `enabled: true`. M9 updated `SECURITY.md` to name the Security tab. |
-| F-13 to F-16 | Unchanged | See the remediation plan |
+| F-13 | Fixed in the release security close-out | CI uploads only test reports, failure screenshots, and server logs; Playwright traces stay on the runner (release review R-01). Hosted CI had not run the change when this row was written. |
+| F-14 to F-15 | Unchanged | See the remediation plan |
+| F-16 | Unchanged; exposure reduced | The fixture passwords remain in `StockroomFactory.cs`. Since the release security close-out, test names and reports no longer contain them (release review R-01). |
 
 ### Regression found while reviewing the fixes
 
