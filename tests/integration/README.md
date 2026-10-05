@@ -4,6 +4,8 @@ Use xUnit and `WebApplicationFactory` from ASP.NET Core MVC Testing for HTTP han
 
 Give each test an isolated database. For a competing-write scenario, connect separate contexts to the same temporary database file and coordinate the operation starts. Inspect the final quantity, status, and history. Reject unhandled lock errors as failures.
 
+`SecurityHardeningTests` runs in a collection that does not overlap other integration tests. Its login-window checks use real time and must not compete with password hashing in other collections. Checkpoint waits return immediately when the scheduled time has already passed. The other collections retain their normal parallel execution.
+
 Run the cases:
 
 ```powershell
