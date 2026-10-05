@@ -11,7 +11,7 @@
 | Release | Owner checks a fresh checkout and records the walkthrough. | Completed release checklist and accurate README status. |
 | Maintenance | Owner records defects and prioritizes the next release. | Bug reproduction, regression test, and updated requirements. |
 
-M1 through M8 are implemented and merged through pull requests #1 to #8. Hosted CI run [37184964723](https://github.com/AdityaJadhav17/Stockroom/actions/runs/37184964723) passed all seven jobs on `main` at the M8 merge. M9 reorganizes the repository and adds the release documents in the working tree ([ADR 0009](../decisions/0009-m9-repository-organization.md)); it awaits review and hosted CI. The owner's release sign-off remains open.
+M1 through M9 are implemented and merged through pull requests #1 to #9. The owner merged the architecture diagrams and PNG previews through #10 and #11. On 2026-10-05, the public GitHub API confirmed that CI run [37249415888](https://github.com/AdityaJadhav17/Stockroom/actions/runs/37249415888) passed all seven jobs on `main` at `12ffc87`. The owner must complete branch protection, the narrated demo, and release sign-off. After merging these documentation updates, check CI on the commit selected for the release tag.
 
 | Milestone | Delivered |
 | --- | --- |

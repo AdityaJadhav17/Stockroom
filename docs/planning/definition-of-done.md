@@ -1,6 +1,6 @@
 # Definition of done
 
-The developer completes the story checklist for each change. The owner completes the release checklist before calling the MVP complete. An item is checked only where the evidence column points to a verified result; on 2026-10-04 the developer reviewed every item for M9.
+The developer completes the story checklist for each change. The owner completes the release checklist before calling the MVP complete. An item is checked only where the evidence column points to a verified result; the developer reviewed M9 on 2026-10-04 and refreshed release evidence on 2026-10-05.
 
 ## Story completion
 
@@ -31,12 +31,12 @@ These criteria apply to each of US-01 to US-08. The [user stories](user-stories.
 | [x] | Prove that a failed history write rolls back its stock or status change. | T-11 in `PurchaseServiceTests` and `StockServiceTests` |
 | [x] | Confirm committed data survives an application restart. | T-13 in `PersistenceTests` |
 | [x] | Check forms, field errors, empty states, and keyboard navigation. | Manual checks in M8 and `ResponsiveLayoutTests`; see [accessibility](../quality/accessibility.md) |
-| [ ] | Run application CI on the release commit and record the result. | Run [37184964723](https://github.com/AdityaJadhav17/Stockroom/actions/runs/37184964723) passed on the M8 merge; the M9 changes have not run |
+| [ ] | Run application CI on the release commit and record the result. | Run [37249415888](https://github.com/AdityaJadhav17/Stockroom/actions/runs/37249415888) passed all seven jobs at `12ffc87`, including M9 and the diagram updates. Keep this item open until CI passes on the commit selected for the release tag. |
 | [x] | Document demo credential setup without committing passwords or local databases. | [Setup guide](../development/setup.md); `.gitignore` excludes `*.db` and secrets files |
 | [x] | Update the README with setup commands, status, screenshots, and known limitations. | [README](../../README.md), revised in M9 |
-| [ ] | Record a two- to three-minute demonstration and identify the data as synthetic. | [Demo script](../releases/demo-script.md) ready; the owner has not recorded the narration |
+| [ ] | Record a two- to three-minute demonstration and identify the data as synthetic. | Use the [demo script](../releases/demo-script.md) and [recording plan](../releases/demo-recording-plan.md). Add the video reference after recording. |
 | [x] | Record remaining defects and deferred scope without marking them complete. | README limitations and the [draft release notes](../releases/v1.0.0.md) |
-| [ ] | Protect `main` with a ruleset that requires pull requests and `CI Status`. | Not configured on 2026-10-04; see [GitHub repository setup](../development/github-repository-setup.md) |
+| [ ] | Protect `main` with a ruleset that requires pull requests and `CI Status`. | On 2026-10-05 the public API reported `main` as unprotected with no branch rules; see [GitHub repository setup](../development/github-repository-setup.md). |
 | [ ] | Owner signs off on the release. | Pending |
 
 ## Evidence format

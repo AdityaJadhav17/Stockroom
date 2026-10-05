@@ -2,7 +2,7 @@
 
 Date: 2026-10-04
 
-Status: Proposed. Awaits the owner's review.
+Status: Accepted. The owner merged M9 through pull request #9.
 
 ## Context
 

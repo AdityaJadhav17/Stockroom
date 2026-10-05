@@ -21,21 +21,24 @@ GitHub reads the community files from `.github/`.
 
 The license and code of conduct keep their standard wording.
 
-## Settings checked on 2026-10-04
+## Settings checked on 2026-10-05
 
-The developer queried the public GitHub API without credentials. Settings that need an authenticated call stay unverified.
+The developer checked the public GitHub API without credentials. On 2026-10-05 the owner confirmed that the dependency graph, Dependabot alerts, secret scanning, and push protection are in place and working. The table distinguishes those confirmations from API results.
 
 | Setting | Result | Evidence |
 | --- | --- | --- |
-| Community profile | 100% health | `GET /repos/AdityaJadhav17/Stockroom/community/profile`, checked before M9 moved the files into `.github/` |
+| Community profile | 100% health | The public API returned 100 after M9 and the diagram updates merged. GitHub finds the community files in `.github/`. |
 | Private vulnerability reporting | Enabled | `GET .../private-vulnerability-reporting` returned `enabled: true` |
 | Branch protection on `main` | Not configured | `GET .../branches/main` returned `"protected": false` |
-| Branch rules and rulesets | None | `GET .../rules/branches/main` and `GET .../rulesets` returned empty lists |
-| Dependency graph and Dependabot alerts | Unverified | Needs an authenticated call or the Settings page |
+| Branch rules and rulesets | None | The public API returned empty branch rules and repository rulesets. |
+| Hosted CI | Seven jobs passed at `12ffc87` | Run [37249415888](https://github.com/AdityaJadhav17/Stockroom/actions/runs/37249415888). |
+| Dependency graph and Dependabot alerts | Enabled, owner-confirmed | Owner confirmation on 2026-10-05; the developer did not perform an authenticated API check. |
+| Secret scanning and push protection | Enabled, owner-confirmed | Owner confirmation on 2026-10-05; the developer did not perform an authenticated API check. |
 
 ## Owner actions
 
 1. Add a ruleset for `main` that requires a pull request, requires the `CI Status` check, and blocks force pushes and deletion.
-2. After merging M9, open the community profile page and confirm GitHub still finds the files in `.github/`.
-3. Confirm that the dependency graph and Dependabot alerts are on, and review the latest Dependabot run.
-4. Add repository topics that match the stack, such as `aspnet-core`, `razor-pages`, `sqlite`, and `inventory`.
+2. After merging the release documentation, record passing CI on the commit selected for the release tag.
+3. Check that the configured security controls remain enabled after future settings changes.
+
+Optional: add repository topics that match the stack, such as `aspnet-core`, `razor-pages`, `sqlite`, and `inventory`. Actions approval defaults for fork pull requests and default token permissions remain unverified.

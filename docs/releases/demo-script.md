@@ -1,47 +1,47 @@
 # Demo script
 
-A narrated walkthrough of two to three minutes: about 280 words of narration, plus time for the clicks. Seed a fresh database first (`dotnet run --project src/Stockroom.Web -- seed --reset`) so the numbers match. Each step names the screenshot that shows it.
+Aim for 2 minutes 50 seconds, including clicks and the restart. Follow the [recording plan](demo-recording-plan.md) to create a fresh demo database before rehearsal. Keep the browser at `http://localhost:5080` and start signed in as `member1@stockroom.test`.
 
-All data is synthetic. Say so on screen or in the video description.
+## 0:00 to 0:15: Purpose
 
-## 1. Problem and roles (20 seconds)
+Screen: member dashboard. Point to the low-stock filament row.
 
-Screen: the login page.
+> Stockroom tracks supplies for a fictional campus makerspace. Members request purchases, and a manager reviews them, records deliveries, and issues stock. I am using synthetic accounts and inventory for this demonstration.
 
-> Stockroom tracks supplies for a makerspace. Members ask for materials; a manager decides what to buy, records deliveries, and hands out stock. Every change leaves a record. The data here is synthetic.
+## 0:15 to 0:50: Member request
 
-## 2. A member requests a purchase (35 seconds)
+Screen: open Inventory, then Request beside PLA filament. Enter quantity `5` and reason `Robotics workshop filament`. Submit and show Pending.
 
-Screen: log in as `member1@stockroom.test`. [Member dashboard](../images/01-member-dashboard.png), then [the request form](../images/02-request-form.png).
+> As a member, I can see two spools of filament against a reorder threshold of three. I request five spools for a robotics workshop and include a reason. The request is pending. I can track its status and read its history.
 
-> I'm logged in as a member. The dashboard flags PLA filament: two spools left against a reorder point of three. I open Request on that row, ask for five spools for a robotics workshop, and submit. The request is Pending. As a member, I can't approve it or change stock.
+## 0:50 to 1:25: Approval and receipt
 
-## 3. The manager approves and receives it (40 seconds)
+Screen: pause capture for the account switch. Log out, sign in as `manager@stockroom.test`, and resume. Open the new filament request from Requests. Click Approve request, show Approved, then record receipt of five spools. Open Inventory and show quantity `7`.
 
-Screen: log out, then log in as `manager@stockroom.test`. [Manager dashboard](../images/03-manager-dashboard.png), [review](../images/04-manager-review.png), then [receipt](../images/05-receipt-recorded.png).
+> As the manager, I review the request and approve it. Approval leaves stock at two. After the delivery arrives, I record the receipt. The quantity increases to seven, and I can see the creation, approval, and receipt events on the request page.
 
-> The manager's dashboard shows the request waiting for review. I open it and approve. Stock still reads two, because approval only authorizes the purchase. When the delivery arrives, I record the receipt. Stock goes to seven, and the request history shows who created, approved, and received it. The receipt button is gone, and the server ignores a repeated receipt.
+## 1:25 to 1:55: Issue and refusal
 
-## 4. Issuing stock, and a refusal (30 seconds)
+Screen: click Issue beside filament. Issue `2` with reason `Workshop prints`. Open Issue again and try `6` with reason `Additional workshop prints`. Show the refusal and quantity `5`.
 
-Screen: Inventory, then Issue on the filament row. [Refused issue](../images/06-issue-refused.png).
+> I issue two spools for workshop prints, leaving five. I then try to issue six. The page explains that five are available. The refused issue leaves the quantity at five and adds no stock movement.
 
-> Now I hand out two spools for workshop prints, which leaves five. If I try to issue six, the application refuses and states that only five are in stock. Nothing changes.
+## 1:55 to 2:20: History
 
-## 5. The audit trail (25 seconds)
+Screen: open History. Show the filament receipt of `+5` and issue of `-2`, with their actor, reason, and UTC time.
 
-Screen: [History](../images/07-manager-history.png).
+> In History, I can trace the receipt and issue to the manager, the reason, and the time. For filament, the opening two, receipt of five, and issue of two add up to the five spools in stock.
 
-> The history page lists each decision and each stock movement with the actor, the time in UTC, the quantity change, and the reason. The movements add up to the current stock, and the page offers no way to edit or delete a record.
+## 2:20 to 2:50: Restart and test evidence
 
-## 6. Persistence and security (30 seconds)
+Screen: pause capture. Restart the server in the same terminal using the same database, resume capture, and refresh Inventory. Show quantity `5`, then open History and show the recorded issue.
 
-Screen: stay on History, or show the [member's rejected request](../images/08-member-rejection.png).
+> I have restarted the application. Five spools remain, and I can still read the issue in History. The project uses C#, Razor Pages, EF Core, and SQLite. The test suites contain 156 integration cases and 11 Chromium browser cases, including competing stock writes and restart persistence.
 
-> Everything lives in SQLite. Each stock change and its history record commit in one transaction, and a conditional update stops two competing issues from overselling. Permissions come from the database on every request, so a demoted manager loses access at once, and logging out ends every session for the account. Integration tests cover the races and rollbacks; browser tests replay this walkthrough.
+## Optional extension
 
-## Recording checklist
+For a longer technical walkthrough, demonstrate a rejection with a reason, then show the member's view. Label it as an extra segment and keep it outside the three-minute release recording.
 
-- Use the throwaway passwords from your user secrets, and keep them off screen.
-- Hide the browser's address bar history and any local file paths.
-- Keep the walkthrough under three minutes; cut step 6 to two sentences if it runs long.
+## Evidence after recording
+
+Add the recording URL or file reference to the [definition of done](../planning/definition-of-done.md) and [release notes](v1.0.0.md). The script describes the planned recording; it does not prove that you recorded the video.

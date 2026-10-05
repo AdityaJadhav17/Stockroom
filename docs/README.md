@@ -55,7 +55,8 @@ The documents are grouped by purpose. Start with the [MVP](planning/mvp.md) for 
 | Document | Contents |
 | --- | --- |
 | [v1.0.0 release notes](releases/v1.0.0.md) | Draft notes: capabilities, evidence, and limitations |
-| [Demo script](releases/demo-script.md) | Narration for a two- to three-minute walkthrough |
+| [Demo script](releases/demo-script.md) | Narration and screen actions for a two- to three-minute walkthrough |
+| [Recording plan](releases/demo-recording-plan.md) | Disposable database setup, rehearsal, capture, and review checklist |
 | [Interview notes](releases/interview-notes.md) | Design decisions and how the tests prove them |
 
 Screenshots live in [images](images/01-member-dashboard.png); the M8 before-and-after comparisons are in [images/ui-polish](images/ui-polish).
