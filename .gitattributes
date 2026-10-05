@@ -19,3 +19,6 @@ LICENSE text eol=lf
 *.png binary
 *.jpg binary
 *.pdf binary
+
+# Preserve generated diagram bytes; the viewer template contains whitespace-only lines.
+docs/diagrams/*.html text eol=lf whitespace=-blank-at-eol

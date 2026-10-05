@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Stockroom: records and relationships",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/data-design.html",
+    "repository": {
+      "url": "https://github.com/AdityaJadhav17/Stockroom.git",
+      "revision": "0f30ae226eed742bbb5a989898279db2bdac2cae",
+      "provider": "github",
+      "link_mode": "web"
+    }
+  },
+  "components": [
+    {
+      "id": "accounts",
+      "type": "security",
+      "label": "Identity accounts",
+      "sublabel": "Users and database role membership",
+      "pos": [
+        40,
+        590
+      ],
+      "size": [
+        245,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Data/AppDbContext.cs",
+          "line": 8,
+          "end_line": 17,
+          "label": "Identity model"
+        },
+        {
+          "path": "src/Stockroom.Web/Services/ServiceGuard.cs",
+          "line": 19,
+          "end_line": 25,
+          "label": "Role membership query"
+        }
+      ],
+      "tag": "Referenced users cannot be deleted"
+    },
+    {
+      "id": "requests",
+      "type": "database",
+      "label": "PurchaseRequest",
+      "sublabel": "Item, quantity, reason, requester",
+      "pos": [
+        445,
+        320
+      ],
+      "size": [
+        255,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Models/Records.cs",
+          "line": 25,
+          "end_line": 40,
+          "label": "Request fields"
+        },
+        {
+          "path": "src/Stockroom.Web/Data/AppDbContext.cs",
+          "line": 32,
+          "end_line": 49,
+          "label": "Foreign keys and checks"
+        }
+      ],
+      "tag": "Pending / Approved / Rejected / Received"
+    },
+    {
+      "id": "items",
+      "type": "database",
+      "label": "InventoryItem",
+      "sublabel": "SKU, unit, quantity, reorder point",
+      "pos": [
+        875,
+        320
+      ],
+      "size": [
+        230,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Models/Records.cs",
+          "line": 15,
+          "end_line": 23,
+          "label": "Item fields"
+        },
+        {
+          "path": "src/Stockroom.Web/Data/AppDbContext.cs",
+          "line": 19,
+          "end_line": 29,
+          "label": "Unique SKU and stock bounds"
+        }
+      ],
+      "tag": "Unique SKU; stock >= 0"
+    },
+    {
+      "id": "events",
+      "type": "database",
+      "label": "RequestEvent",
+      "sublabel": "Action, actor, UTC time, note",
+      "pos": [
+        445,
+        70
+      ],
+      "size": [
+        255,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Models/Records.cs",
+          "line": 55,
+          "end_line": 63,
+          "label": "Event fields"
+        },
+        {
+          "path": "src/Stockroom.Web/Data/AppDbContext.cs",
+          "line": 75,
+          "end_line": 82,
+          "label": "Event relationships"
+        }
+      ],
+      "tag": "Created / Approved / Rejected / Received"
+    },
+    {
+      "id": "movements",
+      "type": "database",
+      "label": "StockMovement",
+      "sublabel": "Item, signed delta, actor, reason",
+      "pos": [
+        875,
+        590
+      ],
+      "size": [
+        230,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Models/Records.cs",
+          "line": 42,
+          "end_line": 53,
+          "label": "Movement fields"
+        },
+        {
+          "path": "src/Stockroom.Web/Data/AppDbContext.cs",
+          "line": 52,
+          "end_line": 71,
+          "label": "Movement references and constraints"
+        }
+      ],
+      "tag": "Opening / Receipt / Issue"
+    }
+  ],
+  "connections": [
+    {
+      "id": "requests-to-accounts",
+      "from": "requests",
+      "to": "accounts",
+      "variant": "default",
+      "label": "Requester / reviewer / receiver"
+    },
+    {
+      "id": "requests-to-items",
+      "from": "requests",
+      "to": "items",
+      "variant": "default",
+      "label": "ItemId"
+    },
+    {
+      "id": "events-to-requests",
+      "from": "events",
+      "to": "requests",
+      "variant": "default",
+      "label": "PurchaseRequestId"
+    },
+    {
+      "id": "events-to-accounts",
+      "from": "events",
+      "to": "accounts",
+      "variant": "default",
+      "label": "ActorId"
+    },
+    {
+      "id": "movements-to-items",
+      "from": "movements",
+      "to": "items",
+      "variant": "default",
+      "label": "ItemId"
+    },
+    {
+      "id": "movements-to-requests",
+      "from": "movements",
+      "to": "requests",
+      "variant": "emphasis",
+      "label": "Receipt reference"
+    },
+    {
+      "id": "movements-to-accounts",
+      "from": "movements",
+      "to": "accounts",
+      "variant": "default",
+      "label": "ActorId"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Read the arrows as foreign keys",
+      "items": [
+        "Each arrow points from a record to the record it references.",
+        "An item has many requests and stock movements; a request has many events.",
+        "Requester is required; reviewer and receiver are populated by the transition."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Receipt and stock invariants",
+      "items": [
+        "Receipt requires a purchase-request reference, with a filtered unique index.",
+        "Issue requires a non-blank reason; stored movement delta cannot be zero.",
+        "Services enforce permitted transitions, signs and sufficient stock; database checks are an additional safeguard."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "History is a read model",
+      "items": [
+        "Created events display the original request reason through the history query.",
+        "Members see their own request events; Managers also see stock movements.",
+        "The History page exposes no edit or delete handlers. Records are not a cryptographically immutable ledger."
+      ]
+    }
+  ]
+}

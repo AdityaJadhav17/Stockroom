@@ -1,0 +1,190 @@
+{
+  "schema_version": 2,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Stockroom: purchase request lifecycle",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/purchase-lifecycle.html",
+    "repository": {
+      "url": "https://github.com/AdityaJadhav17/Stockroom.git",
+      "revision": "0f30ae226eed742bbb5a989898279db2bdac2cae",
+      "provider": "github",
+      "link_mode": "web"
+    }
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Purchase request"
+    },
+    {
+      "id": "terminal",
+      "label": "Rejected request"
+    }
+  ],
+  "states": [
+    {
+      "id": "input",
+      "type": "start",
+      "label": "Valid request input",
+      "sublabel": "Item + quantity + reason",
+      "lane": "main",
+      "col": 0,
+      "tag": "Member, excluding Manager",
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Services/PurchaseService.cs",
+          "line": 65,
+          "end_line": 81,
+          "label": "Role and input checks"
+        }
+      ],
+      "width": 170
+    },
+    {
+      "id": "pending",
+      "type": "waiting",
+      "label": "Pending",
+      "sublabel": "Created event; stock unchanged",
+      "lane": "main",
+      "col": 1,
+      "tag": "Awaits Manager decision",
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Services/PurchaseService.cs",
+          "line": 82,
+          "end_line": 98,
+          "label": "Creation transaction"
+        }
+      ],
+      "width": 170
+    },
+    {
+      "id": "approved",
+      "type": "waiting",
+      "label": "Approved",
+      "sublabel": "Approved event; stock unchanged",
+      "lane": "main",
+      "col": 2,
+      "tag": "Manager; Pending only",
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Services/PurchaseService.cs",
+          "line": 101,
+          "end_line": 138,
+          "label": "Conditional approval"
+        }
+      ],
+      "width": 170
+    },
+    {
+      "id": "received",
+      "type": "success",
+      "label": "Received",
+      "sublabel": "Stock + quantity; movement + event",
+      "lane": "main",
+      "col": 3,
+      "tag": "Manager; Approved only",
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Services/PurchaseService.cs",
+          "line": 141,
+          "end_line": 191,
+          "label": "Receipt transaction"
+        },
+        {
+          "path": "src/Stockroom.Web/Data/AppDbContext.cs",
+          "line": 58,
+          "end_line": 71,
+          "label": "One receipt per request"
+        }
+      ],
+      "width": 170
+    },
+    {
+      "id": "rejected",
+      "type": "failure",
+      "label": "Rejected",
+      "sublabel": "Rejected event; stock unchanged",
+      "lane": "terminal",
+      "col": 1,
+      "tag": "Manager; reason required",
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Services/PurchaseService.cs",
+          "line": 104,
+          "end_line": 138,
+          "label": "Conditional rejection"
+        }
+      ],
+      "width": 170
+    }
+  ],
+  "transitions": [
+    {
+      "id": "create",
+      "from": "input",
+      "to": "pending",
+      "label": "create"
+    },
+    {
+      "id": "approve",
+      "from": "pending",
+      "to": "approved",
+      "label": "approve"
+    },
+    {
+      "id": "receive",
+      "from": "approved",
+      "to": "received",
+      "label": "receive",
+      "variant": "emphasis"
+    },
+    {
+      "id": "reject",
+      "from": "pending",
+      "to": "rejected",
+      "label": "reject",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Roles and validation",
+      "items": [
+        "A purchase is one item and a whole-number quantity from 1 to 10,000.",
+        "Member accounts that also hold Manager cannot create purchases.",
+        "Services obtain role membership from SQLite and trim reasons to a maximum of 500 characters."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Receipt is the stock-changing transition",
+      "items": [
+        "Approval authorizes a purchase; it does not mean the delivery has arrived.",
+        "Receipt claims Approved -> Received, adds quantity and saves audit records in one transaction.",
+        "A repeated receipt cannot claim the row, and a filtered unique index also prevents a second Receipt movement."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Stock issues are a separate operation",
+      "items": [
+        "A Manager can issue existing inventory without changing a purchase request status.",
+        "The conditional subtraction requires enough stock; a negative Issue movement commits with it.",
+        "An excessive issue is refused with stock and history unchanged. See StockService.IssueAsync in the runtime map."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "No hidden transitions",
+      "items": [
+        "This release has no cancellation, reopening or partial receipt.",
+        "Busy retries that run out return a controlled retry message.",
+        "Other database failures require reopening the record before retrying because commit outcome can be unknown."
+      ]
+    }
+  ]
+}
