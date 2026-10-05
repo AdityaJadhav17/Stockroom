@@ -34,6 +34,7 @@ The documents are grouped by purpose. Start with the [MVP](planning/mvp.md) for 
 | Document | Contents |
 | --- | --- |
 | [Security review](security/security-review.md) | M7 audit findings, evidence, and remediation status |
+| [Release security review](security/release-security-review.md) | v1.0.0 candidate review: findings, M7 follow-up, ASVS checklist, and release recommendation |
 | [Dependency audit](security/dependency-audit.md) | Package versions and vulnerability-check evidence |
 
 ## Decisions
