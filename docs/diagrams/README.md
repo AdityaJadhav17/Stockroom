@@ -11,10 +11,30 @@ These diagrams describe Stockroom's committed source at [0f30ae2](https://github
 
 ## Viewing
 
+The PNG previews below render directly on GitHub. Click an image to open its full-size preview. They are 2048 by 1320 pixel light-theme captures of the same HTML diagrams listed above.
+
 After cloning the repository, open an HTML file from this directory in a browser. Each file contains its viewer and diagram, supports light and dark themes, and requires no server or package installation. Following a source link requires an internet connection. GitHub's file view displays the HTML source; download the file to view the interactive diagram.
+
+## Previews
+
+### Runtime architecture
+
+[![Stockroom runtime: browser, request pipeline, Identity, Razor Pages, services, EF Core, and SQLite](../images/diagrams/runtime-architecture.png)](../images/diagrams/runtime-architecture.png)
+
+### Data design
+
+[![Stockroom data relationships between Identity accounts, inventory items, purchase requests, request events, and stock movements](../images/diagrams/data-design.png)](../images/diagrams/data-design.png)
+
+### Purchase lifecycle
+
+[![Purchase lifecycle from creation to Pending, Approved and Received, with rejection from Pending](../images/diagrams/purchase-lifecycle.png)](../images/diagrams/purchase-lifecycle.png)
+
+### CI workflow
+
+[![CI dependencies from repository checks through build, dependency audit, integration and browser tests to CI Status](../images/diagrams/ci-workflow.png)](../images/diagrams/ci-workflow.png)
 
 ## Maintenance
 
-The JSON files are the editable diagram sources. When application structure or CI changes, review the affected diagram, update its source references and pinned revision, and regenerate the HTML with Archify. Update this page to identify the reviewed revision. The diagrams record source structure; they do not establish deployment status or GitHub branch-protection settings.
+The JSON files are the editable diagram sources. When application structure or CI changes, review the affected diagram, update its source references and pinned revision, and regenerate the HTML and PNG previews with Archify. Update this page to identify the reviewed revision. The diagrams record source structure; they do not establish deployment status or GitHub branch-protection settings.
 
 These files were generated with Archify 3.0.1. Each diagram passed showcase validation, delivery and provenance checks, and browser checks. The layouts were visually reviewed in light and dark themes before publication. Preserve the license notices embedded in the generated HTML. Generation receipts, browser captures, and scratch files remain local under `.archify/`.
