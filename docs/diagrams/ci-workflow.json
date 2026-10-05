@@ -1,0 +1,283 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Stockroom: continuous integration",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/ci-workflow.html",
+    "repository": {
+      "url": "https://github.com/AdityaJadhav17/Stockroom.git",
+      "revision": "0f30ae226eed742bbb5a989898279db2bdac2cae",
+      "provider": "github",
+      "link_mode": "web"
+    },
+    "legend": {
+      "entries": {
+        "backend": {
+          "label": "CI job"
+        },
+        "frontend": {
+          "label": "Browser test job"
+        },
+        "security": {
+          "label": "Check / gate"
+        },
+        "external": {
+          "label": "Workflow trigger"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "build",
+      "label": "Entry and build"
+    },
+    {
+      "id": "security",
+      "label": "Dependency security"
+    },
+    {
+      "id": "tests",
+      "label": "Automated tests"
+    },
+    {
+      "id": "gate",
+      "label": "Final result"
+    }
+  ],
+  "mainPath": [
+    "trigger",
+    "structure",
+    "build",
+    "integration",
+    "browser",
+    "status"
+  ],
+  "nodes": [
+    {
+      "id": "trigger",
+      "lane": "build",
+      "col": 0,
+      "type": "external",
+      "label": "Workflow trigger",
+      "sublabel": "PR / push to main / manual",
+      "width": 160,
+      "sources": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "line": 3,
+          "end_line": 15,
+          "label": "Triggers and read-only permissions"
+        }
+      ]
+    },
+    {
+      "id": "structure",
+      "lane": "build",
+      "col": 1,
+      "type": "backend",
+      "label": "Repository checks",
+      "sublabel": "Required files + links + text",
+      "width": 160,
+      "sources": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "line": 27,
+          "end_line": 38,
+          "label": "Structure job"
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "lane": "build",
+      "col": 2,
+      "type": "backend",
+      "label": "Release build",
+      "sublabel": "Locked restore; warnings fail",
+      "width": 160,
+      "sources": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "line": 61,
+          "end_line": 83,
+          "label": "Release build job"
+        }
+      ]
+    },
+    {
+      "id": "audit",
+      "lane": "security",
+      "col": 2,
+      "type": "security",
+      "label": "Dependency audit",
+      "sublabel": "Direct + transitive NuGet",
+      "width": 160,
+      "sources": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "line": 40,
+          "end_line": 59,
+          "label": "Audit job"
+        }
+      ]
+    },
+    {
+      "id": "integration",
+      "lane": "tests",
+      "col": 3,
+      "type": "backend",
+      "label": "Integration tests",
+      "sublabel": "Ubuntu + Windows matrix",
+      "width": 160,
+      "sources": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "line": 85,
+          "end_line": 129,
+          "label": "Matrix and test reports"
+        }
+      ],
+      "tag": "Two jobs; real SQLite"
+    },
+    {
+      "id": "browser",
+      "lane": "tests",
+      "col": 4,
+      "type": "frontend",
+      "label": "Browser tests",
+      "sublabel": "Chromium on Ubuntu",
+      "width": 160,
+      "sources": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "line": 131,
+          "end_line": 181,
+          "label": "E2E job and diagnostics"
+        }
+      ],
+      "tag": "After both integration jobs"
+    },
+    {
+      "id": "status",
+      "lane": "gate",
+      "col": 5,
+      "type": "security",
+      "label": "CI Status",
+      "sublabel": "Every needed job must succeed",
+      "width": 160,
+      "sources": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "line": 183,
+          "end_line": 205,
+          "label": "Always-run aggregate gate"
+        }
+      ],
+      "tag": "Failure / skip / cancel fails"
+    }
+  ],
+  "edges": [
+    {
+      "id": "trigger-to-structure",
+      "from": "trigger",
+      "to": "structure",
+      "variant": "default",
+      "role": "main"
+    },
+    {
+      "id": "structure-to-build",
+      "from": "structure",
+      "to": "build",
+      "variant": "default",
+      "role": "main"
+    },
+    {
+      "id": "structure-to-audit",
+      "from": "structure",
+      "to": "audit",
+      "variant": "security",
+      "role": "branch"
+    },
+    {
+      "id": "build-to-integration",
+      "from": "build",
+      "to": "integration",
+      "variant": "default",
+      "role": "main"
+    },
+    {
+      "id": "integration-to-browser",
+      "from": "integration",
+      "to": "browser",
+      "variant": "default",
+      "role": "main"
+    },
+    {
+      "id": "browser-to-status",
+      "from": "browser",
+      "to": "status",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "audit-to-status",
+      "from": "audit",
+      "to": "status",
+      "variant": "security",
+      "role": "branch"
+    },
+    {
+      "id": "structure-to-status",
+      "from": "structure",
+      "to": "status",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "id": "build-to-status",
+      "from": "build",
+      "to": "status",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "id": "integration-to-status",
+      "from": "integration",
+      "to": "status",
+      "variant": "dashed",
+      "role": "branch"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Parallel where the workflow permits",
+      "items": [
+        "After structure checks, the audit and build are independent jobs.",
+        "Integration expands into Ubuntu and Windows, giving seven jobs in total.",
+        "Browser tests wait for the entire integration matrix, not only the Linux run."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Evidence and cleanup",
+      "items": [
+        "Integration reports and browser failure diagnostics are uploaded even after test failure.",
+        "Test artifacts expire after 14 days; each browser test uses disposable data.",
+        "The unit project is a scaffold and has no CI test job."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "CI is not deployment or branch protection",
+      "items": [
+        "CI Status runs even if an upstream job fails, skips or is cancelled.",
+        "This workflow has no deployment, release publishing or narrated-demo step.",
+        "Requiring CI Status before merge is a separate GitHub repository setting."
+      ]
+    }
+  ]
+}

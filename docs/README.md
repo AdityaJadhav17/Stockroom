@@ -17,6 +17,7 @@ The documents are grouped by purpose. Start with the [MVP](planning/mvp.md) for 
 | Document | Contents |
 | --- | --- |
 | [Architecture](development/architecture.md) | Application structure, records, transitions, and transactions |
+| [Architecture diagrams](diagrams/README.md) | Interactive runtime, data, purchase lifecycle, and CI diagrams with source links |
 | [Setup](development/setup.md) | Prerequisites, local setup, demo dataset, reset, checks, and CI |
 | [GitHub repository setup](development/github-repository-setup.md) | Community files and GitHub settings |
 | [Test structure](../tests/README.md) | Unit, integration, E2E, and fixture projects |

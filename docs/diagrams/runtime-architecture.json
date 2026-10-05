@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Stockroom: runtime architecture",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/runtime-architecture.html",
+    "repository": {
+      "url": "https://github.com/AdityaJadhav17/Stockroom.git",
+      "revision": "0f30ae226eed742bbb5a989898279db2bdac2cae",
+      "provider": "github",
+      "link_mode": "web"
+    }
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "external",
+      "label": "Member / Manager",
+      "sublabel": "Browser: forms and tables",
+      "pos": [
+        20,
+        260
+      ],
+      "size": [
+        210,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Pages/Shared/_Layout.cshtml",
+          "line": 10,
+          "end_line": 49,
+          "label": "Rendered navigation and forms"
+        }
+      ]
+    },
+    {
+      "id": "pipeline",
+      "type": "security",
+      "label": "Request pipeline",
+      "sublabel": "Sessions, roles, headers",
+      "pos": [
+        320,
+        260
+      ],
+      "size": [
+        210,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Program.cs",
+          "line": 17,
+          "end_line": 57,
+          "label": "Identity, sessions and page policy"
+        },
+        {
+          "path": "src/Stockroom.Web/Program.cs",
+          "line": 67,
+          "end_line": 79,
+          "label": "Middleware and endpoints"
+        }
+      ],
+      "tag": "POST antiforgery + login limiter"
+    },
+    {
+      "id": "identity",
+      "type": "security",
+      "label": "ASP.NET Core Identity",
+      "sublabel": "Users, roles, security stamps",
+      "pos": [
+        935,
+        40
+      ],
+      "size": [
+        210,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Program.cs",
+          "line": 17,
+          "end_line": 28,
+          "label": "EF stores and stamp validation"
+        },
+        {
+          "path": "src/Stockroom.Web/Pages/Account/Logout.cshtml.cs",
+          "line": 22,
+          "end_line": 52,
+          "label": "Account-wide logout revocation"
+        }
+      ]
+    },
+    {
+      "id": "pages",
+      "type": "frontend",
+      "label": "Razor Pages",
+      "sublabel": "Dashboard, forms, history",
+      "pos": [
+        620,
+        260
+      ],
+      "size": [
+        210,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Pages/Requests/Review.cshtml.cs",
+          "line": 10,
+          "end_line": 30,
+          "label": "Manager handlers call service"
+        },
+        {
+          "path": "src/Stockroom.Web/Pages/Inventory/Index.cshtml.cs",
+          "line": 16,
+          "end_line": 25,
+          "label": "Inventory queries"
+        },
+        {
+          "path": "src/Stockroom.Web/Pages/History/Index.cshtml.cs",
+          "line": 16,
+          "end_line": 24,
+          "label": "History queries"
+        }
+      ],
+      "tag": "Actor comes from signed-in user"
+    },
+    {
+      "id": "services",
+      "type": "backend",
+      "label": "Purchase + Stock services",
+      "sublabel": "Rules and atomic stock writes",
+      "pos": [
+        620,
+        500
+      ],
+      "size": [
+        240,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Services/PurchaseService.cs",
+          "line": 141,
+          "end_line": 191,
+          "label": "Approved receipt transaction"
+        },
+        {
+          "path": "src/Stockroom.Web/Services/StockService.cs",
+          "line": 14,
+          "end_line": 55,
+          "label": "Manager and sufficient-stock checks"
+        },
+        {
+          "path": "src/Stockroom.Web/Services/ServiceGuard.cs",
+          "line": 19,
+          "end_line": 46,
+          "label": "Database roles and failure handling"
+        }
+      ],
+      "tag": "Recheck roles in database"
+    },
+    {
+      "id": "ef",
+      "type": "backend",
+      "label": "EF Core / AppDbContext",
+      "sublabel": "Queries, constraints, transactions",
+      "pos": [
+        935,
+        500
+      ],
+      "size": [
+        235,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Data/AppDbContext.cs",
+          "line": 8,
+          "end_line": 13,
+          "label": "Identity and application records"
+        },
+        {
+          "path": "src/Stockroom.Web/Data/AppDbContext.cs",
+          "line": 19,
+          "end_line": 82,
+          "label": "Constraints, foreign keys and index"
+        },
+        {
+          "path": "src/Stockroom.Web/Program.cs",
+          "line": 10,
+          "end_line": 12,
+          "label": "SQLite provider registration"
+        }
+      ]
+    },
+    {
+      "id": "sqlite",
+      "type": "database",
+      "label": "SQLite file",
+      "sublabel": "Inventory, requests, audit, users",
+      "pos": [
+        935,
+        760
+      ],
+      "size": [
+        235,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/appsettings.json",
+          "line": 1,
+          "end_line": 4,
+          "label": "Local database file"
+        },
+        {
+          "path": "src/Stockroom.Web/Program.cs",
+          "line": 10,
+          "end_line": 22,
+          "label": "Provider and Identity persistence"
+        }
+      ],
+      "tag": "Local demo; no hosted database"
+    },
+    {
+      "id": "errors",
+      "type": "backend",
+      "label": "Controlled error pages",
+      "sublabel": "Browser receives no stack trace",
+      "pos": [
+        320,
+        500
+      ],
+      "size": [
+        210,
+        80
+      ],
+      "sources": [
+        {
+          "path": "src/Stockroom.Web/Program.cs",
+          "line": 67,
+          "end_line": 73,
+          "label": "Exception and status code handling"
+        },
+        {
+          "path": "src/Stockroom.Web/SecurityPolicy.cs",
+          "line": 57,
+          "end_line": 89,
+          "label": "Fallback when error page also fails"
+        }
+      ],
+      "tag": "Diagnostics stay in server log"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "One ASP.NET Core application process",
+      "wraps": [
+        "pipeline",
+        "identity",
+        "pages",
+        "services",
+        "ef",
+        "errors"
+      ],
+      "pad": 28
+    }
+  ],
+  "connections": [
+    {
+      "id": "browser-to-pipeline",
+      "from": "browser",
+      "to": "pipeline",
+      "variant": "emphasis",
+      "label": "HTTP forms"
+    },
+    {
+      "id": "pipeline-to-pages",
+      "from": "pipeline",
+      "to": "pages",
+      "variant": "security",
+      "label": "authorize"
+    },
+    {
+      "id": "pipeline-to-identity",
+      "from": "pipeline",
+      "to": "identity",
+      "variant": "security",
+      "label": "stamp check"
+    },
+    {
+      "id": "identity-to-ef",
+      "from": "identity",
+      "to": "ef",
+      "variant": "default",
+      "label": "Identity stores"
+    },
+    {
+      "id": "pages-to-services",
+      "from": "pages",
+      "to": "services",
+      "variant": "emphasis",
+      "label": "validated POST"
+    },
+    {
+      "id": "pages-to-ef",
+      "from": "pages",
+      "to": "ef",
+      "variant": "default",
+      "label": "inventory read"
+    },
+    {
+      "id": "services-to-ef",
+      "from": "services",
+      "to": "ef",
+      "variant": "emphasis",
+      "label": "EF writes"
+    },
+    {
+      "id": "ef-to-sqlite",
+      "from": "ef",
+      "to": "sqlite",
+      "variant": "emphasis",
+      "label": "SQL + transactions"
+    },
+    {
+      "id": "pipeline-to-errors",
+      "from": "pipeline",
+      "to": "errors",
+      "variant": "dashed",
+      "label": "on failure"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "One application, two roles",
+      "items": [
+        "Server-rendered Razor Pages and a same-origin stylesheet.",
+        "Members request supplies; Managers review, receive and issue.",
+        "Inventory reads use AppDbContext; request/history visibility lives in services."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Stock and audit commit together",
+      "items": [
+        "Receipt claims Approved -> Received before increasing stock.",
+        "Issue subtracts only where Quantity >= issued; history joins the transaction.",
+        "The receipt index permits one Receipt movement per request."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Security and operating limits",
+      "items": [
+        "Identity stamps are checked on each authenticated request; logout revokes all account sessions.",
+        "Busy errors return a retry message. Other database failures require checking the record before retrying.",
+        "This is a local demonstration. Public hosting, HTTPS enforcement and paging remain follow-up work."
+      ]
+    }
+  ]
+}

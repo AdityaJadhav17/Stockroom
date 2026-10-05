@@ -40,6 +40,8 @@ Open `http://localhost:5080` and log in as `member1@stockroom.test` or `manager@
 
 One Razor Pages application handles every request: `Browser -> Razor Page -> C# service -> EF Core -> SQLite`, with ASP.NET Core Identity for accounts. The services own the business rules. Each stock change and its history record commit in one transaction, and conditional updates stop competing requests from adding a delivery twice or overselling. The [architecture page](docs/development/architecture.md) covers the records, transitions, and transaction design.
 
+Explore the [runtime architecture](docs/diagrams/runtime-architecture.html), [data design](docs/diagrams/data-design.html), [purchase lifecycle](docs/diagrams/purchase-lifecycle.html), and [CI workflow](docs/diagrams/ci-workflow.html). The [diagram guide](docs/diagrams/README.md) explains how to open them locally and identifies the source revision.
+
 ## Tests
 
 | Project | Cases | Covers |
