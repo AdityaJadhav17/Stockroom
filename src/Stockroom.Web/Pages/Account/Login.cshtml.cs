@@ -12,6 +12,9 @@ public class LoginModel(SignInManager<IdentityUser> signInManager, ILogger<Secur
 {
     public const string InvalidLoginMessage = "Invalid email or password.";
 
+    private static readonly IdentityUser TimingDummy = new();
+    private static string? timingDummyHash;
+
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
@@ -39,6 +42,18 @@ public class LoginModel(SignInManager<IdentityUser> signInManager, ILogger<Secur
         // The same steps as PasswordSignInAsync(userName, ...), with the account in hand for the security log.
         var client = SecurityEvents.ClientAddress(HttpContext);
         var user = await signInManager.UserManager.FindByNameAsync(Input.Email);
+        // Every attempt does one password check at the configured cost, so response time does not reveal whether
+        // an account exists or is locked (security review F-06). Identity skips the check for an unknown account and
+        // for an account that is locked out or not allowed to sign in, so those attempts verify a throwaway hash.
+        // ConstantCostPasswordHasher pads checks against older, lower-iteration hashes.
+        var skipsPasswordCheck = user is null
+            || await signInManager.UserManager.IsLockedOutAsync(user)
+            || !await signInManager.CanSignInAsync(user);
+        if (skipsPasswordCheck)
+        {
+            var hasher = signInManager.UserManager.PasswordHasher;
+            hasher.VerifyHashedPassword(TimingDummy, timingDummyHash ??= hasher.HashPassword(TimingDummy, Guid.NewGuid().ToString()), Input.Password);
+        }
         var result = user is null
             ? Microsoft.AspNetCore.Identity.SignInResult.Failed
             : await signInManager.PasswordSignInAsync(user, Input.Password, isPersistent: false, lockoutOnFailure: true);
