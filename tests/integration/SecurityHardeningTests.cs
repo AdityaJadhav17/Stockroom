@@ -1,10 +1,12 @@
 using System.Net;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Stockroom.Web;
 using Stockroom.Web.Data;
 using Stockroom.Web.Models;
@@ -12,7 +14,7 @@ using Stockroom.Web.Models;
 namespace Stockroom.IntegrationTests;
 
 // Regressions for the M7 security review: F-02 and F-08 (sessions), F-03 (login throttling),
-// and F-04 and F-09 (response headers and the antiforgery cookie).
+// F-04 and F-09 (response headers and cookies), F-06 (login timing), and F-14 (HTTP methods).
 [Collection("Security timing")]
 public sealed class SecurityHardeningTests : IAsyncLifetime
 {
@@ -220,6 +222,161 @@ public sealed class SecurityHardeningTests : IAsyncLifetime
 
         var antiforgery = Assert.Single(response.Headers.GetValues("Set-Cookie"), c => c.StartsWith(".AspNetCore.Antiforgery", StringComparison.Ordinal));
         Assert.Contains("; secure", antiforgery, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task CookiesAreSecureOutsideDevelopment()
+    {
+        // Outside Development both cookies always carry Secure, so a hosted run must reach the application over HTTPS.
+        await using var production = new StockroomFactory(environment: "Production");
+        await production.SeedAsync();
+        var client = production.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost"), AllowAutoRedirect = false });
+
+        var page = await client.GetAsync("/Account/Login", Ct);
+        var login = await StockroomFactory.LoginAsync(client, DemoSeeder.Member1Email, StockroomFactory.MemberPassword);
+
+        var antiforgery = Assert.Single(page.Headers.GetValues("Set-Cookie"), c => c.StartsWith(".AspNetCore.Antiforgery", StringComparison.Ordinal));
+        var session = Assert.Single(login.Headers.GetValues("Set-Cookie"), c => c.StartsWith(".AspNetCore.Identity.Application", StringComparison.Ordinal));
+        Assert.Contains("; secure", antiforgery, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("; secure", session, StringComparison.OrdinalIgnoreCase);
+
+        // Over plain HTTP the antiforgery system refuses to issue a token, so no cookie leaves without Secure.
+        var overHttp = await production.CreateBrowserClient().GetAsync("/Account/Login", Ct);
+        Assert.False(overHttp.Headers.TryGetValues("Set-Cookie", out var insecure) && insecure.Any(c => !c.Contains("; secure", StringComparison.OrdinalIgnoreCase)),
+            "A cookie was issued without Secure over HTTP.");
+    }
+
+    [Theory]
+    [InlineData("TRACE", "/")]
+    [InlineData("OPTIONS", "/Account/Login")]
+    [InlineData("PUT", "/Requests/Review/1")]
+    [InlineData("DELETE", "/")]
+    [InlineData("PATCH", "/Account/Login")]
+    public async Task OnlyGetHeadAndPostAreServed(string method, string path)
+    {
+        var response = await factory.CreateBrowserClient().SendAsync(new HttpRequestMessage(new HttpMethod(method), path), Ct);
+
+        Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
+        Assert.Equal(["GET", "HEAD", "POST"], response.Content.Headers.Allow);
+        Assert.Equal(["DENY"], response.Headers.GetValues("X-Frame-Options"));
+    }
+
+    [Fact]
+    public async Task UnknownEmailCostsTheSameHashCheckAsAWrongPassword()
+    {
+        var hasher = new CountingPasswordHasher();
+        await using var host = factory.WithWebHostBuilder(builder =>
+            builder.ConfigureServices(services => services.AddScoped<IPasswordHasher<IdentityUser>>(_ => hasher)));
+        var client = host.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+        await StockroomFactory.LoginAsync(client, "nobody@stockroom.test", "Wrong-Password-1!");
+        var unknownEmailChecks = hasher.Verifications;
+        await StockroomFactory.LoginAsync(client, DemoSeeder.Member1Email, "Wrong-Password-1!");
+
+        Assert.Equal(1, unknownEmailChecks);
+        Assert.Equal(2, hasher.Verifications);
+    }
+
+    [Fact]
+    public async Task LockedAccountCostsTheSameHashCheckAsAWrongPassword()
+    {
+        // Identity refuses a locked account before checking the password; the login page must still do one check.
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var users = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var member = (await users.FindByEmailAsync(DemoSeeder.Member2Email))!;
+            Assert.True((await users.SetLockoutEndDateAsync(member, DateTimeOffset.UtcNow.AddHours(1))).Succeeded);
+        }
+        var hasher = new CountingPasswordHasher();
+        await using var host = factory.WithWebHostBuilder(builder =>
+            builder.ConfigureServices(services => services.AddScoped<IPasswordHasher<IdentityUser>>(_ => hasher)));
+        var client = host.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+        await StockroomFactory.LoginAsync(client, DemoSeeder.Member2Email, "Wrong-Password-1!");
+        var wrongPasswordChecks = hasher.Verifications;
+        await StockroomFactory.LoginAsync(client, DemoSeeder.Member2Email, StockroomFactory.MemberPassword);
+
+        Assert.Equal(1, wrongPasswordChecks);
+        Assert.Equal(2, hasher.Verifications);
+    }
+
+    [Fact]
+    public async Task OlderHashesArePaddedToTheConfiguredCost()
+    {
+        await using var scope = factory.Services.CreateAsyncScope();
+        var hasher = Assert.IsType<ConstantCostPasswordHasher>(scope.ServiceProvider.GetRequiredService<IPasswordHasher<IdentityUser>>());
+        var user = new IdentityUser();
+        var legacy = new PasswordHasher<IdentityUser>(Options.Create(new PasswordHasherOptions { IterationCount = 100_000 }))
+            .HashPassword(user, "Older-Pass-1");
+
+        Assert.Equal(PasswordHashing.Iterations - 100_000, hasher.PaddingIterations(legacy));
+        Assert.Equal(0, hasher.PaddingIterations(hasher.HashPassword(user, "Current-Pass-1")));
+        Assert.Equal(PasswordHashing.Iterations, hasher.PaddingIterations("not a stored hash"));
+
+        var recording = new PaddingRecorder();
+        Assert.Equal(PasswordVerificationResult.Failed, recording.VerifyHashedPassword(user, legacy, "Wrong-Password-1!"));
+        Assert.Equal(PasswordVerificationResult.SuccessRehashNeeded, recording.VerifyHashedPassword(user, legacy, "Older-Pass-1"));
+        Assert.Equal(PasswordVerificationResult.Failed, recording.VerifyHashedPassword(user, recording.HashPassword(user, "Current-Pass-1"), "Wrong-Password-1!"));
+        // Only the failed check against the older hash is padded, by exactly the missing iterations.
+        Assert.Equal([PasswordHashing.Iterations - 100_000], recording.Padded);
+    }
+
+    private sealed class PaddingRecorder()
+        : ConstantCostPasswordHasher(Options.Create(new PasswordHasherOptions { IterationCount = PasswordHashing.Iterations }))
+    {
+        public List<int> Padded { get; } = [];
+
+        protected override void Pad(string providedPassword, int iterations) => Padded.Add(iterations);
+    }
+
+    [Fact]
+    public async Task SessionEndsAtTheAbsoluteLifetimeEvenWhileActive()
+    {
+        var clock = new ManualClock(DateTimeOffset.UtcNow);
+        await using var host = factory.WithWebHostBuilder(builder => builder.ConfigureServices(services =>
+        {
+            services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, options => options.TimeProvider = clock);
+            services.Configure<SecurityStampValidatorOptions>(options => options.TimeProvider = clock);
+        }));
+        var client = host.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        await StockroomFactory.LoginAsync(client, DemoSeeder.Member1Email, StockroomFactory.MemberPassword);
+
+        // A request every 50 minutes keeps the one-hour idle timeout from ending the session first.
+        var step = TimeSpan.FromMinutes(50);
+        var elapsed = TimeSpan.Zero;
+        while (elapsed + step < SessionPolicy.AbsoluteLifetime)
+        {
+            clock.Advance(step);
+            elapsed += step;
+            Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/", Ct)).StatusCode);
+        }
+        clock.Advance(SessionPolicy.AbsoluteLifetime - elapsed);
+        var expired = await client.GetAsync("/", Ct);
+
+        Assert.Equal("/Account/Login", expired.Headers.Location?.AbsolutePath);
+    }
+
+    private sealed class ManualClock(DateTimeOffset start) : TimeProvider
+    {
+        private DateTimeOffset now = start;
+
+        public override DateTimeOffset GetUtcNow() => now;
+
+        public void Advance(TimeSpan by) => now += by;
+    }
+
+    private sealed class CountingPasswordHasher()
+        : PasswordHasher<IdentityUser>(Options.Create(new PasswordHasherOptions { IterationCount = PasswordHashing.Iterations }))
+    {
+        private int verifications;
+
+        public int Verifications => verifications;
+
+        public override PasswordVerificationResult VerifyHashedPassword(IdentityUser user, string hashedPassword, string providedPassword)
+        {
+            Interlocked.Increment(ref verifications);
+            return base.VerifyHashedPassword(user, hashedPassword, providedPassword);
+        }
     }
 
     // A slow runner can reach a checkpoint late. Keep the original schedule, but never pass a negative delay.

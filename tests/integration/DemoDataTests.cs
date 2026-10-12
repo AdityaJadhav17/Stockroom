@@ -357,6 +357,90 @@ public sealed class DemoDataTests : IAsyncLifetime
         Assert.Null(DemoSeeder.ResetTargetError($"Data Source={factory.DatabasePath}", out _));
     }
 
+    [Fact]
+    public void ResetTargetRejectsALinkToADatabase()
+    {
+        var link = Path.Combine(Path.GetTempPath(), $"stockroom-link-{Guid.NewGuid():N}.db");
+        try
+        {
+            File.CreateSymbolicLink(link, factory.DatabasePath);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Windows creates symbolic links only for administrators or with Developer Mode on.
+            Assert.Skip($"This account cannot create symbolic links: {ex.Message}");
+        }
+        try
+        {
+            Assert.Contains("is a link", DemoSeeder.ResetTargetError($"Data Source={link}", out _));
+            Assert.True(File.Exists(factory.DatabasePath));
+        }
+        finally
+        {
+            File.Delete(link);
+        }
+    }
+
+    [Fact]
+    public void ResetTargetRejectsADatabaseBehindALinkedFolder()
+    {
+        var folder = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), $"stockroom-real-{Guid.NewGuid():N}"));
+        var link = Path.Combine(Path.GetTempPath(), $"stockroom-linked-{Guid.NewGuid():N}");
+        var database = Path.Combine(folder.FullName, "stockroom.db");
+        File.WriteAllBytes(database, []);
+        try
+        {
+            try
+            {
+                Directory.CreateSymbolicLink(link, folder.FullName);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Assert.Skip($"This account cannot create symbolic links: {ex.Message}");
+            }
+            Assert.Contains("is a link", DemoSeeder.ResetTargetError($"Data Source={Path.Combine(link, "stockroom.db")}", out _));
+            Assert.True(File.Exists(database));
+        }
+        finally
+        {
+            if (Directory.Exists(link))
+            {
+                Directory.Delete(link);
+            }
+            folder.Delete(recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ResetTargetRejectsADatabaseBehindAJunction()
+    {
+        // Junctions need no special privilege on Windows, so this case always runs there.
+        Assert.SkipUnless(OperatingSystem.IsWindows(), "Directory junctions exist only on Windows.");
+        var folder = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), $"stockroom-real-{Guid.NewGuid():N}"));
+        var junction = Path.Combine(Path.GetTempPath(), $"stockroom-junction-{Guid.NewGuid():N}");
+        var database = Path.Combine(folder.FullName, "stockroom.db");
+        File.WriteAllBytes(database, []);
+        try
+        {
+            using (var mklink = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("cmd.exe", ["/c", "mklink", "/J", junction, folder.FullName])
+                { RedirectStandardOutput = true, UseShellExecute = false })!)
+            {
+                mklink.WaitForExit();
+                Assert.Equal(0, mklink.ExitCode);
+            }
+            Assert.Contains("is a link", DemoSeeder.ResetTargetError($"Data Source={Path.Combine(junction, "stockroom.db")}", out _));
+            Assert.True(File.Exists(database));
+        }
+        finally
+        {
+            if (Directory.Exists(junction))
+            {
+                Directory.Delete(junction);
+            }
+            folder.Delete(recursive: true);
+        }
+    }
+
     private static Task<int> RunCommandAsync(StockroomFactory target, bool reset, TextWriter output, TextWriter error) =>
         DemoSeeder.RunCommandAsync(target.Services, target.Services.GetRequiredService<IHostEnvironment>(), reset, output, error);
 

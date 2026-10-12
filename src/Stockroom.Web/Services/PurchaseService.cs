@@ -145,6 +145,8 @@ public sealed class PurchaseService(AppDbContext db, ILogger<PurchaseService> lo
             {
                 return ServiceGuard.Refuse(securityLog, receiverId, $"receive purchase request {requestId}", "the Manager role", requestId);
             }
+            // Read inside the transaction, so the values used below come from the same database state as the claim.
+            await using var transaction = await db.Database.BeginTransactionAsync();
             var request = await db.PurchaseRequests.AsNoTracking()
                 .Where(r => r.Id == requestId)
                 .Select(r => new { r.ItemId, r.Quantity, r.Item!.Unit })
@@ -155,7 +157,6 @@ public sealed class PurchaseService(AppDbContext db, ILogger<PurchaseService> lo
             }
 
             var now = DateTime.UtcNow;
-            await using var transaction = await db.Database.BeginTransactionAsync();
             var claimed = await db.PurchaseRequests
                 .Where(r => r.Id == requestId && r.Status == RequestStatus.Approved)
                 .ExecuteUpdateAsync(s => s

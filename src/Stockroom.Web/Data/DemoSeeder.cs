@@ -134,6 +134,19 @@ public static class DemoSeeder
         {
             return $"{path} is a directory.";
         }
+        // A symbolic link or junction, on the file or any folder above it, would make the delete act on a file
+        // outside the checked path. LinkTarget ignores other reparse points, such as cloud-synced folders.
+        if (File.Exists(path) && new FileInfo(path).LinkTarget is not null)
+        {
+            return $"{path} is a link. Reset deletes only a regular file.";
+        }
+        for (var folder = new FileInfo(path).Directory; folder is not null; folder = folder.Parent)
+        {
+            if (folder.Exists && folder.LinkTarget is not null)
+            {
+                return $"{folder.FullName} is a link. Reset deletes only a file whose folders are not links.";
+            }
+        }
         if (File.Exists(path))
         {
             try
