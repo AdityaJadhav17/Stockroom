@@ -4,6 +4,8 @@ Date: 2026-10-04
 
 Status: Accepted. Implements part of the [security review](../security/security-review.md) remediation plan.
 
+Update 2026-10-11: the hardening follow-up added an eight-hour absolute session lifetime, `Secure` cookies and HSTS outside Development, equal hash work for unknown emails, locked accounts, and older hashes (F-06), a reset check for linked folders,, and a 405 response for methods other than GET, HEAD, and POST. The [security review status](../security/security-review.md#remediation-status) records the details; the decisions below describe M7.
+
 ## Context
 
 The M7 review found that logout left copied cookies valid while they kept being used (F-02), that role changes reached an existing cookie only after 30 minutes (F-08), that an anonymous caller could lock the Manager account (F-03), and that authenticated pages sent no anti-framing or other security headers (F-04, F-09).

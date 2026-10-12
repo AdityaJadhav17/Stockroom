@@ -65,7 +65,7 @@ The PNG previews are visible directly on GitHub. The [diagram guide](docs/diagra
 
 | Project | Cases | Covers |
 | --- | --- | --- |
-| [Integration](tests/integration/README.md) | 165 | Business rules, authorization, request ownership, transactions, races, rollback, lock handling, sessions, security-event logging, password hashing, seed, and reset against SQLite |
+| [Integration](tests/integration/README.md) | 178 | Business rules, authorization, request ownership, transactions, races, rollback, lock handling, sessions, security-event logging, password hashing, seed, and reset against SQLite |
 | [Browser](tests/e2e/README.md) | 11 | Purchase, rejection, withdrawal, access, restart persistence, phone layout, and keyboard focus in Chromium |
 | [Unit](tests/unit/README.md) | 0 | Scaffold only; the integration tests cover the input rules |
 
@@ -94,10 +94,10 @@ The [security review](docs/security/security-review.md) lists the M7 audit findi
 
 ## Known limitations
 
-- The application targets a local demonstration: no hosting configuration, HTTPS redirection, or HSTS.
+- The application targets a local demonstration: no hosting configuration or HTTPS redirection. Outside Development it sends HSTS over HTTPS and marks both cookies `Secure`, so a hosted run must reach the application over HTTPS.
 - History and request lists have no paging.
 - `seed --reset` deletes the database before reseeding; if seeding then failed, the database stays empty until the next reset.
-- One client can lock an account after about 100 seconds of failed logins, and clients behind one address share the login limit. An active session renews without an absolute time limit.
+- One client can lock an account after about 100 seconds of failed logins, and clients behind one address share the login limit. A session ends eight hours after sign-in, even while in use.
 - Item administration, multi-item orders, partial receipts, cancellations, stock corrections, suppliers, email, registration, and password recovery are outside the MVP.
 
 The [draft v1.0.0 release notes](docs/releases/v1.0.0.md) list the release evidence and open items.
