@@ -98,7 +98,7 @@ Keep source under `src/Stockroom.Web/` and tests under `tests/`. Do not add plac
 
 Use [tests/README.md](../../tests/README.md) for project responsibilities. `Directory.Packages.props` contains direct package versions, and each project has a `packages.lock.json`. `Directory.Build.props` enables NuGet Audit for direct and transitive packages at low severity and above. `NuGet.Config` uses the official package and audit sources.
 
-To change packages, edit the central versions, run `dotnet restore Stockroom.slnx --force-evaluate`, inspect lock-file changes, then run `scripts/Test-Dependencies.ps1`. The script restores in locked mode and fails on source errors or advisories. A fresh checkout needs network access to NuGet and its audit feed. Build after changing versions.
+To change packages, edit the central versions, run `dotnet restore Stockroom.slnx --force-evaluate`, inspect lock-file changes, then run `scripts/Test-Dependencies.ps1`. The script refreshes restore and audit results in locked mode without rewriting lock files. A mismatch between central versions and lock files fails the check, as do source errors or advisories. A fresh checkout needs network access to NuGet and its audit feed. Build after changing versions.
 
 ## Repository checks and CI
 

@@ -8,7 +8,8 @@ $solution = Join-Path $repositoryRoot 'Stockroom.slnx'
 
 Push-Location $repositoryRoot
 try {
-    dotnet restore $solution --locked-mode --force-evaluate --verbosity minimal
+    # Refresh restore and audit results without regenerating lock files. --force-evaluate overrides locked mode.
+    dotnet restore $solution --locked-mode --force --verbosity minimal
     if ($LASTEXITCODE -ne 0) {
         throw 'Dependency restore or vulnerability audit failed. Resolve reported advisories or source errors.'
     }
